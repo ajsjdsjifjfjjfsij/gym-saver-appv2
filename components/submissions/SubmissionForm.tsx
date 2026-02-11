@@ -59,8 +59,13 @@ export default function SubmissionForm() {
             setImage(null);
         } catch (err: any) {
             console.error("Error submitting:", err);
-            setError("Failed to submit. Please try again.");
+            if (err.message?.includes("permission-denied") || err.code === "permission-denied") {
+                setError("Security Error: You do not have permission to perform this action. Please ensure you are logged in correctly.");
+            } else {
+                setError("Failed to submit. Please try again.");
+            }
         } finally {
+
             setLoading(false);
         }
     };

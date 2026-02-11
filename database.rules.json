@@ -2,9 +2,9 @@
   "rules": {
     "gym_prices": {
       ".read": true,
-      ".write": false
+      ".write": "auth != null && auth.token.email == 'josephbunton@live.co.uk'"
     },
-    ".read": "auth != null",
-    ".write": "auth != null"
+    ".read": false,
+    ".write": false
   }
 }
