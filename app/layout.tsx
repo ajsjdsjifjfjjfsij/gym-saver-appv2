@@ -86,7 +86,6 @@ export default async function RootLayout({
       disableTransitionOnChange
     >
       <JsonLd />
-      <SplashScreen />
       <AnalysisChecker />
       {children}
       {/* <Analytics /> */}
@@ -99,6 +98,7 @@ export default async function RootLayout({
         <AuthProvider>
           {isSearchEngine ? content : (
             <BotGuard>
+              <SplashScreen />
               {content}
             </BotGuard>
           )}
