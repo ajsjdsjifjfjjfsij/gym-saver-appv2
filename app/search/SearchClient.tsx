@@ -114,7 +114,7 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
   const [showCompareTooltip, setShowCompareTooltip] = useState(false)
 
   // Live Firebase Prices
-  const { prices: livePrices, error: firebaseError } = useGymPrices()
+  const { prices: livePrices, loading: firebaseLoading, error: firebaseError } = useGymPrices()
 
   // Check for first-time user tooltip
   useEffect(() => {
@@ -304,6 +304,11 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
         return false
       }
 
+      // Sync Filter: Only show gyms that have synced data in Firebase (synced from APIFinder)
+      if (!livePrices[gym.id]) {
+        return false
+      }
+
       // Saved filter
       if (showSavedOnly && !savedGyms.some(g => g.id === gym.id)) {
         return false
@@ -436,8 +441,8 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
   // Mobile view state
   const [activeView, setActiveView] = useState<"map" | "list">("list")
 
-  // Show loading only during initial auth check
-  if (authLoading) {
+  // Show loading only during initial auth/price check
+  if (authLoading || firebaseLoading) {
     return (
       <div className="h-screen w-full flex items-center justify-center bg-black">
         <Loader2 className="h-10 w-10 text-[#6BD85E] animate-spin" />
