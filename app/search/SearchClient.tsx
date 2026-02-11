@@ -305,12 +305,22 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
       }
 
       // Sync Filter: Only show gyms that have synced data in Firebase (synced from APIFinder)
-      // We check both the direct key match and a secondary search in values to be robust against ID mismatches
+      // We check both the direct key match and a secondary fuzzy search in values
+      // to be robust against ID mismatches and naming variations.
       const directMatch = livePrices[gym.id];
-      const hasLivePrice = !!directMatch || Object.values(livePrices).some(lp =>
-        (lp as any).placeid === gym.id ||
-        ((lp as any).gymname && (lp as any).gymname.toLowerCase() === gym.name.toLowerCase())
-      );
+      const hasLivePrice = !!directMatch || Object.values(livePrices).some(lp => {
+        const lpData = lp as any;
+        // 1. Check for legacy placeid field match
+        if (lpData.placeid === gym.id) return true;
+
+        // 2. Case-insensitive fuzzy name match (substring)
+        // This handles cases like "PureGym London Wall" vs "PureGym"
+        const gName = gym.name.toLowerCase();
+        const fName = (lpData.gymname || "").toLowerCase();
+        if (fName && (gName.includes(fName) || fName.includes(gName))) return true;
+
+        return false;
+      });
 
       if (!hasLivePrice) {
         return false
@@ -448,8 +458,9 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
   // Mobile view state
   const [activeView, setActiveView] = useState<"map" | "list">("list")
 
-  // Show loading only during initial auth/price check
-  if (authLoading || firebaseLoading) {
+  // Show loading only during initial auth check
+  // We no longer block on firebaseLoading to ensure the app structure appears immediately
+  if (authLoading) {
     return (
       <div className="h-screen w-full flex items-center justify-center bg-black">
         <Loader2 className="h-10 w-10 text-[#6BD85E] animate-spin" />
