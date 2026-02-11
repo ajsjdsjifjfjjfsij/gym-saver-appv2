@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server"
+
+export const dynamic = "force-static";
 import { exec } from "child_process"
 import { promisify } from "util"
 

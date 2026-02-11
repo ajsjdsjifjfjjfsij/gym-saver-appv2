@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">GymSaver</string>
+    <string name="title_activity_main">GymSaver</string>
+    <string name="package_name">com.gymsaverapp.app</string>
+    <string name="custom_url_scheme">com.gymsaverapp.app</string>
+</resources>

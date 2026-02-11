@@ -251,7 +251,8 @@ export default function GymSaverApp() {
       const baseSecret = process.env.NEXT_PUBLIC_APP_SECRET || "gymsaver-secure-v1"
       const dynamicToken = btoa(`${baseSecret}:${ts}`)
 
-      const res = await fetch(`/api/gyms?${params.toString()}`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ""
+      const res = await fetch(`${apiUrl}/api/gyms?${params.toString()}`, {
         headers: {
           "x-gymsaver-app-secret": dynamicToken
         }

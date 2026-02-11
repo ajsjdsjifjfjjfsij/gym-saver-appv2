@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server"
 
+export const dynamic = "force-static";
+
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY
 const BASE_URL = "https://maps.googleapis.com/maps/api/place"
 
