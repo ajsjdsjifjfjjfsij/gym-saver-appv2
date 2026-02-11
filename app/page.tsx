@@ -28,7 +28,7 @@ export default function LandingPage() {
                     <div className="relative h-10 w-[280px] flex items-center justify-start overflow-visible">
                         <Image
                             src="/images/gymsaver_header_logo.png"
-                            alt="GymSaver"
+                            alt="GymSaver - Compare Gym Prices & Find Deals"
                             width={600}
                             height={160}
                             className="h-auto w-[280px] object-contain absolute left-0 top-1/2 -translate-y-1/2 z-10"
@@ -72,7 +72,7 @@ export default function LandingPage() {
                     </div>
 
                     <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-8 bg-gradient-to-b from-white to-gray-400 bg-clip-text text-transparent pb-2">
-                        The Comparison App <br /> For <span className="text-[#6BD85E]">Gyms</span>
+                        GymSaver: The Best <br /> <span className="text-[#6BD85E]">Gym Comparison</span> App
                     </h1>
 
                     <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
@@ -105,7 +105,7 @@ export default function LandingPage() {
                         <div className="aspect-[16/9] rounded-xl overflow-hidden bg-zinc-900 relative group selection:bg-none">
                             <Image
                                 src="/images/gymsaver_product_preview.png"
-                                alt="GymSaver Product Preview"
+                                alt="GymSaver - Find Cheap Gym Memberships & Local Fitness Deals"
                                 fill
                                 className="object-cover group-hover:scale-[1.02] transition-transform duration-700"
                                 priority
@@ -119,8 +119,8 @@ export default function LandingPage() {
             <section id="features" className="py-24 bg-zinc-950">
                 <div className="container max-w-6xl mx-auto px-6">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-5xl font-bold mb-4">Everything you need</h2>
-                        <p className="text-gray-400 max-w-xl mx-auto">Stop overpaying. We aggregate data from major chains and independent gyms to bring you price transparency.</p>
+                        <h2 className="text-3xl md:text-5xl font-bold mb-4">Gym Comparison Made Simple</h2>
+                        <p className="text-gray-400 max-w-xl mx-auto">Stop overpaying for fitness. We aggregate data from major UK chains and independent gyms to bring you total price transparency.</p>
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-8">
@@ -184,7 +184,7 @@ export default function LandingPage() {
                         >
                             <Image
                                 src="/images/official_logo.png"
-                                alt="GymSaver"
+                                alt="GymSaver - Save Money on Gym Memberships"
                                 width={180}
                                 height={48}
                                 className="h-auto w-full object-contain opacity-90 hover:opacity-100 transition-opacity"

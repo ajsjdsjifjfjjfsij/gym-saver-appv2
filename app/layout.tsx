@@ -12,12 +12,24 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'GymSaver - Find & Save Gyms Near You',
-  description: 'gymsaver one search, every price, zero over paying',
-  generator: 'v0.app',
+  metadataBase: new URL('https://www.gymsaverapp.com'),
+  title: {
+    default: 'GymSaver | Compare Gym Prices, Find Deals & Save Money',
+    template: '%s | GymSaver'
+  },
+  description: 'Compare gym prices across the UK. One search to find the best gym deals, membership prices, and fitness offers near you. Save money on your next gym membership with GymSaver.',
+  keywords: ['gym prices', 'compare gyms', 'gym deals', 'uk gyms', 'fitness memberships', 'cheap gyms', 'gym saver'],
+  authors: [{ name: 'GymSaver Team' }],
+  creator: 'GymSaver',
+  publisher: 'GymSaver',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   openGraph: {
-    title: 'GymSaver - Compare Gym Prices & Save Money',
-    description: 'gymsaver one search, every price, zero over paying',
+    title: 'GymSaver | Compare Gym Prices & Save Money',
+    description: 'Find the best gym deals and membership prices near you. One search, every price, zero over-paying.',
     url: 'https://www.gymsaverapp.com',
     siteName: 'GymSaver',
     images: [
@@ -25,7 +37,7 @@ export const metadata: Metadata = {
         url: '/opengraph-image.png',
         width: 1200,
         height: 630,
-        alt: 'GymSaver App Preview',
+        alt: 'GymSaver - Compare Gym Prices',
       },
     ],
     locale: 'en_GB',
@@ -33,13 +45,26 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'GymSaver - Compare Gym Prices & Save Money',
-    description: 'gymsaver one search, every price, zero over paying',
+    title: 'GymSaver | Compare Gym Prices & Save Money',
+    description: 'Find the best gym deals and membership prices near you. Save money with GymSaver.',
     images: ['/opengraph-image.png'],
+    creator: '@gymsaverapp',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 }
 
 import { BotGuard } from '@/components/BotGuard'
+import { JsonLd } from '@/components/JsonLd'
 
 export default function RootLayout({
   children,
@@ -57,6 +82,7 @@ export default function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
+              <JsonLd />
               <SplashScreen />
               <AnalysisChecker />
               {children}
