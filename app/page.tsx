@@ -45,7 +45,7 @@ export default function LandingPage() {
                         </Button>
                         <Button
                             className="bg-[#6BD85E] text-black hover:bg-[#5bc250] font-bold rounded-full px-6"
-                            onClick={() => router.push(user ? "/search" : "/signup")}
+                            onClick={() => router.push("/search")}
                         >
                             <span className="flex items-center justify-center w-full h-full">
                                 <span className="relative">
@@ -83,7 +83,7 @@ export default function LandingPage() {
                         <Button
                             size="lg"
                             className="h-14 px-8 min-w-[210px] text-lg font-bold bg-[#6BD85E] text-black hover:bg-[#5bc250] rounded-full w-full sm:w-auto shadow-[0_0_20px_rgba(107,216,94,0.3)] hover:shadow-[0_0_30px_rgba(107,216,94,0.5)] transition-all"
-                            onClick={() => router.push(user ? "/search" : "/signup")}
+                            onClick={() => router.push("/search")}
                         >
                             <span className="flex items-center justify-center">
                                 <span className="relative">
@@ -164,7 +164,7 @@ export default function LandingPage() {
                     <Button
                         size="lg"
                         className="h-16 px-10 text-xl font-bold bg-white text-black hover:bg-gray-200 rounded-full shadow-lg"
-                        onClick={() => router.push(user ? "/search" : "/signup")}
+                        onClick={() => router.push("/search")}
                     >
                         Enter Web App
                     </Button>
