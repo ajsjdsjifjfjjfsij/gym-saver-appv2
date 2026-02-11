@@ -1,0 +1,10 @@
+{
+  "rules": {
+    "gym_prices": {
+      ".read": true,
+      ".write": false
+    },
+    ".read": "auth != null",
+    ".write": "auth != null"
+  }
+}

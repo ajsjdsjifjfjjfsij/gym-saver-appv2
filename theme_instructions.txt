@@ -1,0 +1,118 @@
+PASTE YOUR THEME INSTRUCTIONS AND CODE HERE
+✅ PART 1 — Create Your Theme File
+
+Step 1: Open Theme / Styles in Antigravity
+
+In Antigravity:
+	1.	Open your project
+	2.	Go to Design / Styles / Theme Manager
+	3.	Click + New Theme
+	4.	Create two themes:
+• Carbon Pro (Dark)
+• Fresh Mint (Light)
+
+⸻
+
+✅ PART 2 — Carbon Pro (Dark Theme)
+
+Step 2: Set Global Colors (Carbon Pro)
+
+Background: #0E1114
+Surface Cards: #161B1F
+Primary Accent (Green): #21E17C
+Text Primary: #FFFFFF
+Text Secondary: #A7B0B7
+Borders / Lines: #2A3138
+Buttons: #1F2A23
+
+➡️ In Antigravity:
+• Click Theme → Colors
+• Add each color above
+• Assign:
+	•	Background → App Background
+	•	Primary Accent → Buttons, icons, highlights
+	•	Text Primary → Titles
+	•	Text Secondary → Subtext
+
+Step 3: Typography (Carbon Pro)
+
+Title / Headings:
+Font: Inter / SF Pro / Poppins
+Weight: Bold
+
+Body Text:
+Font: Inter / SF Pro / Poppins
+Weight: Regular
+
+➡️ In Antigravity:
+• Go to Text Styles
+• Set:
+	•	H1 / H2 → Bold
+	•	Body → Regular
+
+Step 4: Buttons (Carbon Pro)
+
+Primary buttons 
+
+Background: #21E17C
+Text: #0E1114
+Radius: 14–18px
+Shadow: Soft
+
+Secondary Button:
+
+Background: Transparent
+Border: #21E17C
+Text: #21E17C
+
+PART 3 — Fresh Mint (Light Theme)
+
+Now repeat for your Light Theme.
+
+Step 5: Set Global Colors (Fresh Mint)
+
+Background: #F4F8F6
+Surface Cards: #FFFFFF
+Primary Accent (Mint): #42CFA2
+Text Primary: #1A1F23
+Text Secondary: #6B747C
+Borders / Lines: #DDE5E0
+Buttons: #42CFA2
+
+Assign same as before:
+• Background → App background
+• Primary → Buttons, icons
+• Text → Titles + body
+
+Step 6: Buttons (Fresh Mint)
+
+Primary Button:
+
+Background: #42CFA2
+Text: #FFFFFF
+Radius: 14–18px
+
+Secondary:
+
+Background: #FFFFFF
+Border: #42CFA2
+Text: #42CFA2
+
+✅ PART 4 — Connect Theme Toggle
+
+Step 7: Add Theme Switch
+
+In your Settings screen:
+	1.	Add a Toggle Switch
+	2.	Label it:
+👉 Dark Mode
+	3.	Set Action:
+• If ON → Apply Theme: Carbon Pro
+• If OFF → Apply Theme: Fresh Mint
+
+✅ PART 5 — Apply To Screens
+
+Step 8: Apply Themes Globally
+
+--------------------------------------------
+(After pasting, save this file and let me know)

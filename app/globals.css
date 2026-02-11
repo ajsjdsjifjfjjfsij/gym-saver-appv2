@@ -1,0 +1,217 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* LIGHT MODE - FRESH MINT */
+  --background: 150 25% 96%;
+  /* #F4F8F6 */
+  --foreground: 207 15% 12%;
+  /* #1A1F23 */
+
+  --card: 0 0% 100%;
+  /* #FFFFFF */
+  --card-foreground: 207 15% 12%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 207 15% 12%;
+
+  --primary: 161 62% 54%;
+  /* #42CFA2 */
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 0 0% 100%;
+  /* White for secondary buttons per instructions */
+  --secondary-foreground: 161 62% 54%;
+
+  --muted: 150 10% 90%;
+  --muted-foreground: 208 7% 45%;
+  /* #6B747C */
+
+  --accent: 150 10% 90%;
+  --accent-foreground: 207 15% 12%;
+
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 144 15% 88%;
+  /* #DDE5E0 */
+  --input: 144 15% 88%;
+  --ring: 161 62% 54%;
+  --radius: 1rem;
+}
+
+.dark {
+  /* DARK MODE - CARBON PRO */
+  --background: 210 18% 7%;
+  /* #0E1114 */
+  --foreground: 0 0% 100%;
+  /* #FFFFFF */
+
+  --card: 207 17% 10%;
+  /* #161B1F */
+  --card-foreground: 0 0% 100%;
+
+  --popover: 207 17% 10%;
+  --popover-foreground: 0 0% 100%;
+
+  --primary: 148 76% 51%;
+  /* #21E17C */
+  --primary-foreground: 210 18% 7%;
+  /* Dark text on bright green */
+
+  --secondary: 207 17% 10%;
+  --secondary-foreground: 148 76% 51%;
+
+  --muted: 210 14% 19%;
+  --muted-foreground: 206 8% 69%;
+  /* #A7B0B7 */
+
+  --accent: 210 14% 19%;
+  --accent-foreground: 0 0% 100%;
+
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 210 14% 19%;
+  /* #2A3138 */
+  --input: 210 14% 19%;
+  --ring: 148 76% 51%;
+}
+
+@layer utilities {
+
+  /* POLISHED GLASS - "Crystal" feel */
+  .glass {
+    @apply bg-white/60 dark:bg-black/40 backdrop-blur-xl border border-white/20 dark:border-white/5 shadow-2xl;
+    background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
+  }
+
+  /* GLASS CARD - Deep Gloss */
+  .glass-card {
+    @apply bg-white/40 dark:bg-card/30 backdrop-blur-2xl border border-white/20 dark:border-white/5 shadow-2xl transition-all duration-500;
+    /* Specular highlight on top border and more subtle shadows */
+    box-shadow:
+      0 10px 40px -10px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+  }
+
+  /* AMBIENT NEON GLOW - Multi-layered for depth */
+  .neon-glow-card {
+    box-shadow:
+      0 0 20px rgba(107, 216, 94, 0.3),
+      0 0 40px rgba(107, 216, 94, 0.15),
+      0 0 60px rgba(107, 216, 94, 0.1) !important;
+    border: 1px solid rgba(74, 222, 128, 0.5) !important;
+  }
+
+  /* PREMIUM GLASS - Dark, heavy blur for headers/tabs */
+  .glass-premium {
+    @apply bg-black/60 backdrop-blur-xl border-b border-white/10 shadow-lg;
+    /* Subtle noise or gradient could be added here if needed */
+  }
+
+  /* GLOSSY TAB - Liquid appearance */
+  .glass-tab {
+    @apply relative overflow-hidden rounded-full bg-black/5 dark:bg-white/5 backdrop-blur-md border border-white/20 shadow-inner;
+  }
+
+  .glass-tab-active {
+    @apply bg-white dark:bg-primary text-black dark:text-primary-foreground shadow-md border border-transparent;
+    /* Add a subtle shine to the active button */
+    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), transparent);
+  }
+
+  /* PREMIUM INTERACTIVE BOX */
+  .box-outline {
+    @apply border border-black/5 dark:border-white/10 shadow-lg bg-white/40 dark:bg-black/40 hover:border-primary/50 dark:hover:border-primary/50 transition-all duration-500 hover:bg-white/60 dark:hover:bg-black/60 hover:-translate-y-0.5;
+  }
+
+  /* PREMIUM UTILITIES */
+  .premium-lift {
+    @apply transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/20;
+  }
+
+  .text-glow-subtle {
+    text-shadow: 0 0 10px rgba(74, 222, 128, 0.3);
+  }
+}
+
+@theme inline {
+  --font-sans: 'Geist', 'Geist Fallback';
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  /* Apply the dynamic background here */
+  body {
+    @apply bg-background text-foreground selection:bg-primary/30 selection:text-primary-foreground;
+  }
+
+  /* Shine Animation */
+  @keyframes shine {
+    to {
+      background-position: 200% center;
+    }
+  }
+
+  .animate-shine {
+    animation: shine 4s linear infinite;
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 1.5s ease-out forwards;
+  }
+
+  /* Hide Google Maps UI Elements */
+  .gmnoprint,
+  .gm-style-cc {
+    display: none !important;
+  }
+
+  /* Specifically hide Keyboard Shortcuts button */
+  button[title="Keyboard shortcuts"],
+  button[aria-label="Keyboard shortcuts"] {
+    display: none !important;
+  }
+}
