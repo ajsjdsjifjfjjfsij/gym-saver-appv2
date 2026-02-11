@@ -407,14 +407,20 @@ export default function GymSaverApp() {
 
   // Load saved gyms from localStorage on mount
   useEffect(() => {
-    getUserLocation()
+    // SEO Enhancement: If it's a search engine, provide a default location immediately
+    // to prevent "Location Required" thin content errors (Soft 404)
+    const { isSearchEngineBot } = require("@/lib/bot-detection");
+    if (isSearchEngineBot()) {
+      console.log("🤖 SEO: Search Engine detected, providing default location (London)");
+      setUserLocation({ lat: 51.5074, lng: -0.1278 }); // London
+    } else {
+      getUserLocation()
+    }
+
     const saved = localStorage.getItem("savedGyms")
     if (saved) {
       setSavedGyms(JSON.parse(saved))
     }
-    // Also load compared gyms if we want to restore session?
-    // For now, we usually start empty or maybe restore?
-    // Let's stick to simple session flow for now, but saving to LS is needed for the next page.
   }, [])
 
   // Save to localStorage when savedGyms changes

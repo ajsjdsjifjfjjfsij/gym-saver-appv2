@@ -3,19 +3,23 @@
  * Designed to detect common automation frameworks and headless browsers.
  */
 
+export const isSearchEngineBot = (): boolean => {
+    if (typeof window === "undefined") return false;
+    const ua = window.navigator.userAgent.toLowerCase();
+    const searchEngines = ["googlebot", "bingbot", "slurp", "duckduckbot", "baiduspider", "yandexbot", "crawler"];
+    return searchEngines.some(bot => ua.includes(bot));
+}
+
 export const isBot = (): boolean => {
     if (typeof window === "undefined") return false;
 
-    const nav = window.navigator;
-    const ua = nav.userAgent.toLowerCase();
-
     // 0. Search Engine Allowlist
-    const searchEngines = ["googlebot", "bingbot", "slurp", "duckduckbot", "baiduspider", "yandexbot", "crawler"];
-    if (searchEngines.some(bot => ua.includes(bot))) {
+    if (isSearchEngineBot()) {
         return false;
     }
 
-    // 1. Basic Webdriver Check
+    const nav = window.navigator;
+    // ...
     if (nav.webdriver) return true;
 
     // 2. Headless Chrome Heuristics
