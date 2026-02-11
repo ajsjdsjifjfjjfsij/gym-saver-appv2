@@ -305,7 +305,14 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
       }
 
       // Sync Filter: Only show gyms that have synced data in Firebase (synced from APIFinder)
-      if (!livePrices[gym.id]) {
+      // We check both the direct key match and a secondary search in values to be robust against ID mismatches
+      const directMatch = livePrices[gym.id];
+      const hasLivePrice = !!directMatch || Object.values(livePrices).some(lp =>
+        (lp as any).placeid === gym.id ||
+        ((lp as any).gymname && (lp as any).gymname.toLowerCase() === gym.name.toLowerCase())
+      );
+
+      if (!hasLivePrice) {
         return false
       }
 
