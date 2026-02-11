@@ -65,30 +65,43 @@ export const metadata: Metadata = {
 
 import { BotGuard } from '@/components/BotGuard'
 import { JsonLd } from '@/components/JsonLd'
+import { headers } from 'next/headers'
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const headersList = await headers()
+  const userAgent = headersList.get('user-agent')?.toLowerCase() || ''
+
+  const searchEngines = ["googlebot", "bingbot", "slurp", "duckduckbot", "baiduspider", "yandexbot", "crawler"]
+  const isSearchEngine = searchEngines.some(bot => userAgent.includes(bot))
+
+  const content = (
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="dark"
+      enableSystem
+      disableTransitionOnChange
+    >
+      <JsonLd />
+      <SplashScreen />
+      <AnalysisChecker />
+      {children}
+      {/* <Analytics /> */}
+    </ThemeProvider>
+  )
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`font-sans antialiased`} suppressHydrationWarning>
         <AuthProvider>
-          <BotGuard>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="dark"
-              enableSystem
-              disableTransitionOnChange
-            >
-              <JsonLd />
-              <SplashScreen />
-              <AnalysisChecker />
-              {children}
-              {/* <Analytics /> */}
-            </ThemeProvider>
-          </BotGuard>
+          {isSearchEngine ? content : (
+            <BotGuard>
+              {content}
+            </BotGuard>
+          )}
         </AuthProvider>
       </body>
     </html>

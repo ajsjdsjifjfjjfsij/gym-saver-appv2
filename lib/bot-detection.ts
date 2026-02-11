@@ -7,6 +7,13 @@ export const isBot = (): boolean => {
     if (typeof window === "undefined") return false;
 
     const nav = window.navigator;
+    const ua = nav.userAgent.toLowerCase();
+
+    // 0. Search Engine Allowlist
+    const searchEngines = ["googlebot", "bingbot", "slurp", "duckduckbot", "baiduspider", "yandexbot", "crawler"];
+    if (searchEngines.some(bot => ua.includes(bot))) {
+        return false;
+    }
 
     // 1. Basic Webdriver Check
     if (nav.webdriver) return true;
