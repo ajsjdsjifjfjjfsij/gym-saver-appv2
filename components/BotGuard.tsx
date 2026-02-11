@@ -4,10 +4,24 @@ import React, { useEffect, useState } from "react"
 import { isBot } from "@/lib/bot-detection"
 import { ShieldAlert, Loader2 } from "lucide-react"
 
-export const BotGuard = ({ children }: { children: React.ReactNode }) => {
+interface BotGuardProps {
+    children: React.ReactNode;
+    serverBotDetected?: boolean;
+}
+
+export const BotGuard = ({ children, serverBotDetected = false }: BotGuardProps) => {
     const [isBlocked, setIsBlocked] = useState<boolean | null>(null)
 
     useEffect(() => {
+        // 0. If server already detected a bot, immediately unblock
+        // This is a safety catch in case the layout rendered us but think it's a bot
+        // though logic usually skips BotGuard entirely if serverBotDetected is true.
+        if (serverBotDetected) {
+            console.log("🛡️ BotGuard: Server bypass signal received.")
+            setIsBlocked(false)
+            return
+        }
+
         // 1. Check persistent block
         if (typeof window !== 'undefined' && localStorage.getItem('gs_security_blocked') === 'true') {
             setIsBlocked(true)
@@ -22,7 +36,7 @@ export const BotGuard = ({ children }: { children: React.ReactNode }) => {
             console.log("🛡️ BotGuard: User verified.")
             setIsBlocked(false)
         }
-    }, [])
+    }, [serverBotDetected])
 
     if (isBlocked === true) {
         return (

@@ -3,11 +3,30 @@
  * Designed to detect common automation frameworks and headless browsers.
  */
 
-export const isSearchEngineBot = (): boolean => {
-    if (typeof window === "undefined") return false;
-    const ua = window.navigator.userAgent.toLowerCase();
-    const searchEngines = ["googlebot", "bingbot", "slurp", "duckduckbot", "baiduspider", "yandexbot", "crawler"];
-    return searchEngines.some(bot => ua.includes(bot));
+export const SEARCH_ENGINE_BOTS = [
+    "google",
+    "bing",
+    "slurp",
+    "duckduckbot",
+    "baiduspider",
+    "yandex",
+    "sogou",
+    "crawler",
+    "lighthouse",
+    "adsbot",
+    "mediapartners",
+    "storebot",
+    "facebot",
+    "twitterbot",
+    "linkedinbot",
+    "slackbot"
+];
+
+export const isSearchEngineBot = (userAgent?: string): boolean => {
+    if (typeof window === "undefined" && !userAgent) return false;
+    const ua = (userAgent || (typeof window !== "undefined" ? window.navigator.userAgent : "")).toLowerCase();
+    if (!ua) return false;
+    return SEARCH_ENGINE_BOTS.some(bot => ua.includes(bot));
 }
 
 export const isBot = (): boolean => {

@@ -76,10 +76,10 @@ export default async function RootLayout({
   children: React.ReactNode
 }>) {
   const headersList = await headers()
-  const userAgent = headersList.get('user-agent')?.toLowerCase() || ''
+  const userAgent = headersList.get('user-agent') || ''
 
-  const searchEngines = ["googlebot", "bingbot", "slurp", "duckduckbot", "baiduspider", "yandexbot", "crawler"]
-  const isSearchEngine = searchEngines.some(bot => userAgent.includes(bot))
+  const { isSearchEngineBot } = require('@/lib/bot-detection')
+  const isSearchEngine = isSearchEngineBot(userAgent)
 
   const content = (
     <ThemeProvider
@@ -100,7 +100,7 @@ export default async function RootLayout({
       <body className={`font-sans antialiased`} suppressHydrationWarning>
         <AuthProvider>
           {isSearchEngine ? content : (
-            <BotGuard>
+            <BotGuard serverBotDetected={isSearchEngine}>
               <SplashScreen />
               {content}
             </BotGuard>
