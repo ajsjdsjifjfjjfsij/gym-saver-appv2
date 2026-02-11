@@ -449,8 +449,8 @@ export function GymMap({ gyms, selectedGym, onGymSelect, userLocation }: GymMapP
       // Use custom marker image
       const markerIcon = {
         url: '/gym-location-marker.png',
-        scaledSize: new google.maps.Size(40, 53),
-        anchor: new google.maps.Point(20, 53),
+        scaledSize: new google.maps.Size(60, 80),
+        anchor: new google.maps.Point(30, 80),
       };
 
       gyms.forEach((gym) => {
