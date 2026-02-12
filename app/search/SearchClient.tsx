@@ -305,6 +305,7 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
         return false
       }
 
+      /*
       // Sync Filter: Only show gyms that have synced data in Firebase (synced from APIFinder)
       // We check both the direct key match and a secondary fuzzy search in values
       // to be robust against ID mismatches and naming variations.
@@ -326,6 +327,7 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
       if (!hasLivePrice) {
         return false
       }
+      */
 
       // Saved filter
       if (showSavedOnly && !savedGyms.some(g => g.id === gym.id)) {
