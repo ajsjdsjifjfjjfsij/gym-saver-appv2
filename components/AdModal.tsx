@@ -56,7 +56,7 @@ export function AdModal() {
                         onClick={handleAction}
                         className="
                         group relative overflow-hidden rounded-2xl transition-all duration-500 cursor-pointer flex flex-col sm:flex-row h-auto sm:h-40
-                        premium-lift
+                        premium-lift bg-[#0a0a0a]
                         neon-glow-card glass-card
                     ">
 
