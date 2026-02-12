@@ -607,7 +607,7 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
             <>
               {/* Left Panel: Gym List (Scrollable) */}
               <div className={`
-                flex flex-col bg-background z-10 transition-transform duration-300 ease-in-out
+                flex flex-col bg-background z-20 transition-transform duration-300 ease-in-out
                 w-full md:w-[60%] shrink-0 border-r border-white/5
                 ${activeView === "list" ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
                 absolute inset-0 md:relative md:transform-none
@@ -636,35 +636,38 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
                       {filteredGyms.map((gym, index) => {
                         const isFirst = index === 0;
                         return (
-                          <Tooltip key={gym.id} open={isFirst && showCompareTooltip}>
-                            <TooltipTrigger asChild>
-                              <div>
-                                <GymCard
-                                  gym={gym}
-                                  isSelected={selectedGym?.id === gym.id}
-                                  isSaved={savedGyms.some(g => g.id === gym.id)}
-                                  isCompared={comparedGyms.some(g => g.id === gym.id)}
-                                  onSelect={() => {
-                                    setSelectedGym(gym)
-                                  }}
-                                  onToggleSave={() => toggleSaveGym(gym)}
-                                  onToggleCompare={() => toggleCompare(gym)}
-                                  onAuthRequired={handleAuthRequired}
-                                  livePrice={livePrices[gym.id]}
-                                />
-                              </div>
-                            </TooltipTrigger>
-                            {isFirst && (
-                              <TooltipContent
-                                side="top"
-                                align="end"
-                                className="bg-[#6BD85E] text-black font-bold border-0"
-                                onPointerDownOutside={handleTooltipDismiss}
-                              >
-                                <p>Select two gyms to compare them side by side!</p>
-                              </TooltipContent>
-                            )}
-                          </Tooltip>
+                          <div key={gym.id} className="flex flex-col gap-4">
+                            {index === 4 && <AdBanner />}
+                            <Tooltip open={isFirst && showCompareTooltip}>
+                              <TooltipTrigger asChild>
+                                <div>
+                                  <GymCard
+                                    gym={gym}
+                                    isSelected={selectedGym?.id === gym.id}
+                                    isSaved={savedGyms.some(g => g.id === gym.id)}
+                                    isCompared={comparedGyms.some(g => g.id === gym.id)}
+                                    onSelect={() => {
+                                      setSelectedGym(gym)
+                                    }}
+                                    onToggleSave={() => toggleSaveGym(gym)}
+                                    onToggleCompare={() => toggleCompare(gym)}
+                                    onAuthRequired={handleAuthRequired}
+                                    livePrice={livePrices[gym.id]}
+                                  />
+                                </div>
+                              </TooltipTrigger>
+                              {isFirst && (
+                                <TooltipContent
+                                  side="top"
+                                  align="end"
+                                  className="bg-[#6BD85E] text-black font-bold border-0"
+                                  onPointerDownOutside={handleTooltipDismiss}
+                                >
+                                  <p>Select two gyms to compare them side by side!</p>
+                                </TooltipContent>
+                              )}
+                            </Tooltip>
+                          </div>
                         )
                       })}
                     </div>
