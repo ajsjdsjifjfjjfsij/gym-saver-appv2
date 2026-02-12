@@ -430,17 +430,16 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
     }
   }
 
-  // Load saved gyms from localStorage on mount
+  // Initial fetch using default location or user location if available
   useEffect(() => {
-    if (!userLocation) {
-      getUserLocation()
+    // If we have a user location, fetch nearby immediately
+    if (userLocation) {
+      fetchGyms(userLocation.lat, userLocation.lng, searchQuery, filters.type)
+    } else {
+      // Fallback: Try to get location again if not set, but don't block
+      getUserLocation();
     }
-
-    const saved = localStorage.getItem("savedGyms")
-    if (saved) {
-      setSavedGyms(JSON.parse(saved))
-    }
-  }, [])
+  }, [userLocation?.lat, userLocation?.lng, searchQuery, filters.type]) // Deep compare location props
 
   // Save to localStorage when savedGyms changes
   useEffect(() => {

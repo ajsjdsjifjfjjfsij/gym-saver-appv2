@@ -19,11 +19,15 @@ export function AdModal() {
     const router = useRouter()
 
     useEffect(() => {
-        const hasSeenAd = localStorage.getItem("hasSeenPartnerPackageAd")
-        if (!hasSeenAd) {
+        // Check for demo mode or unseen status
+        const searchParams = new URLSearchParams(window.location.search);
+        const isDemo = searchParams.get("demo") === "true";
+        const hasSeenAd = localStorage.getItem("hasSeenPartnerPackageAd");
+
+        if (isDemo || !hasSeenAd) {
             const timer = setTimeout(() => {
                 setIsOpen(true)
-            }, 1500) // 1.5s delay
+            }, 1000) // Reduced delay to 1s for snappier feel
             return () => clearTimeout(timer)
         }
     }, [])
