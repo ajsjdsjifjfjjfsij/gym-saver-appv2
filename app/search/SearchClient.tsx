@@ -8,6 +8,7 @@ import { GymFilters } from "@/components/gym-filters"
 import { GymCard } from "@/components/gym-card"
 import { HoneypotGym } from "@/components/HoneypotGym"
 import { AdBanner } from "@/components/ad-banner"
+import { AdModal } from "@/components/AdModal"
 import { CompareBar } from "@/components/compare-bar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -725,6 +726,7 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
           onOpenChange={setShowAuthModal}
           onSignUp={handleSignUp}
         />
+        <AdModal />
       </div>
     </TooltipProvider>
   )
