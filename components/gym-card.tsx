@@ -182,10 +182,10 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
               <MapPin className="h-3 w-3 shrink-0" />
               {gym.address}
             </p>
-            {gym.latestOffer && (
+            {(gym.latestOffer || livePrice?.latestOffer) && (
               <div className="mt-1 flex items-center">
                 <span className="text-[10px] font-bold text-black bg-[#6BD85E] px-2 py-0.5 rounded-full shadow-sm blink-soft">
-                  {gym.latestOffer}
+                  {livePrice?.latestOffer || gym.latestOffer}
                 </span>
               </div>
             )}
@@ -248,23 +248,32 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
             <div className="flex items-baseline gap-1">
               <span className="text-[10px] font-light text-slate-500 uppercase tracking-tighter">
                 {(() => {
-                  const { isEstimate } = getGymPrice(gym, livePrice);
+                  const { isEstimate, monthly } = getGymPrice(gym, livePrice);
+                  if (monthly === undefined) return "Unknown";
                   return isEstimate ? "From" : "Verified";
                 })()}
               </span>
               <span className={`text-lg font-black ${(() => {
-                const { isEstimate } = getGymPrice(gym, livePrice);
+                const { isEstimate, monthly } = getGymPrice(gym, livePrice);
+                if (monthly === undefined) return "text-slate-500 text-sm";
                 return isEstimate ? "text-white" : "text-[#6BD85E]";
               })()}`}>
-                £{(() => {
+                {(() => {
                   const { monthly } = getGymPrice(gym, livePrice);
-                  return monthly.toFixed(2);
+                  if (monthly === undefined) return "Prices coming soon";
+                  return `£${monthly.toFixed(2)}`;
                 })()}
               </span>
-              <span className="text-[10px] text-slate-500 font-light">/mo</span>
               {(() => {
-                const { joiningFee } = getGymPrice(gym, livePrice);
-                if (joiningFee !== undefined && joiningFee > 0) {
+                const { monthly } = getGymPrice(gym, livePrice);
+                if (monthly !== undefined) {
+                  return <span className="text-[10px] text-slate-500 font-light">/mo</span>
+                }
+                return null;
+              })()}
+              {(() => {
+                const { joiningFee, monthly } = getGymPrice(gym, livePrice);
+                if (monthly !== undefined && joiningFee !== undefined && joiningFee > 0) {
                   return (
                     <span className="text-[9px] text-slate-400 ml-1">
                       + £{joiningFee.toFixed(2)}

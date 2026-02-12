@@ -112,15 +112,11 @@ export function getGymPrice(gym: Gym, livePrice?: GymPrice) {
         return { monthly: 19.99, joiningFee: 0, isEstimate: true };
     }
 
-    // 3. Generic Price Level Fallback (Lowest Priority)
-    let monthly = 29.99;
-    if (gym.priceLevel === "1" || gym.priceLevel === "£") monthly = 19.99;
-    else if (gym.priceLevel === "2" || gym.priceLevel === "££") monthly = 29.99;
-    else if (gym.priceLevel === "3" || gym.priceLevel === "£££") monthly = 45.99;
-    else if (gym.priceLevel === "4" || gym.priceLevel === "££££") monthly = 79.99;
+    // 3. Generic Price Level Fallback (Lowest Priority) - REMOVED per user request
+    // If no live price and no hardcoded chain match, return null to show "Prices coming soon"
 
     return {
-        monthly,
+        monthly: undefined, // undefined indicates "Prices coming soon"
         joiningFee: 0,
         isEstimate: true
     };

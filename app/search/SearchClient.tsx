@@ -1,5 +1,5 @@
 "use client"
-// Deployment trigger: 2026-02-11T02:12:00Z - Sync after email update
+// Deployment trigger: 2026-02-12T21:50:00Z - Switch to Firestore-only search
 
 import { useState, useEffect, useMemo } from "react"
 import { Header } from "@/components/header"
@@ -7,8 +7,6 @@ import { GymMap } from "@/components/gym-map"
 import { GymFilters } from "@/components/gym-filters"
 import { GymCard } from "@/components/gym-card"
 import { HoneypotGym } from "@/components/HoneypotGym"
-import { AdBanner } from "@/components/ad-banner"
-import { AdModal } from "@/components/AdModal"
 import { CompareBar } from "@/components/compare-bar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -25,6 +23,28 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { collection, getDocs, query, orderBy, limit, where } from "firebase/firestore"
+import { db } from "@/lib/firebase"
+
+export async function fetchGymsFromFirestore(centerLat: number, centerLng: number) {
+  if (!db) return [];
+
+  // ~0.5 degree is roughly 35 miles latitude. 
+  // Longitude varies but this is a safe "rough" box for fetching candidates.
+  const latDelta = 0.5;
+  const minLat = centerLat - latDelta;
+  const maxLat = centerLat + latDelta;
+
+  const q = query(
+    collection(db, "gyms"),
+    where("lat", ">=", minLat),
+    where("lat", "<=", maxLat),
+    orderBy("lat"), // Required when filtering by inequality on 'lat'
+    limit(100) // Fetch more candidates to filter by lng/distance client-side
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+}
 interface Gym {
   id: string
   name: string
@@ -43,15 +63,6 @@ interface Gym {
   user_ratings_total?: number
   googleMapsUri?: string
 }
-
-// ... lines 25-115 ... (Sample Data needs updating? Optional but good for mock)
-
-// ...
-
-
-// Sample gym data
-// Sample gym data (UK Default)
-const sampleGyms: Gym[] = []
 
 function calculateDistance(
   lat1: number,
@@ -77,10 +88,6 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
   const router = useRouter()
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
-
-  // No longer blocking guests - they can browse freely
-
-
 
   const handleAuthRequired = () => {
     setShowAuthModal(true)
@@ -167,114 +174,98 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
     setComparedGyms([]);
   };
 
-
-
-
-  // Fetch gyms from API
+  // Fetch gyms from Firestore ONLY
   const fetchGyms = async (lat: number, lng: number, query?: string, type?: string) => {
     setLoading(true)
     setError(null)
 
-    // Determine keyword based on type filter if no explicit query
-    let effectiveQuery = query;
-    if (!effectiveQuery) {
-      if (type === 'pilates') effectiveQuery = 'pilates';
-      else if (type === '24hr') effectiveQuery = '24 hour gym';
-      else if (type === 'spa') effectiveQuery = 'hotel with gym spa wellness';
-      else effectiveQuery = 'gym';
-    }
-
-    const fetchClientSide = () => {
-      return new Promise<void>((resolve) => {
-        if (typeof window !== "undefined" && window.google?.maps?.places) {
-          console.log("Attempting client-side Places fetch for:", effectiveQuery);
-          const service = new google.maps.places.PlacesService(document.createElement('div'));
-          const request = {
-            location: { lat, lng },
-            radius: 5000,
-            type: 'gym',
-            keyword: effectiveQuery // this executes the actual specialized search
-          };
-
-          service.nearbySearch(request, (results, status) => {
-            if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-              console.log("Client-side fetch success:", results.length, "results");
-              const mappedGyms: Gym[] = results.map(place => ({
-                id: place.place_id || Math.random().toString(),
-                name: place.name || "Unknown Gym",
-                address: place.vicinity || "Unknown Address",
-                rating: place.rating || 0,
-                type: "Gym", // Places API doesn't give a simple type string easily in this view
-                priceLevel: place.price_level ? "£".repeat(place.price_level) : "££",
-                lat: place.geometry?.location?.lat() || lat,
-                lng: place.geometry?.location?.lng() || lng,
-                distance: calculateDistance(lat, lng, place.geometry?.location?.lat() || lat, place.geometry?.location?.lng() || lng),
-                photo_reference: place.photos?.[0]?.getUrl(),
-                // open_now: place.opening_hours?.isOpen(), // Removed as not in Gym interface or update interface
-                photos: place.photos?.map(p => p.getUrl() || '') || [],
-                user_ratings_total: place.user_ratings_total,
-                googleMapsUri: place.url
-              }));
-              setGyms(mappedGyms);
-              resolve();
-            } else {
-              console.warn("Client-side fetch failed or empty:", status);
-              useSampleData();
-              resolve();
-            }
-          });
-        } else {
-          console.warn("Google Maps SDK not ready for client-side fetch");
-          useSampleData();
-          resolve();
-        }
-      });
-    }
-
-    const useSampleData = () => {
-      console.warn("Using sample data fallback.");
-      const gymsWithDistance = sampleGyms.map(gym => ({
-        ...gym,
-        distance: calculateDistance(lat, lng, gym.lat, gym.lng)
-      }));
-      setGyms(gymsWithDistance)
-    }
-
     try {
-      // First try Server API
-      const params = new URLSearchParams({
-        lat: lat.toString(),
-        lng: lng.toString(),
-      })
-      if (effectiveQuery) params.append("query", effectiveQuery)
+      console.log(`Fetching gyms near ${lat}, ${lng}...`)
+      // Pass coordinates to the new geo-query function
+      const firestoreGymsData = await fetchGymsFromFirestore(lat, lng);
 
-      const ts = Math.floor(Date.now() / 1000 / 60) // Current minute
-      const baseSecret = process.env.NEXT_PUBLIC_APP_SECRET || "gymsaver-secure-v1"
-      const dynamicToken = btoa(`${baseSecret}:${ts}`)
+      let filteredData = firestoreGymsData;
 
-      // Use relative path for web to avoid CORS issues with prod URL on localhost
-      // Capacitor/Mobile might need the full URL, but for now we assume relative works for web
-      const isWeb = typeof window !== 'undefined' && !window.Capacitor;
-      const apiUrl = isWeb ? "" : (process.env.NEXT_PUBLIC_API_URL || "");
+      // 1. Client-side Longitude Filter (Approximate bounding box completion)
+      // We only filtered by Latitude in Firestore. valid Lng range is also needed.
+      // safely: +/- 0.8 to be slightly wider than lat delta due to projection aspect ratio in UK
+      const lngDelta = 0.8;
+      filteredData = filteredData.filter((g: any) => {
+        return g.lng >= (lng - lngDelta) && g.lng <= (lng + lngDelta);
+      });
 
-      const res = await fetch(`${apiUrl}/api/gyms?${params.toString()}`, {
-        headers: {
-          "x-gymsaver-app-secret": dynamicToken
-        }
-      })
-      const data = await res.json()
-
-      if (data.results && data.results.length > 0) {
-        setGyms(data.results)
-      } else {
-        // Fallback to client-side if server returns empty (e.g. mock mode warning)
-        await fetchClientSide();
+      // Determine effective query based on type if no explicit query
+      let effectiveQuery = query;
+      if (!effectiveQuery) {
+        if (type === 'pilates') effectiveQuery = 'pilates';
+        else if (type === '24hr') effectiveQuery = '24 hour gym';
+        else if (type === 'spa') effectiveQuery = 'spa';
       }
+
+      // 2. Filter by: city == <searchTerm> OR name contains <searchTerm>
+      // (Keep existing text search logic if user types something)
+      if (effectiveQuery && effectiveQuery.trim().length > 0) {
+        const lowerQuery = effectiveQuery.toLowerCase().trim();
+        filteredData = filteredData.filter((g: any) => {
+          const name = (g.name || "").toLowerCase();
+          const city = (g.city || "").toLowerCase();
+          const cityMatch = city === lowerQuery;
+          const nameMatch = name.includes(lowerQuery);
+          return cityMatch || nameMatch;
+        });
+      }
+
+      // 3. Sort by lowest_price ascending (Client Side)
+      filteredData.sort((a: any, b: any) => {
+        // Calculate price for A
+        let priceA = a.lowest_price;
+        if (priceA === undefined && a.memberships && Array.isArray(a.memberships) && a.memberships.length > 0) {
+          priceA = Math.min(...a.memberships.map((m: any) => m.price));
+        }
+        if (priceA === undefined) priceA = Number.MAX_VALUE;
+
+        // Calculate price for B
+        let priceB = b.lowest_price;
+        if (priceB === undefined && b.memberships && Array.isArray(b.memberships) && b.memberships.length > 0) {
+          priceB = Math.min(...b.memberships.map((m: any) => m.price));
+        }
+        if (priceB === undefined) priceB = Number.MAX_VALUE;
+
+        return priceA - priceB;
+      });
+
+      // 4. Limit results to 20 (User Request)
+      filteredData = filteredData.slice(0, 20);
+
+      if (!filteredData || filteredData.length === 0) {
+        console.log("No gyms found in Firestore matching query.");
+        setGyms([]);
+        return;
+      }
+
+      const firestoreGyms: Gym[] = filteredData.map((g: any) => ({
+        id: g.place_id || g.id,
+        name: g.name || "Unknown Gym",
+        address: g.location || g.city || "Unknown Address",
+        rating: 0,
+        type: "Gym",
+        priceLevel: g.memberships && g.memberships.length > 0 ? "££" : "££",
+        lat: lat,
+        lng: lng,
+        distance: 0,
+        latestOffer: g.offers,
+        location: g.location,
+      }));
+
+      console.log(`Loaded ${firestoreGyms.length} gyms from Firestore after filter.`);
+      setGyms(firestoreGyms);
+
     } catch (err) {
-      console.error("Failed to fetch gyms from server", err)
-      // Fallback to client-side
-      await fetchClientSide();
-    } finally {
+      console.error("Critical error in fetchGyms (Firestore Only)", err)
+      setError("Failed to load gyms. Please try again later.")
+      setGyms([]);
+    }
+    finally {
       setLoading(false)
     }
   }
@@ -301,10 +292,13 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
   const filteredGyms = useMemo(() => {
     return gymsWithDistance.filter((gym) => {
       // Search filter
-      // Search filter - STRICT NAME ONLY
+      // Search filter - Name OR Address
+      // Since fetchGyms already filters, this is mostly for immediate feedback or strictness.
+      // We align it with fetchGyms logic: Name contains OR Address/City contains
       if (
         searchQuery &&
-        !gym.name.toLowerCase().includes(searchQuery.toLowerCase())
+        !gym.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        !gym.address.toLowerCase().includes(searchQuery.toLowerCase())
       ) {
         return false
       }
@@ -628,7 +622,7 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
                   {filteredGyms.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12 text-center border border-dashed border-white/10 rounded-2xl bg-secondary/20">
                       <p className="text-muted-foreground mb-2">
-                        {showSavedOnly ? "No saved gyms found." : "No gyms match your filters."}
+                        {showSavedOnly ? "No saved gyms found." : "No gyms found in your database for this area yet."}
                       </p>
                       <Button
                         variant="link"
@@ -647,8 +641,6 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
                         const isFirst = index === 0;
                         return (
                           <div key={gym.id} className="flex flex-col gap-4">
-                            {/* Insert Ad after 5th item */}
-                            {index === 4 && <AdBanner />}
 
                             <Tooltip open={isFirst && showCompareTooltip}>
                               <TooltipTrigger asChild>
@@ -682,12 +674,6 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
                           </div>
                         )
                       })}
-                      {/* If fewer than 5 results, show ad at the end */}
-                      {filteredGyms.length < 5 && filteredGyms.length > 0 && (
-                        <div className="mt-4">
-                          <AdBanner />
-                        </div>
-                      )}
                     </div>
                   )}
                 </div>
@@ -748,7 +734,6 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
           onOpenChange={setShowAuthModal}
           onSignUp={handleSignUp}
         />
-        <AdModal />
       </div>
     </TooltipProvider>
   )
