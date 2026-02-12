@@ -48,7 +48,15 @@ export default function OffersPage() {
             <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-500/5 blur-[120px] rounded-full pointer-events-none" />
             <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] bg-[#6BD85E]/5 blur-[100px] rounded-full pointer-events-none" />
 
-            <Header variant="app" />
+            <Header
+                variant="app"
+                searchQuery=""
+                onSearchChange={() => { }}
+                savedCount={0}
+                onToggleSavedView={() => { }}
+                showSavedOnly={false}
+                onAuthRequired={() => router.push("/login")}
+            />
 
             <main className="max-w-7xl mx-auto px-6 pt-32 pb-20 relative z-10">
                 <div className="flex flex-col items-center text-center mb-16 space-y-6">
