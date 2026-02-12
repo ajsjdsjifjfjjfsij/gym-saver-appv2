@@ -252,7 +252,11 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
       const baseSecret = process.env.NEXT_PUBLIC_APP_SECRET || "gymsaver-secure-v1"
       const dynamicToken = btoa(`${baseSecret}:${ts}`)
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ""
+      // Use relative path for web to avoid CORS issues with prod URL on localhost
+      // Capacitor/Mobile might need the full URL, but for now we assume relative works for web
+      const isWeb = typeof window !== 'undefined' && !window.Capacitor;
+      const apiUrl = isWeb ? "" : (process.env.NEXT_PUBLIC_API_URL || "");
+
       const res = await fetch(`${apiUrl}/api/gyms?${params.toString()}`, {
         headers: {
           "x-gymsaver-app-secret": dynamicToken
@@ -313,18 +317,24 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
       if (!firebaseLoading && Object.keys(livePrices).length > 0) {
         const directMatch = livePrices[gym.id];
 
-        // Optional: Fuzzy match if direct ID fails (slower, but helpful for mismatching IDs)
-        /*
-        const hasFuzzyMatch = Object.values(livePrices).some(lp => {
-           const lpData = lp as any;
-           if (lpData.placeid === gym.id) return true;
-           const gName = gym.name.toLowerCase();
-           const fName = (lpData.gymname || "").toLowerCase();
-           return fName && (gName.includes(fName) || fName.includes(gName));
-        });
-        */
-
+        // Secondary Fuzzy match: Check if any prices in DB match this gym by Place ID or Name
+        let hasFuzzyMatch = false;
         if (!directMatch) {
+          hasFuzzyMatch = Object.values(livePrices).some(lp => {
+            const lpData = lp as any;
+            // Check legacy placeid field
+            if (lpData.placeid === gym.id) return true;
+
+            // Check name similarity
+            const gName = gym.name.toLowerCase();
+            const fName = (lpData.gymname || "").toLowerCase();
+            // Simple substring match
+            return fName && (gName.includes(fName) || fName.includes(gName));
+          });
+        }
+
+        if (!directMatch && !hasFuzzyMatch) {
+          console.log(`[Filter] Hiding gym: ${gym.name} (${gym.id}) - No Firebase match.`);
           return false;
         }
       }
