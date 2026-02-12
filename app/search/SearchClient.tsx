@@ -305,29 +305,29 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
         return false
       }
 
-      /*
       // Sync Filter: Only show gyms that have synced data in Firebase (synced from APIFinder)
       // We check both the direct key match and a secondary fuzzy search in values
       // to be robust against ID mismatches and naming variations.
-      const directMatch = livePrices[gym.id];
-      const hasLivePrice = !!directMatch || Object.values(livePrices).some(lp => {
-        const lpData = lp as any;
-        // 1. Check for legacy placeid field match
-        if (lpData.placeid === gym.id) return true;
 
-        // 2. Case-insensitive fuzzy name match (substring)
-        // This handles cases like "PureGym London Wall" vs "PureGym"
-        const gName = gym.name.toLowerCase();
-        const fName = (lpData.gymname || "").toLowerCase();
-        if (fName && (gName.includes(fName) || fName.includes(gName))) return true;
+      // STRICT FILTER: If we have loaded prices, and this gym isn't in it, HIDE IT.
+      if (!firebaseLoading && Object.keys(livePrices).length > 0) {
+        const directMatch = livePrices[gym.id];
 
-        return false;
-      });
+        // Optional: Fuzzy match if direct ID fails (slower, but helpful for mismatching IDs)
+        /*
+        const hasFuzzyMatch = Object.values(livePrices).some(lp => {
+           const lpData = lp as any;
+           if (lpData.placeid === gym.id) return true;
+           const gName = gym.name.toLowerCase();
+           const fName = (lpData.gymname || "").toLowerCase();
+           return fName && (gName.includes(fName) || fName.includes(gName));
+        });
+        */
 
-      if (!hasLivePrice) {
-        return false
+        if (!directMatch) {
+          return false;
+        }
       }
-      */
 
       // Saved filter
       if (showSavedOnly && !savedGyms.some(g => g.id === gym.id)) {
@@ -637,7 +637,9 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
                         const isFirst = index === 0;
                         return (
                           <div key={gym.id} className="flex flex-col gap-4">
+                            {/* Insert Ad after 5th item */}
                             {index === 4 && <AdBanner />}
+
                             <Tooltip open={isFirst && showCompareTooltip}>
                               <TooltipTrigger asChild>
                                 <div>
@@ -670,6 +672,12 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
                           </div>
                         )
                       })}
+                      {/* If fewer than 5 results, show ad at the end */}
+                      {filteredGyms.length < 5 && filteredGyms.length > 0 && (
+                        <div className="mt-4">
+                          <AdBanner />
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
