@@ -36,15 +36,41 @@ export async function fetchGymsFromFirestore(centerLat: number, centerLng: numbe
   const minLat = centerLat - latDelta;
   const maxLat = centerLat + latDelta;
 
-  const q = query(
-    collection(db, "gyms"),
-    where("location.lat", ">=", minLat),
-    where("location.lat", "<=", maxLat),
-    orderBy("location.lat"), // Required when filtering by inequality on 'location.lat'
-    limit(100) // Fetch more candidates to filter by lng/distance client-side
-  );
-  const snap = await getDocs(q);
-  return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  try {
+    // Attempt query on new schema (location.lat)
+    const qNew = query(
+      collection(db, "gyms"),
+      where("location.lat", ">=", minLat),
+      where("location.lat", "<=", maxLat),
+      orderBy("location.lat"),
+      limit(100)
+    );
+    const snapNew = await getDocs(qNew);
+
+    if (!snapNew.empty) {
+      return snapNew.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    }
+
+    // Fallback: Attempt query on legacy schema (lat)
+    console.log("No results for 'location.lat', attempting fallback to 'lat'...");
+    const qLegacy = query(
+      collection(db, "gyms"),
+      where("lat", ">=", minLat),
+      where("lat", "<=", maxLat),
+      orderBy("lat"),
+      limit(100)
+    );
+    const snapLegacy = await getDocs(qLegacy);
+    return snapLegacy.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (err) {
+    console.error("Firestore query failed:", err);
+
+    // Final Fallback: Fetch some gyms without filtering to see if anything exists
+    console.log("Attempting final fallback: fetch first 20 gyms regardless of location...");
+    const qFinal = query(collection(db, "gyms"), limit(20));
+    const snapFinal = await getDocs(qFinal);
+    return snapFinal.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  }
 }
 
 
@@ -217,19 +243,34 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
         return;
       }
 
-      const firestoreGyms: Gym[] = filteredData.map((g: any) => ({
-        id: g.place_id || g.id,
-        name: g.name || "Unknown Gym",
-        address: g.location?.address || g.city || "Unknown Address",
-        rating: 0,
-        type: "Gym",
-        priceLevel: g.memberships && g.memberships.length > 0 ? "££" : "££",
-        lat: g.location?.lat || lat,
-        lng: g.location?.lng || lng,
-        distance: 0,
-        latestOffer: g.offers,
-        location: g.location,
-      }));
+      const firestoreGyms: Gym[] = filteredData.map((g: any) => {
+        // Robust coordinate extraction
+        const gymLat = g.location?.lat !== undefined ? g.location.lat : g.lat;
+        const gymLng = g.location?.lng !== undefined ? g.location.lng : g.lng;
+
+        // Robust address extraction
+        let gymAddress = "Unknown Address";
+        if (typeof g.location === 'string') gymAddress = g.location;
+        else if (g.location?.address) gymAddress = g.location.address;
+        else if (g.city) gymAddress = g.city;
+        else if (g.address) gymAddress = g.address;
+
+        return {
+          id: g.place_id || g.id,
+          name: g.name || "Unknown Gym",
+          address: gymAddress,
+          rating: g.rating || 0,
+          type: g.type || "Gym",
+          priceLevel: g.memberships && g.memberships.length > 0 ? "££" : "££",
+          lat: gymLat !== undefined ? gymLat : lat,
+          lng: gymLng !== undefined ? gymLng : lng,
+          distance: 0,
+          latestOffer: g.offers,
+          location: typeof g.location === 'object' ? g.location : { lat: gymLat, lng: gymLng, address: gymAddress },
+          user_ratings_total: g.user_ratings_total,
+          googleMapsUri: g.googleMapsUri,
+        };
+      });
 
       console.log(`Loaded ${firestoreGyms.length} gyms from Firestore after filter.`);
       setGyms(firestoreGyms);
@@ -281,7 +322,8 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
       // We check both the direct key match and a secondary fuzzy search in values
       // to be robust against ID mismatches and naming variations.
 
-      // STRICT FILTER: If we have loaded prices, and this gym isn't in it, HIDE IT.
+      // FLEXIBLE FILTER: If we have loaded prices, try to find a match.
+      // If we are still loading or have no prices, show all gyms.
       if (!firebaseLoading && Object.keys(livePrices).length > 0) {
         const directMatch = livePrices[gym.id];
 
@@ -291,19 +333,20 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
           hasFuzzyMatch = Object.values(livePrices).some(lp => {
             const lpData = lp as any;
             // Check legacy placeid field
-            if (lpData.placeid === gym.id) return true;
+            if (lpData.placeid === gym.id || lpData.place_id === gym.id) return true;
 
             // Check name similarity
             const gName = gym.name.toLowerCase();
-            const fName = (lpData.gymname || "").toLowerCase();
+            const fName = (lpData.gymname || lpData.name || "").toLowerCase();
             // Simple substring match
             return fName && (gName.includes(fName) || fName.includes(gName));
           });
         }
 
+        // If no match found, we still show the gym but it will display "Prices coming soon"
+        // This prevents the screen from being empty if syncing hasn't finished.
         if (!directMatch && !hasFuzzyMatch) {
-          console.log(`[Filter] Hiding gym: ${gym.name} (${gym.id}) - No Firebase match.`);
-          return false;
+          console.log(`[Filter] No direct/fuzzy Firebase match for: ${gym.name} (${gym.id}). Showing anyway with fallback.`);
         }
       }
 
