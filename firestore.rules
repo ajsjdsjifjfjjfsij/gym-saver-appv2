@@ -10,6 +10,13 @@ service cloud.firestore {
       // Only the admin can read, update, or delete submissions
       allow read, update, delete: if request.auth != null && request.auth.token.email == 'josephbunton@live.co.uk';
     }
+    // Gyms collection rules
+    match /gyms/{gymId} {
+      // Allow everyone to read gym data
+      allow read: if true;
+      // Only the admin can write gym data (via Admin SDK/Service Account)
+      allow write: if false;
+    }
     
     // Default rule: block everything else
     match /{document=**} {
