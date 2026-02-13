@@ -1,0 +1,27 @@
+Update the GymSaver app to correctly read Firestore gym location coordinates.
+
+Each gym document has:
+location.lat
+location.lng
+
+Update the gym fetch and UI mapping so that:
+
+- Latitude = gym.location.lat
+- Longitude = gym.location.lng
+
+Then:
+
+1. Request user location on app load (navigator.geolocation)
+2. Store userLat and userLng in state
+3. For each gym, calculate distance using Haversine formula
+4. Display distance on the gym card as: "X.X miles away"
+5. Sort gyms by distance ascending
+
+If location permission is denied:
+- hide distance
+- do not sort
+
+Ensure the mapping uses:
+gym.location.lat
+gym.location.lng
+NOT gym.lat or gym.lng

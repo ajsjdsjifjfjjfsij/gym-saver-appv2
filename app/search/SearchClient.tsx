@@ -25,6 +25,7 @@ import {
 
 import { collection, getDocs, query, orderBy, limit, where } from "firebase/firestore"
 import { db } from "@/lib/firebase"
+import { calculateDistance, Gym } from "@/lib/gym-utils"
 
 export async function fetchGymsFromFirestore(centerLat: number, centerLng: number) {
   if (!db) return [];
@@ -37,51 +38,15 @@ export async function fetchGymsFromFirestore(centerLat: number, centerLng: numbe
 
   const q = query(
     collection(db, "gyms"),
-    where("lat", ">=", minLat),
-    where("lat", "<=", maxLat),
-    orderBy("lat"), // Required when filtering by inequality on 'lat'
+    where("location.lat", ">=", minLat),
+    where("location.lat", "<=", maxLat),
+    orderBy("location.lat"), // Required when filtering by inequality on 'location.lat'
     limit(100) // Fetch more candidates to filter by lng/distance client-side
   );
   const snap = await getDocs(q);
   return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 }
-interface Gym {
-  id: string
-  name: string
-  address: string
-  rating: number
-  type: string
-  priceLevel: string
-  lat: number
-  lng: number
-  distance?: number
-  photo_reference?: string
-  weekday_text?: string[]
-  website?: string
-  photos?: string[]
-  latestOffer?: string
-  user_ratings_total?: number
-  googleMapsUri?: string
-}
 
-function calculateDistance(
-  lat1: number,
-  lng1: number,
-  lat2: number,
-  lng2: number
-): number {
-  const R = 3959 // Earth's radius in miles
-  const dLat = ((lat2 - lat1) * Math.PI) / 180
-  const dLng = ((lng2 - lng1) * Math.PI) / 180
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-    Math.cos((lat2 * Math.PI) / 180) *
-    Math.sin(dLng / 2) *
-    Math.sin(dLng / 2)
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-  return R * c
-}
 
 export default function GymSaverApp({ initialBotLocation }: { initialBotLocation?: { lat: number; lng: number } | null }) {
   const { user, loading: authLoading } = useAuth()
@@ -191,7 +156,9 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
       // safely: +/- 0.8 to be slightly wider than lat delta due to projection aspect ratio in UK
       const lngDelta = 0.8;
       filteredData = filteredData.filter((g: any) => {
-        return g.lng >= (lng - lngDelta) && g.lng <= (lng + lngDelta);
+        const docLng = g.location?.lng;
+        if (docLng === undefined) return false;
+        return docLng >= (lng - lngDelta) && docLng <= (lng + lngDelta);
       });
 
       // Determine effective query based on type if no explicit query
@@ -246,12 +213,12 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
       const firestoreGyms: Gym[] = filteredData.map((g: any) => ({
         id: g.place_id || g.id,
         name: g.name || "Unknown Gym",
-        address: g.location || g.city || "Unknown Address",
+        address: g.location?.address || g.city || "Unknown Address",
         rating: 0,
         type: "Gym",
         priceLevel: g.memberships && g.memberships.length > 0 ? "££" : "££",
-        lat: lat,
-        lng: lng,
+        lat: g.location?.lat || lat,
+        lng: g.location?.lng || lng,
         distance: 0,
         latestOffer: g.offers,
         location: g.location,
@@ -388,8 +355,13 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
       }
 
       return true
+    }).sort((a, b) => {
+      if (userLocation) {
+        return (a.distance || 0) - (b.distance || 0)
+      }
+      return 0
     })
-  }, [gymsWithDistance, searchQuery, filters, savedGyms, showSavedOnly])
+  }, [gymsWithDistance, searchQuery, filters, savedGyms, showSavedOnly, userLocation])
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }))

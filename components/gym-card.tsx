@@ -13,26 +13,9 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel"
 import { GymPrice } from "@/hooks/useGymPrices"
-import { getGymPrice } from "@/lib/gym-utils"
+import { getGymPrice, Gym } from "@/lib/gym-utils"
 
 
-interface Gym {
-  id: string
-  name: string
-  address: string
-  rating: number
-  type: string
-  priceLevel: string
-  lat: number
-  lng: number
-  distance?: number
-  photo_reference?: string
-  photos?: string[]
-  website?: string
-  latestOffer?: string
-  user_ratings_total?: number
-  googleMapsUri?: string
-}
 
 interface GymCardProps {
   gym: Gym
@@ -165,7 +148,7 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
         <div className="absolute top-3 left-3 z-10 flex gap-2">
           {gym.distance !== undefined && (
             <span className="text-[10px] font-bold text-black bg-[#6BD85E] px-2 py-0.5 rounded-full shadow-lg">
-              {gym.distance.toFixed(1)} mi
+              {gym.distance.toFixed(1)} miles away
             </span>
           )}
         </div>
