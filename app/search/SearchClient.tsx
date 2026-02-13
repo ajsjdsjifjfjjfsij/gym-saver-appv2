@@ -598,6 +598,13 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
                 </button>
               </div>
             </div>
+
+            {userLocation && (
+              <div className="flex items-center gap-1 text-[10px] font-bold text-primary uppercase tracking-wider animate-pulse">
+                <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                Sorting by Distance
+              </div>
+            )}
           </div>
         </div>
 
@@ -644,20 +651,43 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
                 {/* List Content */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide pb-24">
                   {filteredGyms.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-12 text-center border border-dashed border-white/10 rounded-2xl bg-secondary/20">
-                      <p className="text-muted-foreground mb-2">
-                        {showSavedOnly ? "No saved gyms found." : "No gyms found in your database for this area yet."}
+                    <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-white/10 rounded-3xl bg-secondary/10 backdrop-blur-sm px-6">
+                      <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4 border border-white/10">
+                        <Search className="h-8 w-8 text-muted-foreground opacity-20" />
+                      </div>
+                      <h3 className="text-xl font-bold text-white mb-2">No gyms found nearby</h3>
+                      <p className="text-muted-foreground text-sm max-w-[280px] mb-6">
+                        {showSavedOnly
+                          ? "You haven't saved any gyms yet. Tap the bookmark icon on any gym to see it here."
+                          : "We couldn't find any gyms matching your filters in this area. Try broadening your search or clearing filters."}
                       </p>
-                      <Button
-                        variant="link"
-                        className="text-primary hover:text-primary/80"
-                        onClick={() => {
-                          setFilters({ type: "all", distance: "all", price: "all", rating: "all" })
-                          setSearchQuery("")
-                        }}
-                      >
-                        Clear all filters
-                      </Button>
+
+                      <div className="flex flex-col gap-3 w-full max-w-[240px]">
+                        <Button
+                          variant="outline"
+                          className="w-full border-white/10 hover:bg-white/5 text-white h-11 rounded-xl"
+                          onClick={() => {
+                            setFilters({ type: "all", distance: "all", price: "all", rating: "all" })
+                            setSearchQuery("")
+                            setShowSavedOnly(false)
+                          }}
+                        >
+                          Clear All Filters
+                        </Button>
+
+                        {!showSavedOnly && (
+                          <Button
+                            variant="default"
+                            className="w-full bg-[#6BD85E] hover:bg-[#5bc250] text-black font-bold h-11 rounded-xl shadow-[0_0_20px_rgba(107,216,94,0.1)]"
+                            onClick={() => {
+                              // Re-fetch with a massive radius or just show first few
+                              fetchGyms(51.5074, -0.1278, "", "all") // Default to London search
+                            }}
+                          >
+                            Explore UK Gyms
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   ) : (
                     <div className="flex flex-col gap-4">
