@@ -30,9 +30,9 @@ import { calculateDistance, Gym } from "@/lib/gym-utils"
 export async function fetchGymsFromFirestore(centerLat: number, centerLng: number) {
   if (!db) return [];
 
-  // ~0.5 degree is roughly 35 miles latitude. 
-  // Longitude varies but this is a safe "rough" box for fetching candidates.
-  const latDelta = 0.5;
+  // ~1.5 degree is roughly 100 miles latitude. 
+  // Broadening this significanty to be more lenient with sparse data.
+  const latDelta = 1.5;
   const minLat = centerLat - latDelta;
   const maxLat = centerLat + latDelta;
 
@@ -43,7 +43,7 @@ export async function fetchGymsFromFirestore(centerLat: number, centerLng: numbe
       where("location.lat", ">=", minLat),
       where("location.lat", "<=", maxLat),
       orderBy("location.lat"),
-      limit(100)
+      limit(200) // Fetch more to allow for filtering
     );
     const snapNew = await getDocs(qNew);
 
@@ -184,12 +184,12 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
 
       // 1. Client-side Longitude Filter (Approximate bounding box completion)
       // We only filtered by Latitude in Firestore. valid Lng range is also needed.
-      // safely: +/- 0.8 to be slightly wider than lat delta due to projection aspect ratio in UK
-      const lngDelta = 0.8;
+      // Broadening this to +/- 2.0 for UK coverage.
+      const lngDelta = 2.0;
       filteredData = filteredData.filter((g: any) => {
-        const docLng = g.location?.lng;
-        console.log(`Checking doc ${g.name || g.id}: location.lng = ${docLng}`);
-        if (docLng === undefined) return false;
+        const docLng = g.location?.lng !== undefined ? g.location.lng : g.lng;
+        // console.log(`Checking doc ${g.name || g.id}: lng = ${docLng}`);
+        if (docLng === undefined) return true; // Show it if we don't know, don't hide it
         return docLng >= (lng - lngDelta) && docLng <= (lng + lngDelta);
       });
       console.log(`After longitude filter: ${filteredData.length} documents.`);
@@ -269,6 +269,8 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
           location: typeof g.location === 'object' ? g.location : { lat: gymLat, lng: gymLng, address: gymAddress },
           user_ratings_total: g.user_ratings_total,
           googleMapsUri: g.googleMapsUri,
+          photo_reference: g.photo_reference || g.photo || (g.photos && g.photos.length > 0 ? g.photos[0] : undefined),
+          photos: g.photos || (g.photo_reference ? [g.photo_reference] : []),
         };
       });
 

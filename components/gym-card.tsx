@@ -139,8 +139,15 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
             className="absolute inset-0 w-full h-full object-cover block"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-slate-500 bg-zinc-900">
-            <span className="text-xs">No Image</span>
+          <div className="w-full h-full relative">
+            <img
+              src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop"
+              alt="Gym Interior Placeholder"
+              className="absolute inset-0 w-full h-full object-cover opacity-40 grayscale"
+            />
+            <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
+              <span className="text-[10px] uppercase tracking-widest font-bold text-white/40 italic">Photo Pending</span>
+            </div>
           </div>
         )}
 
