@@ -213,6 +213,28 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
           const nameMatch = name.includes(lowerQuery);
           return cityMatch || nameMatch;
         });
+      } else if (!query && lat && lng) {
+        // 2b. Implicit City Filter: If geolocated and no explicit search, pin to the closest city.
+        // This fulfills the requirement: "if a user allows location in 'swindon' all gyms in swindon should appear".
+
+        // First, calculate distance to all gyms to find the closest one
+        const gymsWithDist = filteredData.map((g: any) => {
+          const gLat = g.location?.lat !== undefined ? g.location.lat : g.lat;
+          const gLng = g.location?.lng !== undefined ? g.location.lng : g.lng;
+          return { ...g, _dist: calculateDistance(lat, lng, gLat, gLng) };
+        });
+
+        // Sort by distance
+        gymsWithDist.sort((a, b) => a._dist - b._dist);
+
+        const closestGym = gymsWithDist[0];
+        if (closestGym && closestGym._dist < 15) { // If within 15 miles, assume this is the user's city
+          const userCity = (closestGym.city || "").toLowerCase();
+          if (userCity) {
+            console.log(`Implicit City Filter: User appears to be in ${userCity}. Filtering results...`);
+            filteredData = filteredData.filter((g: any) => (g.city || "").toLowerCase() === userCity);
+          }
+        }
       }
 
       // 3. Sort by lowest_price ascending (Client Side)

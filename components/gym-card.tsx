@@ -3,51 +3,26 @@
 import { Button } from "@/components/ui/button"
 import { Star, MapPin, Bookmark, BookmarkCheck } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useAuth } from "@/components/auth/AuthContext"
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel"
 import { GymPrice } from "@/hooks/useGymPrices"
-import { getGymPrice, Gym } from "@/lib/gym-utils"
-
-
+import { getGymPrice, getGooglePhotoUrl, Gym } from "@/lib/gym-utils"
 
 interface GymCardProps {
   gym: Gym
-  isSelected: boolean // This refers to the map selection, maybe rename to 'isActive' for clarity if needed, but keeping for now
+  isSelected: boolean
   isSaved: boolean
-  isCompared?: boolean // New prop
+  isCompared?: boolean
   onSelect: () => void
   onToggleSave: () => void
-  onToggleCompare?: () => void // New prop
+  onToggleCompare?: () => void
   onAuthRequired?: () => void
   livePrice?: GymPrice
 }
 
 export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onToggleSave, onToggleCompare, onAuthRequired, livePrice }: GymCardProps) {
-  // DEBUG: Inspect props
-  console.log(`[GymCard Debug] Gym: ${gym.name} (${gym.id}) | Price Level: ${gym.priceLevel} | Live Price:`, livePrice);
-
   const { user } = useAuth()
   const router = useRouter()
-  const [api, setApi] = useState<any>()
-  const [isHovered, setIsHovered] = useState(false)
-
-  // Autoplay on Hover Logic
-  useEffect(() => {
-    if (!api || !isHovered) return
-
-    const intervalId = setInterval(() => {
-      api.scrollNext()
-    }, 1500) // Change slide every 1.5 seconds on hover
-
-    return () => clearInterval(intervalId)
-  }, [api, isHovered])
 
   const handleSaveClick = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -82,8 +57,6 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
 
     if (gym.website) {
       window.open(gym.website, '_blank')
-    } else {
-      console.log("No website available for", gym.name)
     }
   }
 
@@ -100,8 +73,6 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
         ${isCompared ? "ring-2 ring-blue-500 bg-blue-500/10" : ""} 
       `}
       onClick={onSelect}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Selection Tick Overlay */}
       {isCompared && (
@@ -112,46 +83,26 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
 
       {/* Gym Image - Left Side / Top on Mobile */}
       <div className="w-full h-48 sm:h-full sm:w-64 shrink-0 relative bg-black/50 overflow-hidden sm:border-r border-b sm:border-b-0 border-white/10">
-        {(gym.photos && gym.photos.length > 0) ? (
-          <Carousel setApi={setApi} className="w-full h-full" opts={{ loop: true }}>
-            <CarouselContent className="ml-0 h-full">
-              {gym.photos.map((photo, index) => (
-                <CarouselItem key={index} className="pl-0 h-full w-full">
-                  <img
-                    src={photo.startsWith("http")
-                      ? photo
-                      : `https://places.googleapis.com/v1/${photo}/media?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&maxHeightPx=800&maxWidthPx=800`
-                    }
-                    alt={`${gym.name} - Photo ${index + 1}`}
-                    className="w-full h-full object-cover block transition-transform duration-700 group-hover:scale-110"
-                  />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
-        ) : gym.photo_reference ? (
-          <img
-            src={gym.photo_reference?.startsWith("http")
-              ? gym.photo_reference
-              : `https://places.googleapis.com/v1/${gym.photo_reference}/media?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&maxHeightPx=800&maxWidthPx=800`
+        <img
+          src={getGooglePhotoUrl(gym.photo_reference || (gym.photos && gym.photos.length > 0 ? gym.photos[0] : undefined))}
+          alt={gym.name}
+          className="absolute inset-0 w-full h-full object-cover block transition-transform duration-700 group-hover:scale-110"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            if (!target.src.includes("unsplash")) {
+              target.src = "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop";
             }
-            alt={gym.name}
-            className="absolute inset-0 w-full h-full object-cover block"
-          />
-        ) : (
-          <div className="w-full h-full relative">
-            <img
-              src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop"
-              alt="Gym Interior Placeholder"
-              className="absolute inset-0 w-full h-full object-cover opacity-40 grayscale"
-            />
-            <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
-              <span className="text-[10px] uppercase tracking-widest font-bold text-white/40 italic">Photo Pending</span>
-            </div>
+          }}
+        />
+
+        {/* Overlay for "Photo Pending" styling if no actual reference exists */}
+        {(!gym.photo_reference && (!gym.photos || gym.photos.length === 0)) && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
+            <span className="text-[10px] uppercase tracking-widest font-bold text-white/40 italic">Photo Pending</span>
           </div>
         )}
 
-        {/* Floating Save Button */}
+        {/* Floating Distance Badge */}
         <div className="absolute top-3 left-3 z-10 flex gap-2">
           {gym.distance !== undefined && (
             <span className="text-[10px] font-bold text-black bg-[#6BD85E] px-2 py-0.5 rounded-full shadow-lg">
@@ -192,7 +143,6 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
                   : "bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
                 }`}
               onClick={handleCompareClick}
-              id={`compare-btn-desktop-${gym.id}`}
             >
               {isCompared ? (
                 <>
@@ -238,35 +188,35 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
             <div className="flex items-baseline gap-1">
               <span className="text-[10px] font-light text-slate-500 uppercase tracking-tighter">
                 {(() => {
-                  const { isEstimate, monthly } = getGymPrice(gym, livePrice);
-                  if (monthly === undefined) return "Unknown";
-                  return isEstimate ? "From" : "Verified";
+                  const price = getGymPrice(gym, livePrice);
+                  if (price.monthly === undefined) return "Unknown";
+                  return price.isEstimate ? "From" : "Verified";
                 })()}
               </span>
               <span className={`text-lg font-black ${(() => {
-                const { isEstimate, monthly } = getGymPrice(gym, livePrice);
-                if (monthly === undefined) return "text-slate-500 text-sm";
-                return isEstimate ? "text-white" : "text-[#6BD85E]";
+                const price = getGymPrice(gym, livePrice);
+                if (price.monthly === undefined) return "text-slate-500 text-sm";
+                return price.isEstimate ? "text-white" : "text-[#6BD85E]";
               })()}`}>
                 {(() => {
-                  const { monthly } = getGymPrice(gym, livePrice);
-                  if (monthly === undefined) return "Prices coming soon";
-                  return `£${monthly.toFixed(2)}`;
+                  const price = getGymPrice(gym, livePrice);
+                  if (price.monthly === undefined) return "Prices coming soon";
+                  return `£${price.monthly.toFixed(2)}`;
                 })()}
               </span>
               {(() => {
-                const { monthly } = getGymPrice(gym, livePrice);
-                if (monthly !== undefined) {
+                const price = getGymPrice(gym, livePrice);
+                if (price.monthly !== undefined) {
                   return <span className="text-[10px] text-slate-500 font-light">/mo</span>
                 }
                 return null;
               })()}
               {(() => {
-                const { joiningFee, monthly } = getGymPrice(gym, livePrice);
-                if (monthly !== undefined && joiningFee !== undefined && joiningFee > 0) {
+                const price = getGymPrice(gym, livePrice);
+                if (price.monthly !== undefined && price.joiningFee !== undefined && price.joiningFee > 0) {
                   return (
                     <span className="text-[9px] text-slate-400 ml-1">
-                      + £{joiningFee.toFixed(2)}
+                      + £{price.joiningFee.toFixed(2)}
                     </span>
                   )
                 }
@@ -285,7 +235,6 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
                     : "bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
                   }`}
                 onClick={handleCompareClick}
-                id={`compare-btn-mobile-${gym.id}`}
               >
                 {isCompared ? (
                   <>

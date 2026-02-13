@@ -65,6 +65,26 @@ export function getGymFacilities(gym: Gym) {
     };
 }
 
+export function getGooglePhotoUrl(reference: string | undefined): string {
+    if (!reference) {
+        return "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop";
+    }
+
+    if (reference.startsWith("http")) {
+        return reference;
+    }
+
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+    // Handle v1 Resource Name: places/PLACE_ID/photos/PHOTO_ID
+    if (reference.startsWith("places/")) {
+        return `https://places.googleapis.com/v1/${reference}/media?key=${apiKey}&maxHeightPx=800&maxWidthPx=800`;
+    }
+
+    // Handle v2 Photo Reference Token
+    return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${reference}&key=${apiKey}`;
+}
+
 export function getGymPrice(gym: Gym, livePrice?: GymPrice) {
     const name = gym.name.toLowerCase();
 
