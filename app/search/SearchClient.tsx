@@ -148,6 +148,11 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
       console.log(`Fetching gyms near ${lat}, ${lng}...`)
       // Pass coordinates to the new geo-query function
       const firestoreGymsData = await fetchGymsFromFirestore(lat, lng);
+      console.log(`Firestore returned ${firestoreGymsData?.length || 0} documents.`);
+
+      if (firestoreGymsData && firestoreGymsData.length > 0) {
+        console.log("Sample document structure:", JSON.stringify(firestoreGymsData[0], null, 2));
+      }
 
       let filteredData = firestoreGymsData;
 
@@ -157,9 +162,11 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
       const lngDelta = 0.8;
       filteredData = filteredData.filter((g: any) => {
         const docLng = g.location?.lng;
+        console.log(`Checking doc ${g.name || g.id}: location.lng = ${docLng}`);
         if (docLng === undefined) return false;
         return docLng >= (lng - lngDelta) && docLng <= (lng + lngDelta);
       });
+      console.log(`After longitude filter: ${filteredData.length} documents.`);
 
       // Determine effective query based on type if no explicit query
       let effectiveQuery = query;
