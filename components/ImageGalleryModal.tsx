@@ -48,23 +48,14 @@ export function ImageGalleryModal({ gym, isOpen, onClose }: ImageGalleryModalPro
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent showCloseButton={false} className="max-w-5xl w-full bg-black border-none p-0 overflow-hidden sm:rounded-3xl z-[100] h-[90vh] flex flex-col">
-                <DialogHeader className="p-4 bg-black/80 backdrop-blur-md absolute top-0 left-0 right-0 z-[110] border-b border-white/10 flex flex-row items-center justify-between">
-                    <div className="flex flex-col gap-1 items-start pr-12">
+                <DialogHeader className="p-4 bg-black/80 backdrop-blur-md absolute top-0 left-0 right-0 z-[110] border-b border-white/10 flex flex-row items-center justify-between pointer-events-none">
+                    <div className="flex flex-col gap-1 items-start pr-12 pointer-events-auto">
                         <DialogTitle className="text-xl font-bold text-white">{gym.name}</DialogTitle>
                         <p className="text-sm text-slate-400 flex items-center gap-1">
                             <MapPin className="h-3 w-3" />
                             {gym.address}
                         </p>
                     </div>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={onClose}
-                        className="rounded-full bg-white/10 text-white hover:bg-white/20 absolute right-4 top-4"
-                    >
-                        <X className="h-5 w-5" />
-                        <span className="sr-only">Close</span>
-                    </Button>
                 </DialogHeader>
 
                 <div
@@ -92,11 +83,11 @@ export function ImageGalleryModal({ gym, isOpen, onClose }: ImageGalleryModalPro
                             {photos.length > 1 && (
                                 <>
                                     <CarouselPrevious
-                                        className="left-4 bg-black/50 border-white/20 text-white hover:bg-[#6BD85E] hover:text-black hover:border-[#6BD85E] z-[120]"
+                                        className="left-2 md:left-4 h-12 w-12 bg-black/50 border-white/20 text-white hover:bg-[#6BD85E] hover:text-black hover:border-[#6BD85E] z-[120]"
                                         onClick={(e) => e.stopPropagation()}
                                     />
                                     <CarouselNext
-                                        className="right-4 bg-black/50 border-white/20 text-white hover:bg-[#6BD85E] hover:text-black hover:border-[#6BD85E] z-[120]"
+                                        className="right-2 md:right-4 h-12 w-12 bg-black/50 border-white/20 text-white hover:bg-[#6BD85E] hover:text-black hover:border-[#6BD85E] z-[120]"
                                         onClick={(e) => e.stopPropagation()}
                                     />
                                 </>
