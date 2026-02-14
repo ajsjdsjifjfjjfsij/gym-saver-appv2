@@ -6,6 +6,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
 import {
     Carousel,
     CarouselContent,
@@ -15,7 +16,7 @@ import {
 } from "@/components/ui/carousel"
 import { Gym, getGooglePhotoUrl } from "@/lib/gym-utils"
 import Image from "next/image"
-import { MapPin } from "lucide-react"
+import { MapPin, X } from "lucide-react"
 
 interface ImageGalleryModalProps {
     gym: Gym | null
@@ -46,8 +47,8 @@ export function ImageGalleryModal({ gym, isOpen, onClose }: ImageGalleryModalPro
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="max-w-5xl w-full bg-black border-none p-0 overflow-hidden sm:rounded-3xl z-[100] h-[90vh] flex flex-col">
-                <DialogHeader className="p-4 bg-black/80 backdrop-blur-md absolute top-0 left-0 right-0 z-[110] border-b border-white/10">
+            <DialogContent showCloseButton={false} className="max-w-5xl w-full bg-black border-none p-0 overflow-hidden sm:rounded-3xl z-[100] h-[90vh] flex flex-col">
+                <DialogHeader className="p-4 bg-black/80 backdrop-blur-md absolute top-0 left-0 right-0 z-[110] border-b border-white/10 flex flex-row items-center justify-between">
                     <div className="flex flex-col gap-1 items-start pr-12">
                         <DialogTitle className="text-xl font-bold text-white">{gym.name}</DialogTitle>
                         <p className="text-sm text-slate-400 flex items-center gap-1">
@@ -55,15 +56,30 @@ export function ImageGalleryModal({ gym, isOpen, onClose }: ImageGalleryModalPro
                             {gym.address}
                         </p>
                     </div>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={onClose}
+                        className="rounded-full bg-white/10 text-white hover:bg-white/20 absolute right-4 top-4"
+                    >
+                        <X className="h-5 w-5" />
+                        <span className="sr-only">Close</span>
+                    </Button>
                 </DialogHeader>
 
-                <div className="relative w-full flex-1 bg-black flex items-center justify-center overflow-hidden">
+                <div
+                    className="relative w-full flex-1 bg-black flex items-center justify-center overflow-hidden cursor-pointer"
+                    onClick={onClose}
+                >
                     {hasPhotos ? (
                         <Carousel className="w-full h-full" opts={{ loop: true }}>
                             <CarouselContent className="-ml-0 h-full">
                                 {photos.map((photoRef, index) => (
                                     <CarouselItem key={index} className="pl-0 relative h-full flex items-center justify-center">
-                                        <div className="relative w-full h-full flex items-center justify-center">
+                                        <div
+                                            className="relative w-full h-full flex items-center justify-center cursor-default"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
                                             <img
                                                 src={getGooglePhotoUrl(photoRef)}
                                                 alt={`${gym.name} photo ${index + 1}`}
@@ -75,8 +91,14 @@ export function ImageGalleryModal({ gym, isOpen, onClose }: ImageGalleryModalPro
                             </CarouselContent>
                             {photos.length > 1 && (
                                 <>
-                                    <CarouselPrevious className="left-4 bg-black/50 border-white/20 text-white hover:bg-[#6BD85E] hover:text-black hover:border-[#6BD85E] z-[120]" />
-                                    <CarouselNext className="right-4 bg-black/50 border-white/20 text-white hover:bg-[#6BD85E] hover:text-black hover:border-[#6BD85E] z-[120]" />
+                                    <CarouselPrevious
+                                        className="left-4 bg-black/50 border-white/20 text-white hover:bg-[#6BD85E] hover:text-black hover:border-[#6BD85E] z-[120]"
+                                        onClick={(e) => e.stopPropagation()}
+                                    />
+                                    <CarouselNext
+                                        className="right-4 bg-black/50 border-white/20 text-white hover:bg-[#6BD85E] hover:text-black hover:border-[#6BD85E] z-[120]"
+                                        onClick={(e) => e.stopPropagation()}
+                                    />
                                 </>
                             )}
                         </Carousel>
