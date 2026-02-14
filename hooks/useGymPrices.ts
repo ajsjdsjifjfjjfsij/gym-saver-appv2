@@ -36,66 +36,11 @@ export function useGymPrices(skip: boolean = false) {
     }, []);
 
     useEffect(() => {
-        if (skip || !db || !isAuthenticated) {
-            setLoading(false);
-            return;
-        }
-
-        setLoading(true);
-        // Subscribe to "gyms" collection in Firestore
-        const unsubscribe = onSnapshot(collection(db, "gyms"), (snapshot) => {
-            const newPrices: GymPricesMap = {};
-
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-
-                // Map Firestore fields to GymPrice interface
-                // User requested:
-                // name -> gym name
-                // city -> location
-                // memberships[0].price -> monthly price
-                // offers -> current offer
-                // place_id -> Google place id
-
-                // Construct the price object
-                let monthlyPrice = data.lowest_price;
-                if (monthlyPrice === undefined && data.memberships && Array.isArray(data.memberships) && data.memberships.length > 0) {
-                    monthlyPrice = Math.min(...data.memberships.map((m: any) => m.price));
-                }
-
-                const priceData: GymPrice = {
-                    name: data.name,
-                    location: data.city, // Map city to location
-                    latestOffer: data.offers, // Map offers to latestOffer
-                    monthlyPrice: monthlyPrice,
-                    joiningfees: 0, // Default or map if available
-                    lastUpdated: Date.now(), // Firestore doesn't always have this, use current time or data.updatedAt
-                    place_id: data.place_id,
-                    prices: data.memberships ? data.memberships.map((m: any) => ({
-                        name: m.name || "Membership",
-                        price: m.price || 0,
-                        description: m.description
-                    })) : []
-                };
-
-                // Use place_id as the key if available, otherwise doc.id
-                const key = data.place_id || doc.id;
-                newPrices[key] = priceData;
-            });
-
-            setPrices(newPrices);
-            setLoading(false);
-            setError(null);
-        }, (err) => {
-            console.error("Error fetching gym prices from Firestore:", err);
-            setError(err.message);
-            setLoading(false);
-        });
-
-        // Cleanup listener on unmount
-        return () => {
-            unsubscribe();
-        };
+        // PERF FIX: We no longer fetch ALL gym prices globally.
+        // This was causing a massive download of the entire 'gyms' collection (~2MB+)
+        // on every page load, slowing down the initial render of the search results.
+        // We now rely on the 'fetchGyms' API call which gets the gym data (including prices) directly.
+        setLoading(false);
     }, []);
 
     return { prices, loading, error };

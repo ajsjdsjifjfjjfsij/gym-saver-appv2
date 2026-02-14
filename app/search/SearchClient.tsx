@@ -25,6 +25,7 @@ import {
 
 import { isBot, getDynamicSecret } from "@/lib/bot-detection"
 import { calculateDistance, Gym, getGymPrice } from "@/lib/gym-utils"
+import { ImageGalleryModal } from "@/components/ImageGalleryModal"
 
 export async function fetchGymsFromFirestore(centerLat: number, centerLng: number, searchTerm?: string) {
   // 1. Bot Check
@@ -94,6 +95,9 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
   const [comparedGyms, setComparedGyms] = useState<Gym[]>([])
   const [showCompareTooltip, setShowCompareTooltip] = useState(false)
 
+  // Gallery State
+  const [galleryGym, setGalleryGym] = useState<Gym | null>(null)
+
   // Live Firebase Prices - Only for authenticated users once we lock down Firestore
   const { prices: livePrices, loading: firebaseLoading, error: firebaseError } = useGymPrices(!user)
 
@@ -104,7 +108,7 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
       // Delay slightly to let UI settle
       const timeout = setTimeout(() => {
         setShowCompareTooltip(true)
-      }, 1000)
+      }, 0)
       return () => clearTimeout(timeout)
     }
   }, [])
@@ -435,37 +439,10 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
         return false;
       }
 
-      // Sync Filter: Only show gyms that have synced data in Firebase (synced from APIFinder)
-      // We check both the direct key match and a secondary fuzzy search in values
-      // to be robust against ID mismatches and naming variations.
-
-      // FLEXIBLE FILTER: If we have loaded prices, try to find a match.
-      // If we are still loading or have no prices, show all gyms.
-      if (!firebaseLoading && Object.keys(livePrices).length > 0) {
-        const directMatch = livePrices[gym.id];
-
-        // Secondary Fuzzy match: Check if any prices in DB match this gym by Place ID or Name
-        let hasFuzzyMatch = false;
-        if (!directMatch) {
-          hasFuzzyMatch = Object.values(livePrices).some(lp => {
-            const lpData = lp as any;
-            // Check legacy placeid field
-            if (lpData.placeid === gym.id || lpData.place_id === gym.id) return true;
-
-            // Check name similarity
-            const gName = gym.name.toLowerCase();
-            const fName = (lpData.gymname || lpData.name || "").toLowerCase();
-            // Simple substring match
-            return fName && (gName.includes(fName) || fName.includes(gName));
-          });
-        }
-
-        // If no match found, we still show the gym but it will display "Prices coming soon"
-        // This prevents the screen from being empty if syncing hasn't finished.
-        if (!directMatch && !hasFuzzyMatch) {
-          console.log(`[Filter] No direct/fuzzy Firebase match for: ${gym.name} (${gym.id}). Showing anyway with fallback.`);
-        }
-      }
+      // PERF FIX: We no longer depend on 'livePrices' (global Firestore subscription) for filtering.
+      // The 'fetchGyms' API already returns the necessary price data in the 'gym' object.
+      // This removes a massive performance bottleneck where the UI would wait for or re-render
+      // based on a 2MB+ background download.
 
       // Saved filter
       if (showSavedOnly && !savedGyms.some(g => g.id === gym.id)) {
@@ -823,6 +800,7 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
                                     onToggleSave={() => toggleSaveGym(gym)}
                                     onToggleCompare={() => toggleCompare(gym)}
                                     onAuthRequired={handleAuthRequired}
+                                    onOpenGallery={() => setGalleryGym(gym)}
                                     livePrice={livePrices[gym.id]}
                                   />
                                 </div>
@@ -900,6 +878,12 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
           open={showAuthModal}
           onOpenChange={setShowAuthModal}
           onSignUp={handleSignUp}
+        />
+        {/* Gallery Modal */}
+        <ImageGalleryModal
+          gym={galleryGym}
+          isOpen={!!galleryGym}
+          onClose={() => setGalleryGym(null)}
         />
       </div>
     </TooltipProvider>

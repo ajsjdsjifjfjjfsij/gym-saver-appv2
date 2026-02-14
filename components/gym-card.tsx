@@ -17,10 +17,11 @@ interface GymCardProps {
   onToggleSave: () => void
   onToggleCompare?: () => void
   onAuthRequired?: () => void
+  onOpenGallery?: () => void
   livePrice?: GymPrice
 }
 
-export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onToggleSave, onToggleCompare, onAuthRequired, livePrice }: GymCardProps) {
+export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onToggleSave, onToggleCompare, onAuthRequired, onOpenGallery, livePrice }: GymCardProps) {
   const { user } = useAuth()
   const router = useRouter()
 
@@ -64,6 +65,13 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
     }
   }
 
+  const handleGalleryClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (onOpenGallery) {
+      onOpenGallery()
+    }
+  }
+
   return (
     <div
       id={`gym-card-${gym.id}`}
@@ -86,7 +94,10 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
       )}
 
       {/* Gym Image - Left Side / Top on Mobile */}
-      <div className="w-full h-48 sm:h-full sm:w-64 shrink-0 relative bg-black/50 overflow-hidden sm:border-r border-b sm:border-b-0 border-white/10">
+      <div
+        className="w-full h-48 sm:h-full sm:w-64 shrink-0 relative bg-black/50 overflow-hidden sm:border-r border-b sm:border-b-0 border-white/10 cursor-zoom-in"
+        onClick={handleGalleryClick}
+      >
         <img
           src={getGooglePhotoUrl(gym.photo_reference || (gym.photos && gym.photos.length > 0 ? gym.photos[0] : undefined))}
           alt={gym.name}
@@ -108,13 +119,23 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
             </span>
           )}
         </div>
+
+        {/* Gallery Hint Overlay (Desktop Hover) */}
+        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <span className="text-white text-xs font-bold border border-white/50 px-3 py-1 rounded-full backdrop-blur-md">
+            View Photos
+          </span>
+        </div>
       </div>
 
       {/* Main Info - Right Side */}
       <div className="flex-1 min-w-0 p-4 flex flex-col justify-between">
         <div className="flex items-start justify-between gap-3">
           <div className="flex flex-col gap-1 min-w-0 flex-1">
-            <h3 className="font-bold text-xl sm:text-lg leading-tight truncate text-[#6BD85E] group-hover:scale-[1.01] origin-left transition-transform tracking-wide">
+            <h3
+              className="font-bold text-xl sm:text-lg leading-tight truncate text-[#6BD85E] group-hover:scale-[1.01] origin-left transition-transform tracking-wide cursor-pointer hover:underline"
+              onClick={handleGalleryClick}
+            >
               {gym.name}
             </h3>
             <p className="text-[11px] text-slate-400 flex items-center gap-1 truncate font-light italic">
