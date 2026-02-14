@@ -8,12 +8,14 @@ interface AuthContextType {
     user: User | null;
     loading: boolean;
     logout: () => Promise<void>;
+    sendResetEmail: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
     user: null,
     loading: true,
     logout: async () => { },
+    sendResetEmail: async () => { },
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -42,8 +44,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         await signOut(auth);
     };
 
+    const sendResetEmail = async (email: string) => {
+        if (!auth) return;
+        const { sendPasswordResetEmail } = await import("firebase/auth");
+        await sendPasswordResetEmail(auth, email);
+    };
+
     return (
-        <AuthContext.Provider value={{ user, loading, logout }}>
+        <AuthContext.Provider value={{ user, loading, logout, sendResetEmail }}>
             {children}
         </AuthContext.Provider>
     );

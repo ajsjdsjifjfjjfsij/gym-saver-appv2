@@ -7,7 +7,9 @@ import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc } fro
 import { db } from "@/lib/firebase";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, Check, X, FileText, ImageIcon, DollarSign } from "lucide-react";
+import { Loader2, Check, X, FileText, ImageIcon, DollarSign, Mail, AlertCircle } from "lucide-react";
+import { sendEmailVerification } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 import Image from "next/image";
 import {
     Table,
@@ -39,6 +41,8 @@ export default function AdminDashboard() {
     const router = useRouter();
     const [submissions, setSubmissions] = useState<Submission[]>([]);
     const [dataLoading, setDataLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [verifying, setVerifying] = useState(false);
 
     // Security Check
     useEffect(() => {
@@ -53,21 +57,47 @@ export default function AdminDashboard() {
     // Fetch Submissions
     useEffect(() => {
         if (user?.email === ADMIN_EMAIL) {
+            setDataLoading(true);
+            setError(null);
+
             // Query submissions ordered by date
             const q = query(collection(db, "submissions"), orderBy("createdAt", "desc"));
 
-            const unsubscribe = onSnapshot(q, (snapshot) => {
-                const subs: Submission[] = [];
-                snapshot.forEach((doc) => {
-                    subs.push({ id: doc.id, ...doc.data() } as Submission);
-                });
-                setSubmissions(subs);
-                setDataLoading(false);
-            });
+            const unsubscribe = onSnapshot(q,
+                (snapshot) => {
+                    const subs: Submission[] = [];
+                    snapshot.forEach((doc) => {
+                        subs.push({ id: doc.id, ...doc.data() } as Submission);
+                    });
+                    setSubmissions(subs);
+                    setDataLoading(false);
+                },
+                (err) => {
+                    console.error("Firestore error in Admin Console:", err);
+                    setError(err.message === "Missing or insufficient permissions."
+                        ? "Permission Denied. Please ensure your email is verified."
+                        : err.message);
+                    setDataLoading(false);
+                }
+            );
 
             return () => unsubscribe();
         }
     }, [user]);
+
+    const handleResendVerification = async () => {
+        if (!auth.currentUser) return;
+        setVerifying(true);
+        try {
+            await sendEmailVerification(auth.currentUser);
+            alert("Verification email sent! Please check your inbox.");
+        } catch (err: any) {
+            console.error("Error sending verification:", err);
+            alert("Error sending email: " + err.message);
+        } finally {
+            setVerifying(false);
+        }
+    };
 
     const handleApprove = async (id: string) => {
         try {
@@ -107,6 +137,66 @@ export default function AdminDashboard() {
 
     if (user?.email !== ADMIN_EMAIL) {
         return null; // Will redirect in useEffect
+    }
+
+    // Email Verification Required State
+    if (!user.emailVerified) {
+        return (
+            <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
+                <Card className="max-w-md w-full bg-white/5 border-white/10 text-white">
+                    <CardHeader className="text-center">
+                        <div className="mx-auto w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center mb-4">
+                            <Mail className="h-6 w-6 text-orange-500" />
+                        </div>
+                        <CardTitle className="text-xl">Email Verification Required</CardTitle>
+                        <CardDescription>
+                            Your email <strong>{user.email}</strong> is not verified.
+                            Admin access requires a verified email for security.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <Button
+                            className="w-full bg-[#6BD85E] hover:bg-[#5bc250] text-black font-bold"
+                            onClick={handleResendVerification}
+                            disabled={verifying}
+                        >
+                            {verifying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Resend Verification Email"}
+                        </Button>
+                        <Button
+                            variant="outline"
+                            className="w-full border-white/10 text-white"
+                            onClick={() => window.location.reload()}
+                        >
+                            I've verified my email
+                        </Button>
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
+
+    // Permission Denied State (likely verified but rule mismatch)
+    if (error) {
+        return (
+            <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
+                <Card className="max-w-md w-full bg-red-500/10 border-red-500/20 text-white">
+                    <CardHeader className="text-center">
+                        <div className="mx-auto w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mb-4">
+                            <AlertCircle className="h-6 w-6 text-red-500" />
+                        </div>
+                        <CardTitle className="text-xl">Access Denied</CardTitle>
+                        <CardDescription>
+                            {error}
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex justify-center">
+                        <Button variant="outline" className="border-white/10 text-white" onClick={() => router.push("/")}>
+                            Return Home
+                        </Button>
+                    </CardContent>
+                </Card>
+            </div>
+        );
     }
 
     return (

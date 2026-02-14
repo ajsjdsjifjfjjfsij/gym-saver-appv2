@@ -5,14 +5,17 @@ service cloud.firestore {
     // Submissions collection rules
     match /submissions/{submissionId} {
       // Allow any authenticated user to create a submission
+      // Ideally, we'd also check that the data being submitted belongs to them
       allow create: if request.auth != null;
       
       // Only the admin can read, update, or delete submissions
-      allow read, update, delete: if request.auth != null && request.auth.token.email == 'josephbunton@live.co.uk';
+      allow read, update, delete: if request.auth != null && 
+                                   request.auth.token.email == 'josephbunton@live.co.uk' &&
+                                   request.auth.token.email_verified == true;
     }
     // Gyms collection rules
     match /gyms/{gymId} {
-      // Allow everyone to read gym data
+      // Allow public reads - security is enforced at the API layer
       allow read: if true;
       // Only the admin can write gym data (via Admin SDK/Service Account)
       allow write: if false;

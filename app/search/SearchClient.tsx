@@ -23,53 +23,35 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-import { collection, getDocs, query, orderBy, limit, where } from "firebase/firestore"
-import { db } from "@/lib/firebase"
-import { calculateDistance, Gym } from "@/lib/gym-utils"
+import { isBot, getDynamicSecret } from "@/lib/bot-detection"
+import { calculateDistance, Gym, getGymPrice } from "@/lib/gym-utils"
 
-export async function fetchGymsFromFirestore(centerLat: number, centerLng: number) {
-  if (!db) return [];
+export async function fetchGymsFromFirestore(centerLat: number, centerLng: number, searchTerm?: string) {
+  // 1. Bot Check
+  if (isBot()) {
+    console.warn("🛡️ Bot detected. Proxying request through bot-trap.");
+    // We'll let the API handle the poison pill
+  }
 
-  // ~1.5 degree is roughly 100 miles latitude. 
-  // Broadening this significanty to be more lenient with sparse data.
-  const latDelta = 1.5;
-  const minLat = centerLat - latDelta;
-  const maxLat = centerLat + latDelta;
+  const secret = getDynamicSecret();
+  const url = `/api/gyms?lat=${centerLat}&lng=${centerLng}&source=firestore${searchTerm ? `&query=${encodeURIComponent(searchTerm)}` : ''}`;
 
   try {
-    // Attempt query on new schema (location.lat)
-    const qNew = query(
-      collection(db, "gyms"),
-      where("location.lat", ">=", minLat),
-      where("location.lat", "<=", maxLat),
-      orderBy("location.lat"),
-      limit(200) // Fetch more to allow for filtering
-    );
-    const snapNew = await getDocs(qNew);
+    const res = await fetch(url, {
+      headers: {
+        "x-gymsaver-app-secret": secret
+      }
+    });
 
-    if (!snapNew.empty) {
-      return snapNew.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    if (!res.ok) {
+      throw new Error(`API Error: ${res.status}`);
     }
 
-    // Fallback: Attempt query on legacy schema (lat)
-    console.log("No results for 'location.lat', attempting fallback to 'lat'...");
-    const qLegacy = query(
-      collection(db, "gyms"),
-      where("lat", ">=", minLat),
-      where("lat", "<=", maxLat),
-      orderBy("lat"),
-      limit(100)
-    );
-    const snapLegacy = await getDocs(qLegacy);
-    return snapLegacy.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const data = await res.json();
+    return data.results || [];
   } catch (err) {
-    console.error("Firestore query failed:", err);
-
-    // Final Fallback: Fetch some gyms without filtering to see if anything exists
-    console.log("Attempting final fallback: fetch first 20 gyms regardless of location...");
-    const qFinal = query(collection(db, "gyms"), limit(20));
-    const snapFinal = await getDocs(qFinal);
-    return snapFinal.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    console.error("Proxied Firestore query failed:", err);
+    return [];
   }
 }
 
@@ -112,8 +94,8 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
   const [comparedGyms, setComparedGyms] = useState<Gym[]>([])
   const [showCompareTooltip, setShowCompareTooltip] = useState(false)
 
-  // Live Firebase Prices
-  const { prices: livePrices, loading: firebaseLoading, error: firebaseError } = useGymPrices()
+  // Live Firebase Prices - Only for authenticated users once we lock down Firestore
+  const { prices: livePrices, loading: firebaseLoading, error: firebaseError } = useGymPrices(!user)
 
   // Check for first-time user tooltip
   useEffect(() => {
@@ -171,9 +153,9 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
     setError(null)
 
     try {
-      console.log(`Fetching gyms near ${lat}, ${lng}...`)
-      // Pass coordinates to the new geo-query function
-      const firestoreGymsData = await fetchGymsFromFirestore(lat, lng);
+      console.log(`Fetching gyms near ${lat}, ${lng} with query: ${query || 'none'}...`)
+      // Pass coordinates and query to the geo-query function
+      const firestoreGymsData = await fetchGymsFromFirestore(lat, lng, query);
       console.log(`Firestore returned ${firestoreGymsData?.length || 0} documents.`);
 
       if (firestoreGymsData && firestoreGymsData.length > 0) {
@@ -195,12 +177,10 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
       console.log(`After longitude filter: ${filteredData.length} documents.`);
 
       // Determine effective query based on type if no explicit query
+      // REMOVED: Auto-setting query for types (e.g. "24 hour gym") causes strict string matching
+      // which hides valid gyms like "JD Gyms". We rely on client-side filteredGyms logic instead.
       let effectiveQuery = query;
-      if (!effectiveQuery) {
-        if (type === 'pilates') effectiveQuery = 'pilates';
-        else if (type === '24hr') effectiveQuery = '24 hour gym';
-        else if (type === 'spa') effectiveQuery = 'spa';
-      }
+
 
       // 2. Filter by: city == <searchTerm> OR name contains <searchTerm>
       // (Keep existing text search logic if user types something)
@@ -213,40 +193,108 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
           const nameMatch = name.includes(lowerQuery);
           return cityMatch || nameMatch;
         });
-      } else if (!query && lat && lng) {
-        // 2b. Implicit City Filter: If geolocated and no explicit search, pin to the closest city.
-        // This fulfills the requirement: "if a user allows location in 'swindon' all gyms in swindon should appear".
+      }
+      // 2b. Implicit City Filter - REMOVED
+      // We want to show all gyms within the radius, sorted by distance.
+      // The previous logic restricted results to the "closest city", hiding nearby gyms in other towns.
+      /*
+      else if (!query && lat && lng) {
+        // ... (removed restrictive logic)
+      }
+      */
 
-        // First, calculate distance to all gyms to find the closest one
-        const gymsWithDist = filteredData.map((g: any) => {
-          const gLat = g.location?.lat !== undefined ? g.location.lat : g.lat;
-          const gLng = g.location?.lng !== undefined ? g.location.lng : g.lng;
-          return { ...g, _dist: calculateDistance(lat, lng, gLat, gLng) };
-        });
+      // 2c. Price Filter: Hide gyms with no memberships or a price of 0.00
+      // 2c. Price Filter: Hide gyms with no memberships or a price of 0.00
+      filteredData = filteredData.filter((g: any) => {
+        let price = g.lowest_price;
 
-        // Sort by distance
-        gymsWithDist.sort((a, b) => a._dist - b._dist);
+        // If lowest_price is missing, try to find it in memberships
+        if (price === undefined || price === null) {
+          if (g.memberships && Array.isArray(g.memberships) && g.memberships.length > 0) {
+            // Filter out invalid prices from memberships first
+            const validPrices = g.memberships
+              .map((m: any) => m.price)
+              .filter((p: any) => typeof p === 'number' && p > 0);
 
-        const closestGym = gymsWithDist[0];
-        if (closestGym && closestGym._dist < 15) { // If within 15 miles, assume this is the user's city
-          const userCity = (closestGym.city || "").toLowerCase();
-          if (userCity) {
-            console.log(`Implicit City Filter: User appears to be in ${userCity}. Filtering results...`);
-            filteredData = filteredData.filter((g: any) => (g.city || "").toLowerCase() === userCity);
+            if (validPrices.length > 0) {
+              price = Math.min(...validPrices);
+            }
           }
         }
-      }
 
-      // 3. Sort by lowest_price ascending (Client Side)
+        // Strict Check: Must have a valid number > 0
+        return typeof price === 'number' && price > 0;
+      });
+
+      // 2d. Provider Exclusion: Hide "Better" (GLL) gyms completely
+      // Also exclude strict blacklist terms for non-gym venues
+      const unwantedTerms = [
+        "better ", "better gym", // Provider: Better (GLL)
+        "tennis", "hydro", "recreation", "online only", // Non-gym identifiers
+        "school", "college", "university", // Educational institutions
+        "croft sports", "haydon center" // Specific user-reported venues
+      ];
+
+      filteredData = filteredData.filter((g: any) => {
+        const name = (g.name || "").toLowerCase();
+
+        // Check blacklist
+        if (unwantedTerms.some(term => name.includes(term))) {
+          return false;
+        }
+
+        // 2e. Quality Filter: Remove "unlinked" or incomplete listings
+        // Rule: If user_ratings_total is missing/0 AND address/city is too generic
+        const ratings = g.user_ratings_total || 0;
+        const address = (g.address || "").toLowerCase();
+        const city = (g.city || "").toLowerCase();
+        const gymNameLower = name.toLowerCase();
+
+        // Target: "PureGym Swindon" with no specific address and 0 reviews
+        // If it's a major brand but has 0 reviews and an address identical to the city
+        const isMajorBrand = ["puregym", "jd gym", "the gym", "anytime fitness", "david lloyd", "nuffield health", "everlast gym"].some(brand => gymNameLower.includes(brand));
+
+        if (ratings === 0 && isMajorBrand) {
+          // If the address is just the city name (or empty), it's likely a generic unlinked placeholder
+          if (!address || address === city || address === "swindon") {
+            console.log(`Filtering out unlinked gym: ${g.name}`);
+            return false;
+          }
+        }
+
+        return true;
+      });
+
+      // Fix Naming Issues (e.g. Swindon Stratton -> PureGym Swindon Stratton)
+      filteredData.forEach((g: any) => {
+        if (g.name === "Swindon Stratton") {
+          g.name = "PureGym Swindon Stratton";
+        }
+      });
+
+      // 3. Sort by Distance (Primary) and Price (Secondary)
       filteredData.sort((a: any, b: any) => {
-        // Calculate price for A
+        // Calculate distances
+        const latA = a.location?.lat !== undefined ? a.location.lat : a.lat;
+        const lngA = a.location?.lng !== undefined ? a.location.lng : a.lng;
+        const distA = calculateDistance(lat, lng, latA, lngA);
+
+        const latB = b.location?.lat !== undefined ? b.location.lat : b.lat;
+        const lngB = b.location?.lng !== undefined ? b.location.lng : b.lng;
+        const distB = calculateDistance(lat, lng, latB, lngB);
+
+        // Sort by distance (ASC)
+        if (Math.abs(distA - distB) > 0.1) { // 0.1 mile buffer
+          return distA - distB;
+        }
+
+        // Secondary: Sort by Price
         let priceA = a.lowest_price;
         if (priceA === undefined && a.memberships && Array.isArray(a.memberships) && a.memberships.length > 0) {
           priceA = Math.min(...a.memberships.map((m: any) => m.price));
         }
         if (priceA === undefined) priceA = Number.MAX_VALUE;
 
-        // Calculate price for B
         let priceB = b.lowest_price;
         if (priceB === undefined && b.memberships && Array.isArray(b.memberships) && b.memberships.length > 0) {
           priceB = Math.min(...b.memberships.map((m: any) => m.price));
@@ -256,8 +304,8 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
         return priceA - priceB;
       });
 
-      // 4. Limit results to 20 (User Request)
-      filteredData = filteredData.slice(0, 20);
+      // 4. Limit results to 50 (Increased for local coverage)
+      filteredData = filteredData.slice(0, 50);
 
       if (!filteredData || filteredData.length === 0) {
         console.log("No gyms found in Firestore matching query.");
@@ -270,16 +318,52 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
         const gymLat = g.location?.lat !== undefined ? g.location.lat : g.lat;
         const gymLng = g.location?.lng !== undefined ? g.location.lng : g.lng;
 
+        // Standardize Name
+        let gymName = g.name || "Unknown Gym";
+
+        // Specific Fixes
+        if (gymName === "Swindon Stratton") gymName = "PureGym Swindon Stratton";
+
+        // Brand Standardisation
+        if (gymName.toLowerCase().includes("puregym")) {
+          gymName = gymName.replace(/puregym/i, "PureGym");
+        } else if (gymName.toLowerCase().includes("jd gym")) {
+          gymName = gymName.replace(/jd\s?gyms?/i, "JD Gyms");
+        } else if (gymName.toLowerCase().includes("the gym")) {
+          // Only replace if it doesn't already look like "The Gym Group"
+          if (!gymName.includes("The Gym Group")) {
+            gymName = gymName.replace(/the\s?gym/i, "The Gym Group");
+          }
+        } else if (gymName.toLowerCase().includes("anytime fitness")) {
+          gymName = gymName.replace(/anytime\s?fitness/i, "Anytime Fitness");
+        } else if (gymName.toLowerCase().includes("nuffield health")) {
+          gymName = gymName.replace(/nuffield\s?health/i, "Nuffield Health");
+        } else if (gymName.toLowerCase().includes("david lloyd")) {
+          gymName = gymName.replace(/david\s?lloyd/i, "David Lloyd");
+        } else if (gymName.toLowerCase().includes("everlast gym")) {
+          gymName = gymName.replace(/everlast\s?gyms?/i, "Everlast Gyms");
+        }
+
         // Robust address extraction
-        let gymAddress = "Unknown Address";
-        if (typeof g.location === 'string') gymAddress = g.location;
-        else if (g.location?.address) gymAddress = g.location.address;
-        else if (g.city) gymAddress = g.city;
-        else if (g.address) gymAddress = g.address;
+        let gymAddress = "Unknown";
+        if (g.city && g.city !== "Unknown") {
+          gymAddress = g.city;
+        } else if (g.address && g.address !== "Unknown") {
+          gymAddress = g.address;
+        } else if (g.location?.address && g.location.address !== "Unknown") {
+          gymAddress = g.location.address;
+        } else if (typeof g.location === 'string' && g.location !== "Unknown") {
+          gymAddress = g.location;
+        }
+
+        // If still unknown, use empty string or a cleaner fallback
+        if (gymAddress === "Unknown" || gymAddress === "Unknown Address") {
+          gymAddress = g.city || "";
+        }
 
         return {
           id: g.place_id || g.id,
-          name: g.name || "Unknown Gym",
+          name: gymName,
           address: gymAddress,
           rating: g.rating || 0,
           type: g.type || "Gym",
@@ -293,6 +377,7 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
           googleMapsUri: g.googleMapsUri,
           photo_reference: g.photo_reference || g.photo || (g.photos && g.photos.length > 0 ? g.photos[0] : undefined),
           photos: g.photos || (g.photo_reference ? [g.photo_reference] : []),
+          website: g.website,
         };
       });
 
@@ -340,6 +425,14 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
         !gym.address.toLowerCase().includes(searchQuery.toLowerCase())
       ) {
         return false
+      }
+
+      // STRICT PRICE FILTER: Ensure the gym has a valid display price.
+      // This prevents "Prices coming soon" from appearing.
+      // We check what the UI would actually display.
+      const displayPrice = getGymPrice(gym, livePrices[gym.id]);
+      if (!displayPrice.monthly || displayPrice.monthly <= 0) {
+        return false;
       }
 
       // Sync Filter: Only show gyms that have synced data in Firebase (synced from APIFinder)
@@ -398,17 +491,15 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
           return gymType.includes("fitness") || gymType.includes("gym") || gymType.includes("crossfit") || gymType.includes("climbing");
         }
         if (type === "24hr") {
-          // We already fetched with "24 hour gym", so trust the results mostly.
-          // Optional: check 'open_now' if we want to be strict about "Right Now", but 24hr usually implies always open.
-          // If we have weekday_text, we can double check, but don't filter out if missing.
-          return true;
+          // Use authoritative 24hr flag if available, otherwise fallback to name heuristics
+          if (gym.is_24hr) return true;
+
+          // Fallback Heuristics
+          const nameLower = gym.name.toLowerCase();
+          return nameLower.includes("24") || nameLower.includes("puregym") || nameLower.includes("anytime") || nameLower.includes("the gym") || nameLower.includes("snap fitness") || nameLower.includes("jd gyms");
         }
         if (type === "pilates") {
           // We fetched with "pilates" keyword, so these are valid.
-          return true;
-        }
-        if (type === "spa") {
-          // Allow hotels, spas, wellness centers
           return true;
         }
       }

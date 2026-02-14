@@ -8,11 +8,6 @@ export const SplashScreen = () => {
     const [isVisible, setIsVisible] = useState(true)
     const [shouldRender, setShouldRender] = useState(true)
 
-    // Alignment Debug State - Removed for perfect center
-    // const [debugMode, setDebugMode] = useState(false) 
-    // const [spinnerX, setSpinnerX] = useState(17)
-    // const [spinnerY, setSpinnerY] = useState(-20) 
-
     useEffect(() => {
         // Minimum 4 seconds duration as requested, set to 5s for premium feel
         const timer = setTimeout(() => {
@@ -39,7 +34,10 @@ export const SplashScreen = () => {
                 }`}
         >
             <div className="relative animate-fade-in flex flex-col items-center gap-8 px-4">
-                <div className="relative w-48 h-32 sm:w-80 sm:h-52 drop-shadow-[0_0_35px_rgba(74,222,128,0.3)]">
+                <div
+                    className="relative w-48 h-32 sm:w-80 sm:h-52 drop-shadow-[0_0_35px_rgba(74,222,128,0.3)]"
+                    style={{ transform: "translate(-15px, 50px)" }}
+                >
                     <Image
                         src="/images/gymsaver_logo_new.png"
                         alt="GymSaver Logo"

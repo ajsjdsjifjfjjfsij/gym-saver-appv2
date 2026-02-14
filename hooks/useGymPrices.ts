@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { db } from '@/lib/firebase';
+import { db, auth } from '@/lib/firebase';
 import { collection, onSnapshot, getDocs } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
 
 export interface GymPrice {
     monthlyPrice?: number;
@@ -20,13 +21,22 @@ export interface GymPrice {
 
 export type GymPricesMap = Record<string, GymPrice>;
 
-export function useGymPrices() {
+export function useGymPrices(skip: boolean = false) {
     const [prices, setPrices] = useState<GymPricesMap>({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(!!auth?.currentUser);
 
     useEffect(() => {
-        if (!db) {
+        if (!auth) return;
+        const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+            setIsAuthenticated(!!user);
+        });
+        return () => unsubscribeAuth();
+    }, []);
+
+    useEffect(() => {
+        if (skip || !db || !isAuthenticated) {
             setLoading(false);
             return;
         }

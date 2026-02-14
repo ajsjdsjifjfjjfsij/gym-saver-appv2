@@ -68,30 +68,30 @@ export default function DownloadPage() {
                         One search. Every Gym. The best price near you.
                     </p>
 
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-6">
+                    <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start pt-6">
                         {/* Official App Store Badge */}
-                        <a
-                            href="#"
-                            className="transition-transform hover:scale-[1.03] active:scale-[0.98] duration-200"
-                        >
-                            <img
-                                src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg"
-                                alt="Download on the App Store"
-                                className="h-[60px] w-auto"
-                            />
-                        </a>
+                        <div className="flex flex-col items-center gap-2">
+                            <div className="transition-transform hover:scale-[1.03] active:scale-[0.98] duration-200 opacity-60">
+                                <img
+                                    src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg"
+                                    alt="Download on the App Store"
+                                    className="h-[50px] w-auto grayscale"
+                                />
+                            </div>
+                            <span className="text-[10px] font-black text-[#6BD85E] uppercase tracking-[0.2em] animate-pulse">Coming Soon!</span>
+                        </div>
 
                         {/* Official Google Play Badge */}
-                        <a
-                            href="#"
-                            className="transition-transform hover:scale-[1.03] active:scale-[0.98] duration-200"
-                        >
-                            <img
-                                src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
-                                alt="Get it on Google Play"
-                                className="h-[60px] w-auto"
-                            />
-                        </a>
+                        <div className="flex flex-col items-center gap-2">
+                            <div className="transition-transform hover:scale-[1.03] active:scale-[0.98] duration-200 opacity-60">
+                                <img
+                                    src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
+                                    alt="Get it on Google Play"
+                                    className="h-[50px] w-auto grayscale"
+                                />
+                            </div>
+                            <span className="text-[10px] font-black text-[#6BD85E] uppercase tracking-[0.2em] animate-pulse">Coming Soon!</span>
+                        </div>
                     </div>
 
                     <div className="pt-8 flex items-center justify-center lg:justify-start gap-8 text-sm text-slate-500">

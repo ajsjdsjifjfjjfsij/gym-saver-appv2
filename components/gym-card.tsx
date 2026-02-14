@@ -46,6 +46,14 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
 
   const handleSignUpClick = (e: React.MouseEvent) => {
     e.stopPropagation()
+
+    // If we have a direct website, always allow clicking it (even for guests)
+    if (gym.website) {
+      window.open(gym.website, '_blank')
+      return
+    }
+
+    // Fallback: If no direct website, require signup/login to see more/book
     if (!user) {
       if (onAuthRequired) {
         onAuthRequired()
@@ -53,10 +61,6 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
         router.push("/signup")
       }
       return
-    }
-
-    if (gym.website) {
-      window.open(gym.website, '_blank')
     }
   }
 
@@ -95,12 +99,6 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
           }}
         />
 
-        {/* Overlay for "Photo Pending" styling if no actual reference exists */}
-        {(!gym.photo_reference && (!gym.photos || gym.photos.length === 0)) && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
-            <span className="text-[10px] uppercase tracking-widest font-bold text-white/40 italic">Photo Pending</span>
-          </div>
-        )}
 
         {/* Floating Distance Badge */}
         <div className="absolute top-3 left-3 z-10 flex gap-2">
@@ -181,6 +179,11 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
           <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded">
             {gym.type}
           </span>
+          {(gym.is_24hr || gym.name.toLowerCase().includes("24") || gym.name.toLowerCase().includes("puregym") || gym.name.toLowerCase().includes("jd gyms") || gym.name.toLowerCase().includes("the gym") || gym.name.toLowerCase().includes("anytime") || gym.name.toLowerCase().includes("snap fitness")) && (
+            <span className="text-[10px] font-bold text-black bg-[#6BD85E] px-2 py-0.5 rounded flex items-center gap-1">
+              24/7
+            </span>
+          )}
         </div>
 
         <div className="flex flex-col pt-2 border-t border-white/5 space-y-2">

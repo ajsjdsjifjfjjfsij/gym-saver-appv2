@@ -112,3 +112,13 @@ export const isBot = (): boolean => {
 
     return false;
 };
+
+/**
+ * Generates a dynamic, time-based secret for API requests.
+ * Uses a secondary fallback secret known to the client.
+ */
+export const getDynamicSecret = (): string => {
+    const ts = Math.floor(Date.now() / 1000 / 60);
+    const secret = "gymsaver-secure-v1";
+    return btoa(`${secret}:${ts}`);
+};

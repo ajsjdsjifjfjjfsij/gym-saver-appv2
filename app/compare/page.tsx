@@ -39,7 +39,7 @@ export default function CompareGymsPage() {
     const { user, loading: authLoading } = useAuth()
     const router = useRouter()
     const [comparedGyms, setComparedGyms] = useState<Gym[]>([])
-    const { prices: livePrices } = useGymPrices()
+    const { prices: livePrices } = useGymPrices(!user)
 
     // Load saved gyms from localStorage
     useEffect(() => {

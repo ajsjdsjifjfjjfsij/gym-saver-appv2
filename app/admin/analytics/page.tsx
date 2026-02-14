@@ -5,7 +5,7 @@ import { useAuth } from "@/components/auth/AuthContext";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowLeft, Download, Calendar } from "lucide-react";
+import { Loader2, ArrowLeft, Download, Calendar, Mail, AlertCircle } from "lucide-react";
 import {
     BarChart,
     Bar,
@@ -72,10 +72,44 @@ export default function AnalyticsPage() {
         }
     }, [user, loading, router]);
 
-    if (loading || (user?.email !== ADMIN_EMAIL)) {
+    if (loading || !user) {
         return (
             <div className="flex h-screen items-center justify-center bg-black text-white">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
+
+    if (user.email !== ADMIN_EMAIL) {
+        return (
+            <div className="min-h-screen bg-black text-white flex items-center justify-center p-6 text-center">
+                <div className="space-y-4">
+                    <AlertCircle className="h-12 w-12 text-red-500 mx-auto" />
+                    <h2 className="text-xl font-bold">Unauthorized Access</h2>
+                    <p className="text-muted-foreground">You do not have permission to view this page.</p>
+                    <Button variant="outline" className="border-white/10" onClick={() => router.push("/")}>Return Home</Button>
+                </div>
+            </div>
+        );
+    }
+
+    if (!user.emailVerified) {
+        return (
+            <div className="min-h-screen bg-black text-white flex items-center justify-center p-6 text-center">
+                <Card className="max-w-md w-full bg-white/5 border-white/10 text-white">
+                    <CardHeader>
+                        <Mail className="h-12 w-12 text-orange-500 mx-auto mb-4" />
+                        <CardTitle>Email Verification Required</CardTitle>
+                        <CardDescription>
+                            Please verify your admin email to access analytics.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Button className="w-full bg-[#6BD85E] text-black font-bold" onClick={() => router.push("/admin")}>
+                            Go to Verification Settings
+                        </Button>
+                    </CardContent>
+                </Card>
             </div>
         );
     }

@@ -29,8 +29,7 @@ export function GymFilters({ filters, onFilterChange }: GymFiltersProps) {
             {filters.type === "all" ? "All Types" :
               filters.type === "gyms" ? "Gyms" :
                 filters.type === "24hr" ? "24hr gyms" :
-                  filters.type === "pilates" ? "Pilates" :
-                    filters.type === "spa" ? "Gym Spa" : filters.type}
+                  filters.type === "pilates" ? "Pilates (Soon)" : filters.type}
             <ChevronDown className="ml-1 h-3 w-3" />
           </Button>
         </DropdownMenuTrigger>
@@ -38,8 +37,7 @@ export function GymFilters({ filters, onFilterChange }: GymFiltersProps) {
           <DropdownMenuItem onClick={() => onFilterChange("type", "all")}>All Types</DropdownMenuItem>
           <DropdownMenuItem onClick={() => onFilterChange("type", "gyms")}>Gyms</DropdownMenuItem>
           <DropdownMenuItem onClick={() => onFilterChange("type", "24hr")}>24hr gyms</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onFilterChange("type", "pilates")}>Pilates</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onFilterChange("type", "spa")}>Gym Spa</DropdownMenuItem>
+          <DropdownMenuItem disabled className="opacity-50 cursor-not-allowed">Pilates (Coming Soon)</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 

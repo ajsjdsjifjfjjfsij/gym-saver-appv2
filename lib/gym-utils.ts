@@ -18,10 +18,7 @@ export interface Gym {
     detailedPricing?: any; // For backward compatibility
     user_ratings_total?: number;
     googleMapsUri?: string;
-    location?: {
-        lat: number;
-        lng: number;
-    };
+    is_24hr?: boolean;
 }
 
 export const FACILITIES = [
@@ -58,7 +55,7 @@ export function getGymFacilities(gym: Gym) {
     return {
         pool: name.includes("spa") || name.includes("hotel") || name.includes("david lloyd") || name.includes("bannatyne") || name.includes("virgin active") || name.includes("nuffield"),
         sauna: name.includes("spa") || name.includes("hotel") || name.includes("bannatyne") || name.includes("nuffield") || name.includes("david lloyd") || name.includes("virgin active"),
-        "24hr": name.includes("puregym") || name.includes("anytime") || name.includes("the gym") || name.includes("snap fitness") || name.includes("jd gyms"),
+        "24hr": gym.is_24hr || name.includes("puregym") || name.includes("anytime") || name.includes("the gym") || name.includes("snap fitness") || name.includes("jd gyms") || name.includes("24"),
         classes: true, // Most gyms have classes
         parking: !name.includes("city") && !name.includes("central"),
         weights: true, // All gyms have weights
@@ -101,6 +98,15 @@ export function getGymPrice(gym: Gym, livePrice?: GymPrice) {
         return {
             monthly: livePrice.monthlyPrice,
             joiningFee: livePrice.joiningfees,
+            isEstimate: false
+        };
+    }
+
+    // 1.5 Gym Object Price (from Firestore document directly via Proxy)
+    if ((gym as any).lowest_price !== undefined) {
+        return {
+            monthly: (gym as any).lowest_price,
+            joiningFee: 0, // Fallback if not root
             isEstimate: false
         };
     }

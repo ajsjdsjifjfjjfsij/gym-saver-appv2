@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY
 const BASE_URL = "https://maps.googleapis.com/maps/api/place"
@@ -10,12 +10,13 @@ export async function GET(request: Request) {
     const lat = searchParams.get("lat")
     const lng = searchParams.get("lng")
     const query = searchParams.get("query") || "gym"
-    const radius = searchParams.get("radius") || "5000" // Default 5km
+    const radius = searchParams.get("radius") || "50000" // Default 50km
+    const source = searchParams.get("source") || "places" // 'places' or 'firestore'
 
-    // 1. Rate Limiting and Initial Security Check
+    // ---------------------------------------------------------
+    // 1. Rate Limiting and Initial Security Check (TOP LEVEL)
+    // ---------------------------------------------------------
     const ip = request.headers.get("x-forwarded-for") || "unknown"
-
-    // Poison Pill: If the IP is already flagged as a bot, feed it junk data
     const globalAny = global as any;
     const isLocalhost = ip === "::1" || ip === "127.0.0.1" || ip.includes("localhost");
 
@@ -25,6 +26,7 @@ export async function GET(request: Request) {
         return NextResponse.json({ success: true, message: "Security list cleared" });
     }
 
+    // Poison Pill Check
     if (globalAny.blockedIPs?.has(ip) && !isLocalhost) {
         console.error(`🧪 FEEDING POISON to confirmed bot: ${ip}`);
         return NextResponse.json({
@@ -48,7 +50,6 @@ export async function GET(request: Request) {
     const timeWindow = 60 * 1000 // 1 minute
     const limit = 20 // 20 requests per minute per IP
 
-    // Simple In-Memory cleanup (Not production scale but works for single instance)
     if (!globalAny.rateLimitMap) globalAny.rateLimitMap = new Map();
     const requestLog = globalAny.rateLimitMap.get(ip) || []
     const recentRequests = requestLog.filter((time: number) => now - time < timeWindow)
@@ -61,29 +62,29 @@ export async function GET(request: Request) {
         )
     }
 
-    // Update log
     recentRequests.push(now)
     globalAny.rateLimitMap.set(ip, recentRequests)
 
+    // ---------------------------------------------------------
     // 2. Strict Browser Signal Validation
+    // ---------------------------------------------------------
     const userAgent = request.headers.get("user-agent") || ""
     const referer = request.headers.get("referer") || ""
-    const secChUa = request.headers.get("sec-ch-ua") || ""
 
-    // Block common bot User-Agents
     const botPatterns = [/bot/i, /crawler/i, /spider/i, /headless/i, /curl/i, /postman/i, /axios/i]
     if (botPatterns.some(pattern => pattern.test(userAgent))) {
         console.warn(`Blocked bot User-Agent: ${userAgent} from IP: ${ip}`)
         return NextResponse.json({ error: "Access Denied" }, { status: 403 })
     }
 
-    // Ensure referer is present in production (but don't require exact host match to avoid blocking legitimate requests)
     if (process.env.NODE_ENV === "production" && !referer) {
         console.warn(`Missing referer from IP: ${ip}`)
         return NextResponse.json({ error: "Access Denied" }, { status: 403 })
     }
 
+    // ---------------------------------------------------------
     // 3. Dynamic Secret Validation (Bot Protection)
+    // ---------------------------------------------------------
     const dynamicToken = request.headers.get("x-gymsaver-app-secret") || "";
     let isValid = false;
 
@@ -93,25 +94,26 @@ export async function GET(request: Request) {
         const clientTs = parseInt(tsStr);
         const serverTs = Math.floor(Date.now() / 1000 / 60);
 
-        // Allow 5 minute window for clock drift
         if (
-            (secret === process.env.NEXT_PUBLIC_APP_SECRET || secret === "gymsaver-secure-v1") &&
+            (secret === process.env.APP_SECRET || secret === "gymsaver-secure-v1") &&
             Math.abs(serverTs - clientTs) <= 5
         ) {
             isValid = true;
         }
     } catch (e) {
-        // Fallback for direct "gymsaver-secure-v1" if not base64 during dev
-        if (dynamicToken === "gymsaver-secure-v1" || dynamicToken === process.env.NEXT_PUBLIC_APP_SECRET) {
+        if (dynamicToken === "gymsaver-secure-v1" || dynamicToken === process.env.APP_SECRET) {
             isValid = true;
         }
     }
 
     if (!isValid) {
-        console.warn(`Invalid dynamic token from IP: ${ip}. Secret: ${process.env.NEXT_PUBLIC_APP_SECRET ? 'set' : 'missing'}`)
+        console.warn(`Invalid dynamic token from IP: ${ip}. Secret: ${process.env.APP_SECRET ? 'set' : 'missing'}`)
         return NextResponse.json({ error: "Unauthorized", debug: { serverTs: Math.floor(now / 1000 / 60) } }, { status: 401 })
     }
 
+    // ---------------------------------------------------------
+    // 4. Parameter Validation
+    // ---------------------------------------------------------
     if (!lat || !lng) {
         return NextResponse.json(
             { error: "Latitude and Longitude are required" },
@@ -119,18 +121,78 @@ export async function GET(request: Request) {
         )
     }
 
-    const apiKey = GOOGLE_MAPS_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-
-    // Fallback to mock data if no API key is present
-    if (!apiKey) {
-        console.warn("GOOGLE_MAPS_API_KEY is not set. Returning mock data.")
-        return NextResponse.json({
-            results: [],
-            warning: "No API Key provided. Using mock data in frontend.",
-        })
-    }
-
+    // ---------------------------------------------------------
+    // 5. Data Fetching (Firestore or Places)
+    // ---------------------------------------------------------
     try {
+        if (source === "firestore") {
+            // Dynamic imports to save bundle size if not used
+            const { getFirestore, collection, query: fsQuery, where, orderBy, limit: fsLimit, getDocs } = await import("firebase/firestore");
+            const { initializeApp, getApps, getApp } = await import("firebase/app");
+            // NOTE: Removed server-side auth import to prevent 500 errors in serverless environment without Admin SDK
+
+            const firebaseConfig = {
+                apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+                authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+                projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+                storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+                messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+                appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+                databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
+            };
+
+            const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+            const db = getFirestore(app);
+
+            // Calculate bounding box based on radius
+            // 1 degree lat ~= 111 km
+            const radiusInMeters = parseFloat(radius) || 50000;
+            const radiusInKm = radiusInMeters / 1000;
+            // Add 20% buffer to ensure we catch edge cases
+            const latDelta = (radiusInKm / 111) * 1.2;
+
+            const minLat = parseFloat(lat) - latDelta;
+            const maxLat = parseFloat(lat) + latDelta;
+
+            const q = fsQuery(
+                collection(db, "gyms"),
+                where("location.lat", ">=", minLat),
+                where("location.lat", "<=", maxLat),
+                orderBy("location.lat"),
+                fsLimit(1000) // Increase limit to ensure we get all gyms in the radius
+            );
+
+            const snap = await getDocs(q);
+            const firestoreResults = snap.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: data.place_id || doc.id,
+                    ...data,
+                    lat: data.location?.lat !== undefined ? data.location.lat : data.lat,
+                    lng: data.location?.lng !== undefined ? data.location.lng : data.lng,
+                    rating: data.rating || 0,
+                    user_ratings_total: data.user_ratings_total || 0,
+                };
+            }).filter(g => {
+                const data = g as any;
+                const name = (data.name || "").toLowerCase();
+                // Hide if name starts with "better " or contains "better gym"
+                // Also check for "better:"
+                return !name.startsWith("better ") && !name.includes("better gym") && !name.includes("better:");
+            });
+
+            return NextResponse.json({ results: firestoreResults });
+        }
+
+        // Google Places API Fallback
+        const apiKey = GOOGLE_MAPS_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+        if (!apiKey) {
+            return NextResponse.json({
+                results: [],
+                warning: "No API Key provided. Using mock data in frontend.",
+            })
+        }
+
         const isSearch = !!query && query !== "gym";
         const endpoint = isSearch
             ? "https://places.googleapis.com/v1/places:searchText"
@@ -178,44 +240,24 @@ export async function GET(request: Request) {
         }
 
         const places = data.places || [];
-
-        // Strict Backend Filtering: Remove unwanted categories and keywords
-        // Strict Backend Filtering: ALLOWED TYPES ONLY + Blocklist
         const ALLOWED_TYPES = [
-            "gym",
-            "fitness_center",
-            "sports_club",
-            "sports_complex",
-            "yoga_studio",
-            "pilates_studio",
-            "athletic_field",
-            "swimming_pool",
-            "leisure_centre"
+            "gym", "fitness_center", "sports_club", "sports_complex",
+            "yoga_studio", "pilates_studio", "athletic_field",
+            "swimming_pool", "leisure_centre"
         ];
 
         const filteredPlaces = places.filter((place: any) => {
             const name = (place.displayName?.text || "").toLowerCase();
             const type = (place.primaryType || "").toLowerCase();
-
-            // 1. Must match an allowed type
-            // Google Places API (New) returns types like "fitness_center", "gym", etc.
-            // We check if the primaryType is in our allowed list OR if it contains "fitness" or "gym" as a catch-all for variations.
             const isAllowedType = ALLOWED_TYPES.some(allowed => type === allowed || type.includes("gym") || type.includes("fitness"));
 
             if (!isAllowedType) return false;
 
-            const unwantedTerms = ["boxing", "kickboxing", "gymnastics", "training ground", "dance", "martial arts", "pizza", "restaurant", "pub", "bar", "cafe"];
-
-            // 2. Must NOT match blocklist (names or types)
-            const hasUnwantedTerm = unwantedTerms.some(term => name.includes(term) || type.includes(term));
-
-            return !hasUnwantedTerm;
+            const unwantedTerms = ["boxing", "kickboxing", "gymnastics", "training ground", "dance", "martial arts", "pizza", "restaurant", "pub", "bar", "cafe", "better gym", "better "];
+            return !unwantedTerms.some(term => name.includes(term) || type.includes(term));
         });
 
         const cleanedResults = filteredPlaces.map((place: any) => {
-            // detailed URL construction happens below or in frontend. 
-            // Using resource name directly relative to the google API requires a key. 
-            // We'll pass the resource name.
             const photos = place.photos?.map((p: any) => p.name).slice(0, 5) || [];
             const photoResource = photos.length > 0 ? photos[0] : undefined;
 
@@ -239,9 +281,9 @@ export async function GET(request: Request) {
         });
 
         return NextResponse.json({ results: cleanedResults });
+
     } catch (error: any) {
         console.error("Error fetching gyms:", error);
-        console.error("API Key used (first 5 chars):", GOOGLE_MAPS_API_KEY?.substring(0, 5));
         return NextResponse.json(
             { error: "Failed to fetch gyms", details: error.message },
             { status: 500 }
