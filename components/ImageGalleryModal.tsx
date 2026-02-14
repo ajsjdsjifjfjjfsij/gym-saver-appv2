@@ -67,14 +67,12 @@ export function ImageGalleryModal({ gym, isOpen, onClose }: ImageGalleryModalPro
                             <CarouselContent className="-ml-0 h-full">
                                 {photos.map((photoRef, index) => (
                                     <CarouselItem key={index} className="pl-0 relative h-full flex items-center justify-center">
-                                        <div
-                                            className="relative w-full h-full flex items-center justify-center cursor-default"
-                                            onClick={(e) => e.stopPropagation()}
-                                        >
+                                        <div className="relative w-full h-full flex items-center justify-center">
                                             <img
                                                 src={getGooglePhotoUrl(photoRef)}
                                                 alt={`${gym.name} photo ${index + 1}`}
                                                 className="max-w-full max-h-full object-contain"
+                                                onClick={(e) => e.stopPropagation()}
                                             />
                                         </div>
                                     </CarouselItem>
