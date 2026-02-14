@@ -46,8 +46,8 @@ export function ImageGalleryModal({ gym, isOpen, onClose }: ImageGalleryModalPro
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="max-w-4xl w-full bg-black/95 border-white/10 p-0 overflow-hidden sm:rounded-3xl">
-                <DialogHeader className="p-4 border-b border-white/10 bg-black/50 backdrop-blur-md absolute top-0 left-0 right-0 z-50">
+            <DialogContent className="max-w-5xl w-full bg-black border-none p-0 overflow-hidden sm:rounded-3xl z-[100] h-[90vh] flex flex-col">
+                <DialogHeader className="p-4 bg-black/80 backdrop-blur-md absolute top-0 left-0 right-0 z-[110] border-b border-white/10">
                     <div className="flex flex-col gap-1 items-start pr-12">
                         <DialogTitle className="text-xl font-bold text-white">{gym.name}</DialogTitle>
                         <p className="text-sm text-slate-400 flex items-center gap-1">
@@ -57,17 +57,17 @@ export function ImageGalleryModal({ gym, isOpen, onClose }: ImageGalleryModalPro
                     </div>
                 </DialogHeader>
 
-                <div className="relative w-full aspect-video sm:aspect-[16/9] md:aspect-[21/9] lg:h-[80vh] bg-black flex items-center justify-center">
+                <div className="relative w-full flex-1 bg-black flex items-center justify-center overflow-hidden">
                     {hasPhotos ? (
-                        <Carousel className="w-full h-full">
-                            <CarouselContent className="h-full">
+                        <Carousel className="w-full h-full" opts={{ loop: true }}>
+                            <CarouselContent className="-ml-0 h-full">
                                 {photos.map((photoRef, index) => (
-                                    <CarouselItem key={index} className="relative h-full flex items-center justify-center pt-0">
-                                        <div className="relative w-full h-full">
+                                    <CarouselItem key={index} className="pl-0 relative h-full flex items-center justify-center">
+                                        <div className="relative w-full h-full flex items-center justify-center">
                                             <img
                                                 src={getGooglePhotoUrl(photoRef)}
                                                 alt={`${gym.name} photo ${index + 1}`}
-                                                className="w-full h-full object-contain"
+                                                className="max-w-full max-h-full object-contain"
                                             />
                                         </div>
                                     </CarouselItem>
@@ -75,8 +75,8 @@ export function ImageGalleryModal({ gym, isOpen, onClose }: ImageGalleryModalPro
                             </CarouselContent>
                             {photos.length > 1 && (
                                 <>
-                                    <CarouselPrevious className="left-4 bg-black/50 border-white/20 text-white hover:bg-[#6BD85E] hover:text-black hover:border-[#6BD85E]" />
-                                    <CarouselNext className="right-4 bg-black/50 border-white/20 text-white hover:bg-[#6BD85E] hover:text-black hover:border-[#6BD85E]" />
+                                    <CarouselPrevious className="left-4 bg-black/50 border-white/20 text-white hover:bg-[#6BD85E] hover:text-black hover:border-[#6BD85E] z-[120]" />
+                                    <CarouselNext className="right-4 bg-black/50 border-white/20 text-white hover:bg-[#6BD85E] hover:text-black hover:border-[#6BD85E] z-[120]" />
                                 </>
                             )}
                         </Carousel>
