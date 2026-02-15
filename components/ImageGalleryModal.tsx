@@ -48,8 +48,11 @@ export function ImageGalleryModal({ gym, isOpen, onClose }: ImageGalleryModalPro
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent showCloseButton={false} className="max-w-5xl w-full bg-black border-none p-0 overflow-hidden sm:rounded-3xl z-[100] h-[90vh] flex flex-col">
-                <DialogHeader className="p-4 bg-black/80 backdrop-blur-md absolute top-0 left-0 right-0 z-[110] border-b border-white/10 flex flex-row items-center justify-between pointer-events-none">
-                    <div className="flex flex-col gap-1 items-start pr-12 pointer-events-auto">
+                <DialogHeader
+                    className="p-4 bg-black/80 backdrop-blur-md absolute top-0 left-0 right-0 z-[110] border-b border-white/10 flex flex-row items-center justify-between cursor-pointer hover:bg-black/90 transition-colors"
+                    onClick={onClose}
+                >
+                    <div className="flex flex-col gap-1 items-start pr-12">
                         <DialogTitle className="text-xl font-bold text-white">{gym.name}</DialogTitle>
                         <p className="text-sm text-slate-400 flex items-center gap-1">
                             <MapPin className="h-3 w-3" />
@@ -71,7 +74,7 @@ export function ImageGalleryModal({ gym, isOpen, onClose }: ImageGalleryModalPro
                                             <img
                                                 src={getGooglePhotoUrl(photoRef)}
                                                 alt={`${gym.name} photo ${index + 1}`}
-                                                className="max-w-full max-h-full object-contain"
+                                                className="max-w-full max-h-[80vh] md:max-h-full object-contain"
                                                 onClick={(e) => e.stopPropagation()}
                                             />
                                         </div>
@@ -101,8 +104,8 @@ export function ImageGalleryModal({ gym, isOpen, onClose }: ImageGalleryModalPro
 
                 {/* Footer / Counter */}
                 {hasPhotos && (
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-xs font-mono text-white/80">
-                        Swipe to view photos
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-xs font-mono text-white/80 whitespace-nowrap">
+                        Swipe to view • Tap background to close
                     </div>
                 )}
 
