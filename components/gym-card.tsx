@@ -278,7 +278,7 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
                 className="bg-[#6BD85E] hover:bg-[#5bc250] text-black font-black h-8 px-4 rounded-xl shadow-[0_0_15px_rgba(107,216,94,0.3)] hover:shadow-[0_0_20px_rgba(107,216,94,0.5)] transition-all uppercase text-[11px] tracking-tight"
                 onClick={handleSignUpClick}
               >
-                Sign Up
+                Join Gym
               </Button>
             </div>
           </div>
@@ -295,6 +295,6 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
           )}
         </div>
       </div>
-    </div>
+    </div >
   )
 }
