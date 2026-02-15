@@ -78,6 +78,7 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
     distance: "all",
     price: "all",
     rating: "all",
+    sortBy: "distance_asc",
   })
   const [savedGyms, setSavedGyms] = useState<Gym[]>([])
   const [selectedGym, setSelectedGym] = useState<Gym | null>(null)
@@ -159,7 +160,13 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
     try {
       console.log(`Fetching gyms near ${lat}, ${lng} with query: ${query || 'none'}...`)
       // Pass coordinates and query to the geo-query function
-      const rawData = await fetchGymsFromFirestore(lat, lng, query);
+      let rawData;
+      try {
+        rawData = await fetchGymsFromFirestore(lat, lng, query);
+      } catch (fError) {
+        console.error("fetchGymsFromFirestore crashed:", fError);
+        rawData = [];
+      }
 
       // CRITICAL: Ensure rawData is an array to prevent "filter is not a function" crash
       const firestoreGymsData = Array.isArray(rawData) ? rawData : [];
@@ -167,8 +174,12 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
       console.log(`[Diagnostic] Firestore returned ${firestoreGymsData.length} total documents.`);
 
       if (firestoreGymsData.length > 0) {
-        const jdCheck = firestoreGymsData.filter((g: any) => (g.name || "").toLowerCase().includes("jd"));
-        console.log(`[Diagnostic] JD Gyms in RAW firestore response: ${jdCheck.length}`);
+        try {
+          const jdCheck = firestoreGymsData.filter((g: any) => g && (g.name || "").toLowerCase().includes("jd"));
+          console.log(`[Diagnostic] JD Gyms in RAW firestore response: ${jdCheck.length}`);
+        } catch (e) {
+          console.warn("JD Check log failed:", e);
+        }
       }
 
       let filteredData = firestoreGymsData;

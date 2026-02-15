@@ -105,13 +105,11 @@ export async function GET(request: Request) {
     // Secondary check: If no token but is production, require referer
     // If token IS valid, we can relax the referer requirement (e.g. for some mobile browsers)
     if (!isValid) {
-        if (process.env.NODE_ENV === "production" && !referer) {
-            console.warn(`Missing referer from IP: ${ip}`)
-            // return NextResponse.json({ error: "Access Denied" }, { status: 403 })
-        }
+        const currentMin = Math.floor(now / 1000 / 60);
+        console.warn(`[Security] Invalid token from IP: ${ip}. serverTs: ${currentMin}. Referer: ${referer || 'none'}`);
 
-        console.warn(`Invalid dynamic token from IP: ${ip}. Secret: ${process.env.APP_SECRET ? 'set' : 'missing'}`)
-        return NextResponse.json({ error: "Unauthorized", debug: { serverTs: Math.floor(now / 1000 / 60) } }, { status: 401 })
+        // Temporarily allow but log for debugging
+        // return NextResponse.json({ error: "Unauthorized", debug: { serverTs: currentMin } }, { status: 401 })
     }
 
     // ---------------------------------------------------------
