@@ -158,10 +158,11 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
       console.log(`Fetching gyms near ${lat}, ${lng} with query: ${query || 'none'}...`)
       // Pass coordinates and query to the geo-query function
       const firestoreGymsData = await fetchGymsFromFirestore(lat, lng, query);
-      console.log(`Firestore returned ${firestoreGymsData?.length || 0} documents.`);
+      console.log(`[Diagnostic] Firestore returned ${firestoreGymsData?.length || 0} total documents.`);
 
       if (firestoreGymsData && firestoreGymsData.length > 0) {
-        console.log("Sample document structure:", JSON.stringify(firestoreGymsData[0], null, 2));
+        const jdCheck = firestoreGymsData.filter((g: any) => (g.name || "").toLowerCase().includes("jd"));
+        console.log(`[Diagnostic] JD Gyms in RAW firestore response: ${jdCheck.length}`);
       }
 
       let filteredData = firestoreGymsData;
@@ -208,10 +209,10 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
       // 2c. Price Filter: Relaxed to allow gyms with hardcoded fallbacks
       filteredData = filteredData.filter((g: any) => {
         let price = g.lowest_price;
+        const name = (g.name || "").toLowerCase();
 
         // If lowest_price is missing or 0, check if it's a major chain that has a fallback in getGymPrice
         if (price === undefined || price === null || price === 0) {
-          const name = (g.name || "").toLowerCase();
           const hasFallback = [
             "puregym", "pure gym", "the gym", "anytime", "david lloyd",
             "nuffield", "everlast", "jd gym", "snap fitness", "snap",
@@ -233,8 +234,11 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
           }
         }
 
-        // Check if we ultimately have a price > 0 or it's a chain we handle
-        return (typeof price === 'number' && price > 0);
+        const keep = (typeof price === 'number' && price > 0);
+        if (!keep && name.includes("jd")) {
+          console.log(`[Diagnostic] Filtering out JD Gym by price: ${name} (Price: ${price})`);
+        }
+        return keep;
       });
 
       // 2d. Provider Exclusion: Hide "Better" (GLL) gyms completely
@@ -263,7 +267,7 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
 
         // Target: "PureGym Swindon" with no specific address and 0 reviews
         // If it's a major brand but has 0 reviews and an address identical to the city
-        const isMajorBrand = ["puregym", "the gym", "anytime fitness", "david lloyd", "nuffield health", "everlast gym"].some(brand => gymNameLower.includes(brand));
+        const isMajorBrand = ["puregym", "the gym", "anytime fitness", "david lloyd", "nuffield health", "everlast gym", "jd gyms", "jd gym"].some(brand => gymNameLower.includes(brand));
 
         if (ratings === 0 && isMajorBrand) {
           // If the address is just the city name (or empty), it's likely a generic unlinked placeholder
