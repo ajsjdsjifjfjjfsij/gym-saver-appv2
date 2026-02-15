@@ -120,5 +120,10 @@ export const isBot = (): boolean => {
 export const getDynamicSecret = (): string => {
     const ts = Math.floor(Date.now() / 1000 / 60);
     const secret = "gymsaver-secure-v1";
-    return btoa(`${secret}:${ts}`);
+    const str = `${secret}:${ts}`;
+
+    if (typeof window === "undefined") {
+        return Buffer.from(str).toString('base64');
+    }
+    return btoa(str);
 };

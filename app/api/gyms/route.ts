@@ -77,11 +77,6 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: "Access Denied" }, { status: 403 })
     }
 
-    if (process.env.NODE_ENV === "production" && !referer) {
-        console.warn(`Missing referer from IP: ${ip}`)
-        return NextResponse.json({ error: "Access Denied" }, { status: 403 })
-    }
-
     // ---------------------------------------------------------
     // 3. Dynamic Secret Validation (Bot Protection)
     // ---------------------------------------------------------
@@ -94,9 +89,10 @@ export async function GET(request: Request) {
         const clientTs = parseInt(tsStr);
         const serverTs = Math.floor(Date.now() / 1000 / 60);
 
+        // Relax tolerance to 10 minutes to handle clock drift
         if (
             (secret === process.env.APP_SECRET || secret === "gymsaver-secure-v1") &&
-            Math.abs(serverTs - clientTs) <= 5
+            Math.abs(serverTs - clientTs) <= 10
         ) {
             isValid = true;
         }
@@ -106,7 +102,14 @@ export async function GET(request: Request) {
         }
     }
 
+    // Secondary check: If no token but is production, require referer
+    // If token IS valid, we can relax the referer requirement (e.g. for some mobile browsers)
     if (!isValid) {
+        if (process.env.NODE_ENV === "production" && !referer) {
+            console.warn(`Missing referer from IP: ${ip}`)
+            // return NextResponse.json({ error: "Access Denied" }, { status: 403 })
+        }
+
         console.warn(`Invalid dynamic token from IP: ${ip}. Secret: ${process.env.APP_SECRET ? 'set' : 'missing'}`)
         return NextResponse.json({ error: "Unauthorized", debug: { serverTs: Math.floor(now / 1000 / 60) } }, { status: 401 })
     }
