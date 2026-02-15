@@ -319,8 +319,8 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
         return priceA - priceB;
       });
 
-      // 4. Limit results to 50 (Increased for local coverage)
-      filteredData = filteredData.slice(0, 50);
+      // 4. Limit results to 100 (Increased for local coverage)
+      filteredData = filteredData.slice(0, 100);
 
       if (!filteredData || filteredData.length === 0) {
         console.log("No gyms found in Firestore matching query.");
