@@ -159,10 +159,14 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
     try {
       console.log(`Fetching gyms near ${lat}, ${lng} with query: ${query || 'none'}...`)
       // Pass coordinates and query to the geo-query function
-      const firestoreGymsData = await fetchGymsFromFirestore(lat, lng, query);
-      console.log(`[Diagnostic] Firestore returned ${firestoreGymsData?.length || 0} total documents.`);
+      const rawData = await fetchGymsFromFirestore(lat, lng, query);
 
-      if (firestoreGymsData && firestoreGymsData.length > 0) {
+      // CRITICAL: Ensure rawData is an array to prevent "filter is not a function" crash
+      const firestoreGymsData = Array.isArray(rawData) ? rawData : [];
+
+      console.log(`[Diagnostic] Firestore returned ${firestoreGymsData.length} total documents.`);
+
+      if (firestoreGymsData.length > 0) {
         const jdCheck = firestoreGymsData.filter((g: any) => (g.name || "").toLowerCase().includes("jd"));
         console.log(`[Diagnostic] JD Gyms in RAW firestore response: ${jdCheck.length}`);
       }
