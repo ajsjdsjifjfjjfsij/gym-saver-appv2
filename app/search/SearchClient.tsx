@@ -36,7 +36,9 @@ export async function fetchGymsFromFirestore(centerLat: number, centerLng: numbe
   const secret = getDynamicSecret();
   // Add a timestamp for cache busting
   const ts = Date.now();
-  const url = `/api/gyms?lat=${centerLat}&lng=${centerLng}&source=firestore${searchTerm ? `&query=${encodeURIComponent(searchTerm)}` : ''}&_ts=${ts}`;
+  const radius = 100000; // Increase to 100km for better coverage
+  const url = `/api/gyms?lat=${centerLat}&lng=${centerLng}&source=firestore${searchTerm ? `&query=${encodeURIComponent(searchTerm)}` : ''}&radius=${radius}&_ts=${ts}`;
+  console.log(`[Diagnostic] Fetching: ${url}`);
 
   try {
     const res = await fetch(url, {
@@ -168,16 +170,14 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
       let filteredData = firestoreGymsData;
 
       // 1. Client-side Longitude Filter (Approximate bounding box completion)
-      // We only filtered by Latitude in Firestore. valid Lng range is also needed.
-      // Broadening this to +/- 2.0 for UK coverage.
-      const lngDelta = 2.0;
+      // Broadening this to +/- 3.0 for better coverage
+      const lngDelta = 3.0;
       filteredData = filteredData.filter((g: any) => {
         const docLng = g.location?.lng !== undefined ? g.location.lng : g.lng;
-        // console.log(`Checking doc ${g.name || g.id}: lng = ${docLng}`);
-        if (docLng === undefined) return true; // Show it if we don't know, don't hide it
+        if (docLng === undefined || docLng === 0) return true; // Show it if we don't know, don't hide it
         return docLng >= (lng - lngDelta) && docLng <= (lng + lngDelta);
       });
-      console.log(`After longitude filter: ${filteredData.length} documents.`);
+      console.log(`[Diagnostic] After longitude filter: ${filteredData.length} documents.`);
 
       // Determine effective query based on type if no explicit query
       // REMOVED: Auto-setting query for types (e.g. "24 hour gym") causes strict string matching
@@ -271,7 +271,10 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
 
         if (ratings === 0 && isMajorBrand) {
           // If the address is just the city name (or empty), it's likely a generic unlinked placeholder
-          if (!address || address === city || address === "swindon") {
+          if (!address || address === city || address === "swindon" || address === "unknown") {
+            // EXCEPTION: Never filter out JD Gyms by quality check
+            if (gymNameLower.includes("jd gym")) return true;
+
             console.log(`Filtering out unlinked gym: ${g.name}`);
             return false;
           }
