@@ -102,13 +102,11 @@ export async function GET(request: Request) {
         }
     }
 
-    // Secondary check: If no token but is production, require referer
-    // If token IS valid, we can relax the referer requirement (e.g. for some mobile browsers)
     if (!isValid) {
         const currentMin = Math.floor(now / 1000 / 60);
-        console.warn(`[Security] Invalid token from IP: ${ip}. serverTs: ${currentMin}. Referer: ${referer || 'none'}`);
+        console.warn(`[Security] Invalid token from IP: ${ip}. Token: "${dynamicToken}". serverTs: ${currentMin}. Referer: ${referer || 'none'}`);
 
-        // Temporarily allow but log for debugging
+        // TEMPORARY BYPASS: Allow requests while debugging 401 on live environment
         // return NextResponse.json({ error: "Unauthorized", debug: { serverTs: currentMin } }, { status: 401 })
     }
 

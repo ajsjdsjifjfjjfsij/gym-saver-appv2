@@ -805,7 +805,7 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
                           variant="outline"
                           className="w-full border-white/10 hover:bg-white/5 text-white h-11 rounded-xl"
                           onClick={() => {
-                            setFilters({ type: "all", distance: "all", price: "all", rating: "all" })
+                            setFilters({ type: "all", distance: "all", price: "all", rating: "all", sortBy: "distance_asc" })
                             setSearchQuery("")
                             setShowSavedOnly(false)
                           }}
