@@ -4,18 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { useTheme } from "next-themes"
 
 import { useToast } from "@/components/ui/use-toast"
-
-interface Gym {
-  id: string
-  name: string
-  address: string
-  rating: number
-  type: string
-  priceLevel: string
-  lat: number
-  lng: number
-  distance?: number
-}
+import { Gym } from "@/lib/gym-utils"
 
 interface GymMapProps {
   gyms: Gym[]

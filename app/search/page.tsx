@@ -1,5 +1,14 @@
 import { headers } from "next/headers";
 import SearchClient from "./SearchClient";
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: 'Search Gyms | GymSaver',
+    description: 'Find and compare gym prices near you. Filter by price, location, and facilities.',
+    alternates: {
+        canonical: 'https://www.gymsaverapp.com/search',
+    },
+};
 
 export default async function SearchPage() {
     const headersList = await headers();

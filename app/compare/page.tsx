@@ -7,23 +7,7 @@ import { ArrowLeft, Check, X, Star, MapPin, Trash2, ExternalLink } from "lucide-
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/components/auth/AuthContext"
-import { useGymPrices } from "@/hooks/useGymPrices"
-import { getGymFacilities, getGymPrice } from "@/lib/gym-utils"
-
-interface Gym {
-    id: string
-    name: string
-    address: string
-    rating: number
-    type: string
-    priceLevel: string
-    lat: number
-    lng: number
-    distance?: number
-    photo_reference?: string
-    photos?: string[]
-    website?: string
-}
+import { getGymFacilities, getGymPrice, Gym } from "@/lib/gym-utils"
 
 // Facility definitions for comparison
 const FACILITIES = [
@@ -39,7 +23,6 @@ export default function CompareGymsPage() {
     const { user, loading: authLoading } = useAuth()
     const router = useRouter()
     const [comparedGyms, setComparedGyms] = useState<Gym[]>([])
-    const { prices: livePrices } = useGymPrices(!user)
 
     // Load saved gyms from localStorage
     useEffect(() => {
@@ -56,8 +39,7 @@ export default function CompareGymsPage() {
     // (Logic duplicated from saved/page.tsx for consistency)
     const gymsWithFacilities = useMemo(() => {
         return comparedGyms.slice(0, 3).map(gym => {
-            const livePrice = livePrices[gym.id];
-            const { monthly } = getGymPrice(gym, livePrice);
+            const { monthly } = getGymPrice(gym);
 
             return {
                 ...gym,
@@ -68,7 +50,7 @@ export default function CompareGymsPage() {
                 }
             }
         })
-    }, [comparedGyms, livePrices])
+    }, [comparedGyms])
 
     const removeGym = (id: string) => {
         const updated = comparedGyms.filter(g => g.id !== id)

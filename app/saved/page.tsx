@@ -8,24 +8,7 @@ import { ArrowLeft, Check, X, Star, MapPin, Trash2, ExternalLink } from "lucide-
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/components/auth/AuthContext"
-import { getGymFacilities, getGymPrice } from "@/lib/gym-utils"
-
-interface Gym {
-    id: string
-    name: string
-    address: string
-    rating: number
-    type: string
-    priceLevel: string
-    lat: number
-    lng: number
-    distance?: number
-    photo_reference?: string
-    photos?: string[]
-    website?: string
-    user_ratings_total?: number
-    googleMapsUri?: string
-}
+import { getGymFacilities, getGymPrice, Gym } from "@/lib/gym-utils"
 
 // Facility definitions for comparison
 const FACILITIES = [

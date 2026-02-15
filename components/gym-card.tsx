@@ -3,9 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Star, MapPin, Bookmark, BookmarkCheck } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
 import { useAuth } from "@/components/auth/AuthContext"
-import { GymPrice } from "@/hooks/useGymPrices"
 import { getGymPrice, getGooglePhotoUrl, Gym } from "@/lib/gym-utils"
 
 interface GymCardProps {
@@ -18,10 +16,9 @@ interface GymCardProps {
   onToggleCompare?: () => void
   onAuthRequired?: () => void
   onOpenGallery?: () => void
-  livePrice?: GymPrice
 }
 
-export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onToggleSave, onToggleCompare, onAuthRequired, onOpenGallery, livePrice }: GymCardProps) {
+export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onToggleSave, onToggleCompare, onAuthRequired, onOpenGallery }: GymCardProps) {
   const { user } = useAuth()
   const router = useRouter()
 
@@ -142,10 +139,10 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
               <MapPin className="h-3 w-3 shrink-0" />
               {gym.address}
             </p>
-            {(gym.latestOffer || livePrice?.latestOffer) && (
+            {gym.latestOffer && (
               <div className="mt-1 flex items-center">
                 <span className="text-[10px] font-bold text-black bg-[#6BD85E] px-2 py-0.5 rounded-full shadow-sm blink-soft">
-                  {livePrice?.latestOffer || gym.latestOffer}
+                  {gym.latestOffer}
                 </span>
               </div>
             )}
@@ -212,31 +209,31 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
             <div className="flex items-baseline gap-1">
               <span className="text-[10px] font-light text-slate-500 uppercase tracking-tighter">
                 {(() => {
-                  const price = getGymPrice(gym, livePrice);
+                  const price = getGymPrice(gym);
                   if (price.monthly === undefined) return "Unknown";
                   return price.isEstimate ? "From" : "Verified";
                 })()}
               </span>
               <span className={`text-lg font-black ${(() => {
-                const price = getGymPrice(gym, livePrice);
+                const price = getGymPrice(gym);
                 if (price.monthly === undefined) return "text-slate-500 text-sm";
                 return price.isEstimate ? "text-white" : "text-[#6BD85E]";
               })()}`}>
                 {(() => {
-                  const price = getGymPrice(gym, livePrice);
+                  const price = getGymPrice(gym);
                   if (price.monthly === undefined) return "Prices coming soon";
                   return `£${price.monthly.toFixed(2)}`;
                 })()}
               </span>
               {(() => {
-                const price = getGymPrice(gym, livePrice);
+                const price = getGymPrice(gym);
                 if (price.monthly !== undefined) {
                   return <span className="text-[10px] text-slate-500 font-light">/mo</span>
                 }
                 return null;
               })()}
               {(() => {
-                const price = getGymPrice(gym, livePrice);
+                const price = getGymPrice(gym);
                 if (price.monthly !== undefined && price.joiningFee !== undefined && price.joiningFee > 0) {
                   return (
                     <span className="text-[9px] text-slate-400 ml-1">
@@ -282,17 +279,6 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
               </Button>
             </div>
           </div>
-
-          {/* Detailed Pricing Packages (if synced) */}
-          {!getGymPrice(gym, livePrice).isEstimate && livePrice?.prices && livePrice.prices.length > 1 && (
-            <div className="flex flex-wrap gap-1 mt-1">
-              {livePrice.prices.map((p, i) => (
-                <span key={i} className="text-[9px] bg-white/5 border border-white/10 px-1.5 py-0.5 rounded text-slate-400">
-                  {p.name}: £{p.price.toFixed(2)}
-                </span>
-              ))}
-            </div>
-          )}
         </div>
       </div>
     </div >

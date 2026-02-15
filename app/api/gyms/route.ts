@@ -181,7 +181,14 @@ export async function GET(request: Request) {
                 return !name.startsWith("better ") && !name.includes("better gym") && !name.includes("better:");
             });
 
-            return NextResponse.json({ results: firestoreResults });
+            return NextResponse.json(
+                { results: firestoreResults },
+                {
+                    headers: {
+                        "Cache-Control": "no-store, max-age=0"
+                    }
+                }
+            );
         }
 
         // Google Places API Fallback

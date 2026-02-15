@@ -1,5 +1,3 @@
-import { GymPrice } from "@/hooks/useGymPrices";
-
 export interface Gym {
     id: string;
     name: string;
@@ -14,104 +12,43 @@ export interface Gym {
     photos?: string[];
     website?: string;
     latestOffer?: string;
-    facilities?: any; // For backward compatibility with compare/saved pages
-    detailedPricing?: any; // For backward compatibility
+    lowest_price?: number;
+    memberships?: any[];
     user_ratings_total?: number;
     googleMapsUri?: string;
-    is_24hr?: boolean;
-}
-
-export const FACILITIES = [
-    { key: "pool", label: "Pool", icon: "🏊" },
-    { key: "sauna", label: "Sauna/Steam", icon: "🧖" },
-    { key: "24hr", label: "24/7 Access", icon: "🕒" },
-    { key: "classes", label: "Classes", icon: "🧘" },
-    { key: "parking", label: "Free Parking", icon: "🚗" },
-    { key: "weights", label: "Free Weights", icon: "🏋" },
-];
-
-export function calculateDistance(
-    lat1: number,
-    lng1: number,
-    lat2: number,
-    lng2: number
-): number {
-    const R = 3959 // Earth's radius in miles
-    const dLat = ((lat2 - lat1) * Math.PI) / 180
-    const dLng = ((lng2 - lng1) * Math.PI) / 180
-    const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLng / 2) *
-        Math.sin(dLng / 2)
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-    return R * c
-}
-
-export function getGymFacilities(gym: Gym) {
-    const name = gym.name.toLowerCase();
-
-    return {
-        pool: name.includes("spa") || name.includes("hotel") || name.includes("david lloyd") || name.includes("bannatyne") || name.includes("virgin active") || name.includes("nuffield"),
-        sauna: name.includes("spa") || name.includes("hotel") || name.includes("bannatyne") || name.includes("nuffield") || name.includes("david lloyd") || name.includes("virgin active"),
-        "24hr": gym.is_24hr || name.includes("puregym") || name.includes("anytime") || name.includes("the gym") || name.includes("snap fitness") || name.includes("jd gyms") || name.includes("24"),
-        classes: true, // Most gyms have classes
-        parking: !name.includes("city") && !name.includes("central"),
-        weights: true, // All gyms have weights
+    location?: {
+        lat: number;
+        lng: number;
+        address?: string;
     };
 }
 
-export function getGooglePhotoUrl(reference: string | undefined): string {
-    if (!reference) {
-        return "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop";
-    }
-
-    if (reference.startsWith("http")) {
-        return reference;
-    }
-
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-
-    // Handle v1 Resource Name: places/PLACE_ID/photos/PHOTO_ID
-    if (reference.startsWith("places/")) {
-        return `https://places.googleapis.com/v1/${reference}/media?key=${apiKey}&maxHeightPx=800&maxWidthPx=800`;
-    }
-
-    // Handle v2 Photo Reference Token
-    return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${reference}&key=${apiKey}`;
+export function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 3958.8; // Radius of the Earth in miles
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
 }
 
-export function getGymPrice(gym: Gym, livePrice?: GymPrice) {
+export function getGymPrice(gym: Gym) {
     const name = gym.name.toLowerCase();
 
-    // 1. Live Price (Highest Priority)
-    if (livePrice?.prices && livePrice.prices.length > 0) {
+    // 1. Gym Object Price (from Firestore document directly)
+    // IMPORTANT: Treat 0 as "missing" so we can use hardcoded fallbacks or show "coming soon"
+    if (gym.lowest_price !== undefined && gym.lowest_price > 0) {
         return {
-            monthly: Math.min(...livePrice.prices.map(p => p.price)),
-            joiningFee: livePrice.joiningfees,
-            isEstimate: false
-        };
-    }
-
-    if (livePrice?.monthlyPrice) {
-        return {
-            monthly: livePrice.monthlyPrice,
-            joiningFee: livePrice.joiningfees,
-            isEstimate: false
-        };
-    }
-
-    // 1.5 Gym Object Price (from Firestore document directly via Proxy)
-    if ((gym as any).lowest_price !== undefined) {
-        return {
-            monthly: (gym as any).lowest_price,
+            monthly: gym.lowest_price,
             joiningFee: 0, // Fallback if not root
             isEstimate: false
         };
     }
 
-    // 2. Specific Hardcoded Chains (Fallback if no live data)
+    // 2. Specific Hardcoded Chains (Fallback if no data or price is 0)
     // Premium / High End
     if (name.includes("third space")) {
         return { monthly: 230.00, joiningFee: 100, isEstimate: true };
@@ -144,22 +81,22 @@ export function getGymPrice(gym: Gym, livePrice?: GymPrice) {
     }
 
     // Budget / Value
-    if (name.includes("anytime fitness")) {
+    if (name.includes("anytime fitness") || name.includes("anytime")) {
         return { monthly: 39.00, joiningFee: 0, isEstimate: true };
     }
-    if (name.includes("snap fitness")) {
+    if (name.includes("snap fitness") || name.includes("snap")) {
         return { monthly: 34.99, joiningFee: 0, isEstimate: true };
     }
-    if (name.includes("jd gyms")) {
+    if (name.includes("jd gyms") || name.includes("jd gym")) {
         return { monthly: 21.99, joiningFee: 0, isEstimate: true };
     }
     if (name.includes("the gym group") || name.includes("the gym")) {
         return { monthly: 19.99, joiningFee: 10, isEstimate: true };
     }
-    if (name.includes("puregym")) {
+    if (name.includes("puregym") || name.includes("pure gym")) {
         return { monthly: 20.99, joiningFee: 15, isEstimate: true };
     }
-    if (name.includes("easygym")) {
+    if (name.includes("easygym") || name.includes("easy gym")) {
         return { monthly: 19.99, joiningFee: 0, isEstimate: true };
     }
 

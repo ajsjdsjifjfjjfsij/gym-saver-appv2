@@ -15,7 +15,6 @@ import Link from "next/link"
 import { useAuth } from "@/components/auth/AuthContext"
 import { useRouter } from "next/navigation"
 import { AuthGateModal } from "@/components/auth/AuthGateModal"
-import { useGymPrices } from "@/hooks/useGymPrices"
 import {
   Tooltip,
   TooltipContent,
@@ -35,7 +34,9 @@ export async function fetchGymsFromFirestore(centerLat: number, centerLng: numbe
   }
 
   const secret = getDynamicSecret();
-  const url = `/api/gyms?lat=${centerLat}&lng=${centerLng}&source=firestore${searchTerm ? `&query=${encodeURIComponent(searchTerm)}` : ''}`;
+  // Add a timestamp for cache busting
+  const ts = Date.now();
+  const url = `/api/gyms?lat=${centerLat}&lng=${centerLng}&source=firestore${searchTerm ? `&query=${encodeURIComponent(searchTerm)}` : ''}&_ts=${ts}`;
 
   try {
     const res = await fetch(url, {
@@ -97,9 +98,6 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
 
   // Gallery State
   const [galleryGym, setGalleryGym] = useState<Gym | null>(null)
-
-  // Live Firebase Prices - Only for authenticated users once we lock down Firestore
-  const { prices: livePrices, loading: firebaseLoading, error: firebaseError } = useGymPrices(!user)
 
   // Check for first-time user tooltip
   useEffect(() => {
@@ -207,15 +205,24 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
       }
       */
 
-      // 2c. Price Filter: Hide gyms with no memberships or a price of 0.00
-      // 2c. Price Filter: Hide gyms with no memberships or a price of 0.00
+      // 2c. Price Filter: Relaxed to allow gyms with hardcoded fallbacks
       filteredData = filteredData.filter((g: any) => {
         let price = g.lowest_price;
 
-        // If lowest_price is missing, try to find it in memberships
-        if (price === undefined || price === null) {
+        // If lowest_price is missing or 0, check if it's a major chain that has a fallback in getGymPrice
+        if (price === undefined || price === null || price === 0) {
+          const name = (g.name || "").toLowerCase();
+          const hasFallback = [
+            "puregym", "pure gym", "the gym", "anytime", "david lloyd",
+            "nuffield", "everlast", "jd gym", "snap fitness", "snap",
+            "fitness first", "bannatyne", "virgin active", "harbour club",
+            "third space", "equinox", "easygym", "easy gym"
+          ].some(brand => name.includes(brand));
+
+          if (hasFallback) return true;
+
+          // Otherwise check memberships
           if (g.memberships && Array.isArray(g.memberships) && g.memberships.length > 0) {
-            // Filter out invalid prices from memberships first
             const validPrices = g.memberships
               .map((m: any) => m.price)
               .filter((p: any) => typeof p === 'number' && p > 0);
@@ -226,8 +233,8 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
           }
         }
 
-        // Strict Check: Must have a valid number > 0
-        return typeof price === 'number' && price > 0;
+        // Check if we ultimately have a price > 0 or it's a chain we handle
+        return (typeof price === 'number' && price > 0);
       });
 
       // 2d. Provider Exclusion: Hide "Better" (GLL) gyms completely
@@ -256,7 +263,7 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
 
         // Target: "PureGym Swindon" with no specific address and 0 reviews
         // If it's a major brand but has 0 reviews and an address identical to the city
-        const isMajorBrand = ["puregym", "jd gym", "the gym", "anytime fitness", "david lloyd", "nuffield health", "everlast gym"].some(brand => gymNameLower.includes(brand));
+        const isMajorBrand = ["puregym", "the gym", "anytime fitness", "david lloyd", "nuffield health", "everlast gym"].some(brand => gymNameLower.includes(brand));
 
         if (ratings === 0 && isMajorBrand) {
           // If the address is just the city name (or empty), it's likely a generic unlinked placeholder
@@ -377,6 +384,8 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
           distance: 0,
           latestOffer: g.offers,
           location: typeof g.location === 'object' ? g.location : { lat: gymLat, lng: gymLng, address: gymAddress },
+          lowest_price: g.lowest_price, // Essential for getGymPrice
+          memberships: g.memberships, // Essential for detailed pricing if needed
           user_ratings_total: g.user_ratings_total,
           googleMapsUri: g.googleMapsUri,
           photo_reference: g.photo_reference || g.photo || (g.photos && g.photos.length > 0 ? g.photos[0] : undefined),
@@ -434,8 +443,10 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
       // STRICT PRICE FILTER: Ensure the gym has a valid display price.
       // This prevents "Prices coming soon" from appearing.
       // We check what the UI would actually display.
-      const displayPrice = getGymPrice(gym, livePrices[gym.id]);
-      if (!displayPrice.monthly || displayPrice.monthly <= 0) {
+      const displayPrice = getGymPrice(gym);
+      if (displayPrice.monthly === undefined) {
+        // Only hide if we don't have a monthly price AND it's not a mystery/coming soon state we want to show
+        // Actually, for Search we want to show everything that has SOME price (estimate or real)
         return false;
       }
 
@@ -498,10 +509,25 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
 
       return true
     }).sort((a, b) => {
-      if (userLocation) {
-        return (a.distance || 0) - (b.distance || 0)
+      // 3. Sorting
+      switch (filters.sortBy || "distance_asc") { // Default to distance
+        case "price_asc":
+          const priceA = getGymPrice(a).monthly || 1000;
+          const priceB = getGymPrice(b).monthly || 1000;
+          return priceA - priceB;
+        case "price_desc":
+          const priceA_desc = getGymPrice(a).monthly || 0;
+          const priceB_desc = getGymPrice(b).monthly || 0;
+          return priceB_desc - priceA_desc;
+        case "rating_desc":
+          return b.rating - a.rating;
+        case "distance_asc":
+        default:
+          if (userLocation) {
+            return (a.distance || 0) - (b.distance || 0)
+          }
+          return 0;
       }
-      return 0
     })
   }, [gymsWithDistance, searchQuery, filters, savedGyms, showSavedOnly, userLocation])
 
@@ -801,7 +827,6 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
                                     onToggleCompare={() => toggleCompare(gym)}
                                     onAuthRequired={handleAuthRequired}
                                     onOpenGallery={() => setGalleryGym(gym)}
-                                    livePrice={livePrices[gym.id]}
                                   />
                                 </div>
                               </TooltipTrigger>
