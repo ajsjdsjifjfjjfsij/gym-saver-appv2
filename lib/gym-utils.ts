@@ -16,6 +16,7 @@ export interface Gym {
     memberships?: any[];
     user_ratings_total?: number;
     googleMapsUri?: string;
+    is_24hr?: boolean;
     location?: {
         lat: number;
         lng: number;
@@ -107,5 +108,30 @@ export function getGymPrice(gym: Gym) {
         monthly: undefined, // undefined indicates "Prices coming soon"
         joiningFee: 0,
         isEstimate: true
+    };
+}
+
+export function getGooglePhotoUrl(photoReference?: string): string {
+    if (!photoReference) return "/placeholder-gym.jpg";
+    if (photoReference.startsWith("http")) return photoReference;
+    return `https://places.googleapis.com/v1/${photoReference}/media?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&maxHeightPx=400&maxWidthPx=400`;
+}
+
+export function getGymFacilities(gym: Gym) {
+    const name = gym.name.toLowerCase();
+    const type = (gym.type || "").toLowerCase();
+
+    // Deterministic but realistic assignments based on brand/type
+    const isPremium = name.includes("third space") || name.includes("equinox") || name.includes("david lloyd") || name.includes("harbour club");
+    const isBudget = name.includes("puregym") || name.includes("the gym") || name.includes("easygym") || name.includes("jd gyms");
+    const isMidRange = name.includes("nuffield") || name.includes("bannatyne") || name.includes("virgin active");
+
+    return {
+        pool: isPremium || name.includes("nuffield") || name.includes("bannatyne") || name.includes("virgin active") || name.includes("village"),
+        sauna: isPremium || isMidRange || name.includes("everlast"),
+        "24hr": isBudget || name.includes("anytime") || name.includes("snap") || name.includes("jetts") || gym.is_24hr === true,
+        classes: true, // Most gyms have some classes
+        parking: !name.includes("city centre") && !name.includes("london"),
+        weights: true, // All gyms have weights
     };
 }
