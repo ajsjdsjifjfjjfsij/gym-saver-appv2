@@ -161,7 +161,19 @@ export async function GET(request: Request) {
                 fsLimit(1000) // Increase limit to ensure we get all gyms in the radius
             );
 
-            const snap = await getDocs(q);
+            // Fetch Approved Gym Listings from new flat structure
+            // Geo-filtering isn't strictly necessary on these if we want all of them to show or rely on client-side text-search for now.
+            // But we will pull them and combine down as long as they are near.
+            const queryApprovedListings = fsQuery(
+                collection(db, "pending_gym_listings"),
+                where("status", "==", "approved")
+            );
+
+            const [snap, approvedSnap] = await Promise.all([
+                getDocs(q),
+                getDocs(queryApprovedListings) // Get all approved listings for now
+            ]);
+
             const firestoreResults = snap.docs.map(doc => {
                 const data = doc.data();
                 return {
@@ -172,7 +184,35 @@ export async function GET(request: Request) {
                     rating: data.rating || 0,
                     user_ratings_total: data.user_ratings_total || 0,
                 };
-            }).filter(g => {
+            });
+
+            const approvedListingsResults = approvedSnap.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    name: data.gym_name,
+                    address: `${data.address}, ${data.city}, ${data.postcode}`,
+                    rating: 5, // Default assumption or placeholder
+                    user_ratings_total: 1,
+                    type: "Gym",
+                    priceLevel: "££",
+                    // For UI compatibility, map these out if possible. Pending full geocoding at submission time, might use hardcoded lat/lng or let client handle missing lat/lng?
+                    // Safe placeholder: Center on lat/lng or give it exact lat/lng if we geocode in the future
+                    lat: parseFloat(lat),
+                    lng: parseFloat(lng),
+                    open_now: true,
+                    // Map generic things over
+                    lowest_price: data.price_monthly,
+                    memberships: {
+                        [data.gym_name]: { price: data.price_monthly, url: data.join_link }
+                    },
+                    photos: data.media?.gymImageUrl ? [data.media.gymImageUrl] : [],
+                    website: data.website || data.join_link,
+                };
+            });
+
+            // Merge sets
+            const combinedResults = [...firestoreResults, ...approvedListingsResults].filter(g => {
                 const data = g as any;
                 const name = (data.name || "").toLowerCase();
                 // Hide if name starts with "better " or contains "better gym"
@@ -181,7 +221,7 @@ export async function GET(request: Request) {
             });
 
             return NextResponse.json(
-                { results: firestoreResults },
+                { results: combinedResults },
                 {
                     headers: {
                         "Cache-Control": "no-store, max-age=0"

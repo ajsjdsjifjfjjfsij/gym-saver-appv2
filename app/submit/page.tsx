@@ -8,26 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2 } from "lucide-react";
 
 export default function SubmitPage() {
-    const { user, loading } = useAuth();
     const router = useRouter();
-
-    useEffect(() => {
-        if (!loading && !user) {
-            router.push("/signup");
-        }
-    }, [user, loading, router]);
-
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center h-screen">
-                <Loader2 className="h-8 w-8 animate-spin" />
-            </div>
-        );
-    }
-
-    if (!user) {
-        return null; // Will redirect
-    }
 
     return (
         <div className="min-h-screen bg-black text-white flex items-center justify-center p-4 relative">

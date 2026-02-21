@@ -27,3 +27,8 @@ yarn-error.log*
 next-env.d.ts
 ManualSyncExec
 .env*.local
+
+# Sensitive API and Service Files
+service-account.json
+api_key_pending.txt
+gsc_errors.txt

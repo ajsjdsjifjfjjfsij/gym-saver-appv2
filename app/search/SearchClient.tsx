@@ -10,7 +10,13 @@ import { HoneypotGym } from "@/components/HoneypotGym"
 import { CompareBar } from "@/components/compare-bar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { MapPin, Loader2, BookmarkCheck, Search, Mail } from "lucide-react"
+import { MapPin, Loader2, BookmarkCheck, Search, Mail, ChevronDown } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import Link from "next/link"
 import { useAuth } from "@/components/auth/AuthContext"
 import { useRouter } from "next/navigation"
@@ -651,32 +657,44 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
           variant="app"
         />
 
-        {/* Action Bar (Contact & Price Upload) - Mobile Only now (since desktop is in header) */}
-        <div className="md:hidden w-full max-w-7xl mx-auto px-4 py-2 flex gap-2 shrink-0 z-20">
-          <Button
-            variant="default"
-            className="flex-1 bg-[#6BD85E]/90 hover:bg-[#5bc250] text-black font-bold h-10 px-4 rounded-xl flex items-center justify-center gap-2 backdrop-blur-md shadow-[0_0_20px_rgba(107,216,94,0.2)] hover:shadow-[0_0_30px_rgba(107,216,94,0.3)] transition-all duration-300"
-            onClick={() => {
-              if (!user) {
-                handleAuthRequired();
-              } else {
-                router.push("/submit");
-              }
-            }}
-          >
-            <span>Price Upload</span>
-          </Button>
+        {/* Action Bar (Mobile Only - Replicating Desktop Header Nav) */}
+        <div className="md:hidden w-full px-4 py-2 flex justify-between gap-3 shrink-0 z-[9500] relative">
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+              <Button variant="default" className="w-1/2 bg-[#6BD85E]/90 hover:bg-[#5bc250] text-black font-bold h-10 px-2 sm:px-4 rounded-xl flex items-center justify-center gap-1 sm:gap-2 backdrop-blur-md shadow-[0_0_20px_rgba(107,216,94,0.2)] hover:shadow-[0_0_30px_rgba(107,216,94,0.3)] transition-all duration-300">
+                <span className="truncate text-xs sm:text-sm">Gym Owners</span>
+                <ChevronDown className="h-4 w-4 shrink-0" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-[calc(50vw-16px)] bg-black/95 border-white/10 backdrop-blur-xl rounded-xl p-2 text-white z-50">
+              <DropdownMenuItem asChild className="flex cursor-pointer items-center rounded-lg px-2 py-3 text-sm font-bold hover:bg-white/10 focus:bg-white/10 transition-colors">
+                <Link href="/list-your-gym" className="w-full">List your gym</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild className="flex cursor-pointer items-center rounded-lg px-2 py-3 text-sm font-bold hover:bg-white/10 focus:bg-white/10 transition-colors">
+                <Link href="/contact" className="w-full">Contact us</Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-          <Button
-            variant="default"
-            className="flex-1 bg-[#6BD85E]/90 hover:bg-[#5bc250] text-black font-bold h-10 px-4 rounded-xl flex items-center justify-center gap-2 backdrop-blur-md shadow-[0_0_20px_rgba(107,216,94,0.2)] hover:shadow-[0_0_30px_rgba(107,216,94,0.3)] transition-all duration-300"
-            asChild
-          >
-            <Link href="/contact">
-              <Mail className="h-4 w-4" />
-              <span>Contact</span>
-            </Link>
-          </Button>
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+              <Button variant="default" className="w-1/2 bg-[#6BD85E]/90 hover:bg-[#5bc250] text-black font-bold h-10 px-2 sm:px-4 rounded-xl flex items-center justify-center gap-1 sm:gap-2 backdrop-blur-md shadow-[0_0_20px_rgba(107,216,94,0.2)] hover:shadow-[0_0_30px_rgba(107,216,94,0.3)] transition-all duration-300">
+                <span className="truncate text-xs sm:text-sm">Gym Users</span>
+                <ChevronDown className="h-4 w-4 shrink-0" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[calc(50vw-16px)] bg-black/95 border-white/10 backdrop-blur-xl rounded-xl p-2 text-white z-50">
+              <DropdownMenuItem asChild className="flex cursor-pointer items-center rounded-lg px-2 py-3 text-sm font-bold hover:bg-white/10 focus:bg-white/10 transition-colors">
+                <Link href="/submit" className="w-full">Gym price update</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild className="flex cursor-pointer items-center rounded-lg px-2 py-3 text-sm font-bold hover:bg-white/10 focus:bg-white/10 transition-colors">
+                <Link href="/contact" className="w-full">Contact us</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild className="flex cursor-pointer items-center rounded-lg px-2 py-3 text-sm font-bold hover:bg-white/10 focus:bg-white/10 transition-colors">
+                <Link href="/affiliate" className="w-full">Partner with us</Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* NEW: Full-Width Search & Filters Header (Sticky) */}

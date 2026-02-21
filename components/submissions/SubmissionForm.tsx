@@ -24,10 +24,6 @@ export default function SubmissionForm() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!user) {
-            setError("You must be logged in to submit.");
-            return;
-        }
         setLoading(true);
         setMessage("");
         setError("");
@@ -36,14 +32,15 @@ export default function SubmissionForm() {
             let imageUrl = "";
 
             if (image) {
-                const storageRef = ref(storage, `submission-images/${user.uid}/${Date.now()}_${image.name}`);
+                const uid = user ? user.uid : "guest";
+                const storageRef = ref(storage, `submission-images/${uid}/${Date.now()}_${image.name}`);
                 await uploadBytes(storageRef, image);
                 imageUrl = await getDownloadURL(storageRef);
             }
 
             await addDoc(collection(db, "submissions"), {
-                userId: user.uid,
-                userEmail: user.email,
+                userId: user ? user.uid : `guest_${Date.now()}`,
+                userEmail: user ? user.email : "guest@gymsaverapp.com",
                 gymName,
                 gymLocation,
                 price: parseFloat(price) || 0,

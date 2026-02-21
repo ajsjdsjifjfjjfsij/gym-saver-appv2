@@ -5,9 +5,15 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { useTheme } from "next-themes"
-import { Search, Bookmark, LogOut, PlusCircle, Sun, Moon } from "lucide-react"
+import { Search, Bookmark, LogOut, PlusCircle, Sun, Moon, ChevronDown } from "lucide-react"
 import { useAuth } from "@/components/auth/AuthContext"
 import { useEffect, useState } from "react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface HeaderProps {
   searchQuery: string
@@ -117,18 +123,42 @@ export function Header({
           <div className={`flex items-center gap-3 ${isAppMode ? "" : "absolute top-2 right-4 w-full justify-end"}`}>
 
             <div className="hidden md:flex items-center gap-2 mr-4 border-r border-white/10 pr-4">
-              <Button variant="default" size="sm" className="bg-[#6BD85E]/90 hover:bg-[#5bc250] text-black border-0 px-4 rounded-xl backdrop-blur-md shadow-[0_0_20px_rgba(107,216,94,0.2)] hover:shadow-[0_0_30px_rgba(107,216,94,0.3)] transition-all duration-300 font-bold" onClick={() => {
-                if (!user) onAuthRequired();
-                else router.push("/submit");
-              }}>
-                Price Upload
-              </Button>
-              <Button variant="default" size="sm" asChild className="bg-[#6BD85E]/90 hover:bg-[#5bc250] text-black border-0 px-4 rounded-xl backdrop-blur-md shadow-[0_0_20px_rgba(107,216,94,0.2)] hover:shadow-[0_0_30px_rgba(107,216,94,0.3)] transition-all duration-300 font-bold">
-                <Link href="/contact">Contact</Link>
-              </Button>
-              <Button variant="default" size="sm" asChild className="bg-[#6BD85E]/90 hover:bg-[#5bc250] text-black border-0 px-4 rounded-xl backdrop-blur-md shadow-[0_0_20px_rgba(107,216,94,0.2)] hover:shadow-[0_0_30px_rgba(107,216,94,0.3)] transition-all duration-300 font-bold">
-                <Link href="/affiliate">Affiliate</Link>
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="default" size="sm" className="bg-[#6BD85E]/90 hover:bg-[#5bc250] text-black border-0 px-4 rounded-xl backdrop-blur-md shadow-[0_0_20px_rgba(107,216,94,0.2)] hover:shadow-[0_0_30px_rgba(107,216,94,0.3)] transition-all duration-300 font-bold gap-1">
+                    Gym Owners
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 bg-black/90 border-white/10 backdrop-blur-xl rounded-xl p-2 text-white">
+                  <DropdownMenuItem asChild className="flex cursor-pointer items-center rounded-lg px-3 py-2 text-sm font-medium hover:bg-white/10 focus:bg-white/10 transition-colors">
+                    <Link href="/list-your-gym" className="w-full">List your gym</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="flex cursor-pointer items-center rounded-lg px-3 py-2 text-sm font-medium hover:bg-white/10 focus:bg-white/10 transition-colors">
+                    <Link href="/contact" className="w-full">Contact us</Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="default" size="sm" className="bg-[#6BD85E]/90 hover:bg-[#5bc250] text-black border-0 px-4 rounded-xl backdrop-blur-md shadow-[0_0_20px_rgba(107,216,94,0.2)] hover:shadow-[0_0_30px_rgba(107,216,94,0.3)] transition-all duration-300 font-bold gap-1">
+                    Gym Users
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 bg-black/90 border-white/10 backdrop-blur-xl rounded-xl p-2 text-white">
+                  <DropdownMenuItem asChild className="flex cursor-pointer items-center rounded-lg px-3 py-2 text-sm font-medium hover:bg-white/10 focus:bg-white/10 transition-colors">
+                    <Link href="/submit" className="w-full">Gym price update</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="flex cursor-pointer items-center rounded-lg px-3 py-2 text-sm font-medium hover:bg-white/10 focus:bg-white/10 transition-colors">
+                    <Link href="/contact" className="w-full">Contact us</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="flex cursor-pointer items-center rounded-lg px-3 py-2 text-sm font-medium hover:bg-white/10 focus:bg-white/10 transition-colors">
+                    <Link href="/affiliate" className="w-full">Partner with us</Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             {/* Admin Console Button (Visible only to Admin) */}

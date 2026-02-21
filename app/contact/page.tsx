@@ -7,7 +7,25 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Instagram } from "lucide-react"
+
+// Custom TikTok Icon since lucide-react might not have it
+const TikTokIcon = ({ className }: { className?: string }) => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={className}
+    >
+        <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+    </svg>
+)
 
 export default function ContactPage() {
     const router = useRouter()
@@ -86,7 +104,7 @@ export default function ContactPage() {
                             <div className="text-[#6BD85E] text-4xl mb-4">✓</div>
                             <h3 className="text-xl font-bold text-white">Message Sent!</h3>
                             <p className="text-slate-400">
-                                Thank you for contacting us. We aim to respond to all emails as soon as possible.
+                                Thank you for contacting us. We aim to respond within 24 hours.
                             </p>
                             <Button
                                 variant="outline"
@@ -98,10 +116,31 @@ export default function ContactPage() {
                         </div>
                     )}
                 </CardContent>
-                <CardFooter className="flex justify-center border-t border-white/5 pt-6">
-                    <p className="text-xs text-slate-500 text-center">
-                        We aim to respond to all emails as soon as possible.
-                    </p>
+                <CardFooter className="flex flex-col items-center border-t border-white/5 pt-6 space-y-4">
+                    <div className="text-xs text-slate-500 text-center space-y-1">
+                        <p className="font-medium text-slate-400">Support hours: Monday - Friday 9.00am - 6.00pm</p>
+                        <p>Response Time: We aim to respond within 24 hours.</p>
+                    </div>
+                    <div className="flex gap-6 items-center">
+                        <a
+                            href="https://instagram.com/GymsaverHQ"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-slate-400 hover:text-[#6BD85E] transition-colors flex items-center gap-2 group"
+                        >
+                            <Instagram className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                            <span className="text-sm font-medium">@GymsaverHQ</span>
+                        </a>
+                        <a
+                            href="https://tiktok.com/@GymsaverHQ"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-slate-400 hover:text-[#6BD85E] transition-colors flex items-center gap-2 group"
+                        >
+                            <TikTokIcon className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                            <span className="text-sm font-medium">@GymsaverHQ</span>
+                        </a>
+                    </div>
                 </CardFooter>
             </Card>
         </div>

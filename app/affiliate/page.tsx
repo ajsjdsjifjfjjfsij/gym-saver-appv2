@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, TrendingUp } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import Image from "next/image"
 
 export default function AffiliatePage() {
@@ -37,10 +37,6 @@ export default function AffiliatePage() {
             <div className="max-w-4xl w-full grid md:grid-cols-2 gap-8 items-center mt-12 md:mt-0">
                 {/* Information Side */}
                 <div className="space-y-6">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#6BD85E]/10 border border-[#6BD85E]/20 text-xs font-semibold text-[#6BD85E]">
-                        <TrendingUp className="h-3.5 w-3.5" />
-                        Affiliate Program
-                    </div>
                     <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
                         Partner with <span className="text-[#6BD85E]">GymSaver</span>
                     </h1>
