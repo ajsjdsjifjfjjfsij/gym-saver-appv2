@@ -21,6 +21,17 @@ service cloud.firestore {
       allow write: if false;
     }
     
+    // Pending Gym Listings rules
+    match /pending_gym_listings/{listingId} {
+      // Allow public creation for guest gym listings
+      allow create: if true;
+      
+      // Only the admin can read, update, or delete pending listings
+      allow read, update, delete: if request.auth != null && 
+                                   request.auth.token.email == 'josephbunton@live.co.uk' &&
+                                   request.auth.token.email_verified == true;
+    }
+
     // Default rule: block everything else
     match /{document=**} {
       allow read, write: if false;

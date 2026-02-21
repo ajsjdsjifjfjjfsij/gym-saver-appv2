@@ -91,34 +91,43 @@ export default function ListYourGymForm() {
         setError("");
 
         try {
+            // Internal validation beyond browser defaults
+            if (!gymImage) {
+                setError("Please upload at least one gym image.");
+                setLoading(false);
+                return;
+            }
+
             let gymImageUrl = "";
             let priceImageUrl = "";
 
             // Upload Gym Image
-            if (gymImage) {
-                const storageRef = ref(storage, `gym-listings/${Date.now()}_img_${gymImage.name}`);
-                await uploadBytes(storageRef, gymImage);
-                gymImageUrl = await getDownloadURL(storageRef);
-            }
+            const storagePath = `gym-listings/${Date.now()}_img_${gymImage.name}`;
+            const storageRef = ref(storage, storagePath);
+            await uploadBytes(storageRef, gymImage);
+            gymImageUrl = await getDownloadURL(storageRef);
 
             // Upload Price Image
             if (priceImage) {
-                const storageRef = ref(storage, `gym-listings/${Date.now()}_price_${priceImage.name}`);
-                await uploadBytes(storageRef, priceImage);
-                priceImageUrl = await getDownloadURL(storageRef);
+                const pStorageRef = ref(storage, `gym-listings/${Date.now()}_price_${priceImage.name}`);
+                await uploadBytes(pStorageRef, priceImage);
+                priceImageUrl = await getDownloadURL(pStorageRef);
             }
 
             // Build flattened features string array
             const selectedFeatures = Object.entries(features)
                 .filter(([_, isSelected]) => isSelected)
                 .map(([key, _]) => {
-                    // Convert camelCase key back to readable text (optional helper formatting)
                     const formatted = key.replace(/([A-Z])/g, ' $1').trim().toLowerCase();
                     return formatted.charAt(0).toUpperCase() + formatted.slice(1);
                 });
 
             // Generate a unique submission ID
             const submissionId = `WEB-SUB-${Date.now()}-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
+
+            // Parse numbers safely
+            const parsedMonthlyPrice = parseFloat(monthlyPrice);
+            const parsedJoiningFee = parseFloat(joiningFee);
 
             await addDoc(collection(db, "pending_gym_listings"), {
                 submission_id: submissionId,
@@ -132,8 +141,8 @@ export default function ListYourGymForm() {
                 phone,
                 website: websiteUrl,
                 join_link: signUpLink,
-                price_monthly: parseFloat(monthlyPrice) || 0,
-                joining_fee: parseFloat(joiningFee) || 0, // Adding this per standard info
+                price_monthly: isNaN(parsedMonthlyPrice) ? 0 : parsedMonthlyPrice,
+                joining_fee: isNaN(parsedJoiningFee) ? 0 : parsedJoiningFee,
                 student_corporate_discounts: studentCorporateDiscounts,
                 features: selectedFeatures,
                 offers: currentOffers,
@@ -142,36 +151,19 @@ export default function ListYourGymForm() {
                 partner_updatedAt: new Date(),
                 status: "pending",
                 created_at: new Date(),
-                place_id: "", // Empty initial place_id for admin to populate later
-                // Keeping media references for admin review
+                place_id: "",
                 media: {
                     gymImageUrl,
                     priceImageUrl,
                 }
             });
 
-            setMessage(featuredPartner === "yes" ? "If you Opted Yes for featured we will be in contact shortly" : "Listing submitted successfully!");
-
-            // Clear form
-            setGymName(""); setGymAddress(""); setTownCity(""); setPostCode(""); setGoogleMapsLink("");
-            setContactName(""); setEmail(""); setPhone(""); setRole("");
-            setMonthlyPrice(""); setJoiningFee(""); setStudentCorporateDiscounts("");
-            setWebsiteUrl(""); setSignUpLink("");
-            setFeatures({
-                is24hr: false, budgetGym: false, premiumGym: false, womenOnly: false, bodyBuilding: false,
-                crossFit: false, strengthConditioning: false, classesIncluded: false, ptAvailable: false,
-                swimmingPool: false, saunaSpa: false,
-            });
-            setCurrentOffers(""); setFeaturedPartner("no");
-            setGymImage(null); setPriceImage(null);
-            setConsentAccurate(false); setConsentDisplay(false); setConsentLink(false);
-
-            // Show clean success page
+            setMessage(featuredPartner === "yes" ? "Thank you! We've received your featured listing request and will be in contact shortly." : "Listing submitted successfully!");
             setIsSubmitted(true);
 
         } catch (err: any) {
             console.error("Error submitting gym listing:", err);
-            setError("Failed to submit listing. Please try again.");
+            setError(`Failed to submit: ${err.message || "Please check your internet connection and try again."}`);
         } finally {
             setLoading(false);
         }
@@ -283,8 +275,8 @@ export default function ListYourGymForm() {
                                 <Input id="monthlyPrice" type="number" min="0" step="0.01" value={monthlyPrice} onChange={(e) => setMonthlyPrice(e.target.value)} required className="bg-zinc-900 border-white/10 text-white focus-visible:ring-[#6BD85E]" />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="joiningFee" className="text-white">Joining Fee (£) <span className="text-red-500">*</span></Label>
-                                <Input id="joiningFee" type="number" min="0" step="0.01" value={joiningFee} onChange={(e) => setJoiningFee(e.target.value)} required className="bg-zinc-900 border-white/10 text-white focus-visible:ring-[#6BD85E]" />
+                                <Label htmlFor="joiningFee" className="text-white">Joining Fee (£) (Optional)</Label>
+                                <Input id="joiningFee" type="number" min="0" step="0.01" value={joiningFee} onChange={(e) => setJoiningFee(e.target.value)} className="bg-zinc-900 border-white/10 text-white focus-visible:ring-[#6BD85E]" />
                             </div>
                             <div className="space-y-2 md:col-span-2">
                                 <Label htmlFor="discounts" className="text-white">Student Discounts / Corporate (Optional)</Label>
@@ -330,7 +322,7 @@ export default function ListYourGymForm() {
                                         id={feature.id}
                                         checked={features[feature.id as keyof typeof features]}
                                         onCheckedChange={() => handleFeatureChange(feature.id as keyof typeof features)}
-                                        className="border-white/50 data-[state=checked]:bg-[#6BD85E] data-[state=checked]:text-black"
+                                        className="border-white/50 data-[state=checked]:bg-[#6BD85E] data-[state=checked]:border-[#6BD85E] data-[state=checked]:text-black"
                                     />
                                     <Label htmlFor={feature.id} className="text-sm text-slate-300 font-medium cursor-pointer">{feature.label}</Label>
                                 </div>
@@ -382,15 +374,15 @@ export default function ListYourGymForm() {
                         <h3 className="text-lg font-bold text-white border-b border-white/10 pb-2">9. Consent & Agreement</h3>
                         <div className="space-y-3">
                             <div className="flex items-start space-x-2">
-                                <Checkbox id="consent1" checked={consentAccurate} onCheckedChange={(c) => setConsentAccurate(c === true)} className="mt-1 border-white/50 data-[state=checked]:bg-[#6BD85E] data-[state=checked]:text-black" />
+                                <Checkbox id="consent1" checked={consentAccurate} onCheckedChange={(c) => setConsentAccurate(c === true)} className="mt-1 border-white/50 data-[state=checked]:bg-[#6BD85E] data-[state=checked]:border-[#6BD85E] data-[state=checked]:text-black" />
                                 <Label htmlFor="consent1" className="text-sm text-slate-300 font-medium cursor-pointer leading-tight">I confirm the information provided is accurate <span className="text-red-500">*</span></Label>
                             </div>
                             <div className="flex items-start space-x-2">
-                                <Checkbox id="consent2" checked={consentDisplay} onCheckedChange={(c) => setConsentDisplay(c === true)} className="mt-1 border-white/50 data-[state=checked]:bg-[#6BD85E] data-[state=checked]:text-black" />
+                                <Checkbox id="consent2" checked={consentDisplay} onCheckedChange={(c) => setConsentDisplay(c === true)} className="mt-1 border-white/50 data-[state=checked]:bg-[#6BD85E] data-[state=checked]:border-[#6BD85E] data-[state=checked]:text-black" />
                                 <Label htmlFor="consent2" className="text-sm text-slate-300 font-medium cursor-pointer leading-tight">I agree to GymSaver displaying this information on its platform <span className="text-red-500">*</span></Label>
                             </div>
                             <div className="flex items-start space-x-2">
-                                <Checkbox id="consent3" checked={consentLink} onCheckedChange={(c) => setConsentLink(c === true)} className="mt-1 border-white/50 data-[state=checked]:bg-[#6BD85E] data-[state=checked]:text-black" />
+                                <Checkbox id="consent3" checked={consentLink} onCheckedChange={(c) => setConsentLink(c === true)} className="mt-1 border-white/50 data-[state=checked]:bg-[#6BD85E] data-[state=checked]:border-[#6BD85E] data-[state=checked]:text-black" />
                                 <Label htmlFor="consent3" className="text-sm text-slate-300 font-medium cursor-pointer leading-tight">I agree Gymsaver may link users to our website <span className="text-red-500">*</span></Label>
                             </div>
                         </div>

@@ -12,6 +12,15 @@ service firebase.storage {
       allow read: if true;
     }
     
+    // Gym listings images path
+    match /gym-listings/{allPaths=**} {
+      // Allow public creation for guest gym listings
+      allow create: if true;
+      
+      // Allow public read access so admin and app can display them
+      allow read: if true;
+    }
+
     // Default rule: block everything else
     match /{allPaths=**} {
       allow read, write: if false;
