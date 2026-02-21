@@ -76,6 +76,7 @@ export default function ListYourGymForm() {
 
     const handleFeatureChange = (key: keyof typeof features) => {
         setFeatures(prev => ({ ...prev, [key]: !prev[key] }));
+        setError(""); // Clear error when user interacts
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -213,19 +214,19 @@ export default function ListYourGymForm() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="gymName" className="text-white">Gym Name <span className="text-red-500">*</span></Label>
-                                <Input id="gymName" value={gymName} onChange={(e) => setGymName(e.target.value)} required className="bg-zinc-900 border-white/10 text-white focus-visible:ring-[#6BD85E]" />
+                                <Input id="gymName" value={gymName} onChange={(e) => { setGymName(e.target.value); setError(""); }} required className="bg-zinc-900 border-white/10 text-white focus-visible:ring-[#6BD85E]" />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="gymAddress" className="text-white">Gym Address <span className="text-red-500">*</span></Label>
-                                <Input id="gymAddress" value={gymAddress} onChange={(e) => setGymAddress(e.target.value)} required className="bg-zinc-900 border-white/10 text-white focus-visible:ring-[#6BD85E]" />
+                                <Input id="gymAddress" value={gymAddress} onChange={(e) => { setGymAddress(e.target.value); setError(""); }} required className="bg-zinc-900 border-white/10 text-white focus-visible:ring-[#6BD85E]" />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="townCity" className="text-white">Town/City <span className="text-red-500">*</span></Label>
-                                <Input id="townCity" value={townCity} onChange={(e) => setTownCity(e.target.value)} required className="bg-zinc-900 border-white/10 text-white focus-visible:ring-[#6BD85E]" />
+                                <Input id="townCity" value={townCity} onChange={(e) => { setTownCity(e.target.value); setError(""); }} required className="bg-zinc-900 border-white/10 text-white focus-visible:ring-[#6BD85E]" />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="postCode" className="text-white">Post Code <span className="text-red-500">*</span></Label>
-                                <Input id="postCode" value={postCode} onChange={(e) => setPostCode(e.target.value)} required className="bg-zinc-900 border-white/10 text-white focus-visible:ring-[#6BD85E]" />
+                                <Input id="postCode" value={postCode} onChange={(e) => { setPostCode(e.target.value); setError(""); }} required className="bg-zinc-900 border-white/10 text-white focus-visible:ring-[#6BD85E]" />
                             </div>
                             <div className="space-y-2 md:col-span-2">
                                 <Label htmlFor="googleMapsLink" className="text-white">Google Maps Link (Optional)</Label>
@@ -240,19 +241,19 @@ export default function ListYourGymForm() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="contactName" className="text-white">Contact Name <span className="text-red-500">*</span></Label>
-                                <Input id="contactName" value={contactName} onChange={(e) => setContactName(e.target.value)} required className="bg-zinc-900 border-white/10 text-white focus-visible:ring-[#6BD85E]" />
+                                <Input id="contactName" value={contactName} onChange={(e) => { setContactName(e.target.value); setError(""); }} required className="bg-zinc-900 border-white/10 text-white focus-visible:ring-[#6BD85E]" />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="email" className="text-white">Email Address <span className="text-red-500">*</span></Label>
-                                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="bg-zinc-900 border-white/10 text-white focus-visible:ring-[#6BD85E]" />
+                                <Input id="email" type="email" value={email} onChange={(e) => { setEmail(e.target.value); setError(""); }} required className="bg-zinc-900 border-white/10 text-white focus-visible:ring-[#6BD85E]" />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="phone" className="text-white">Phone Number <span className="text-red-500">*</span></Label>
-                                <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required className="bg-zinc-900 border-white/10 text-white focus-visible:ring-[#6BD85E]" />
+                                <Input id="phone" type="tel" value={phone} onChange={(e) => { setPhone(e.target.value); setError(""); }} required className="bg-zinc-900 border-white/10 text-white focus-visible:ring-[#6BD85E]" />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="role" className="text-white">Role <span className="text-red-500">*</span></Label>
-                                <Select value={role} onValueChange={setRole} required>
+                                <Select value={role} onValueChange={(r) => { setRole(r); setError(""); }} required>
                                     <SelectTrigger className="bg-zinc-900 border-white/10 text-white focus:ring-[#6BD85E]">
                                         <SelectValue placeholder="Select Role" />
                                     </SelectTrigger>
@@ -272,7 +273,7 @@ export default function ListYourGymForm() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="monthlyPrice" className="text-white">Monthly Membership Price (Current) (£) <span className="text-red-500">*</span></Label>
-                                <Input id="monthlyPrice" type="number" min="0" step="0.01" value={monthlyPrice} onChange={(e) => setMonthlyPrice(e.target.value)} required className="bg-zinc-900 border-white/10 text-white focus-visible:ring-[#6BD85E]" />
+                                <Input id="monthlyPrice" type="number" min="0" step="0.01" value={monthlyPrice} onChange={(e) => { setMonthlyPrice(e.target.value); setError(""); }} required className="bg-zinc-900 border-white/10 text-white focus-visible:ring-[#6BD85E]" />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="joiningFee" className="text-white">Joining Fee (£) (Optional)</Label>
@@ -291,11 +292,11 @@ export default function ListYourGymForm() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="websiteUrl" className="text-white">Website URL <span className="text-red-500">*</span></Label>
-                                <Input id="websiteUrl" type="url" value={websiteUrl} onChange={(e) => setWebsiteUrl(e.target.value)} required placeholder="https://..." className="bg-zinc-900 border-white/10 text-white focus-visible:ring-[#6BD85E]" />
+                                <Input id="websiteUrl" type="url" value={websiteUrl} onChange={(e) => { setWebsiteUrl(e.target.value); setError(""); }} required placeholder="https://..." className="bg-zinc-900 border-white/10 text-white focus-visible:ring-[#6BD85E]" />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="signUpLink" className="text-white">Direct Join / Sign Up Link <span className="text-red-500">*</span></Label>
-                                <Input id="signUpLink" type="url" value={signUpLink} onChange={(e) => setSignUpLink(e.target.value)} required placeholder="https://..." className="bg-zinc-900 border-white/10 text-white focus-visible:ring-[#6BD85E]" />
+                                <Input id="signUpLink" type="url" value={signUpLink} onChange={(e) => { setSignUpLink(e.target.value); setError(""); }} required placeholder="https://..." className="bg-zinc-900 border-white/10 text-white focus-visible:ring-[#6BD85E]" />
                             </div>
                         </div>
                     </div>
@@ -360,7 +361,7 @@ export default function ListYourGymForm() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="gymImage" className="text-white">Upload Gym Images <span className="text-red-500">*</span></Label>
-                                <Input id="gymImage" type="file" accept="image/*" required onChange={(e) => setGymImage(e.target.files?.[0] || null)} className="bg-zinc-900 border-white/10 text-white file:text-[#6BD85E] file:bg-zinc-800 file:border-0 file:mr-4 file:px-4 file:py-2 file:rounded-xl hover:file:bg-zinc-700" />
+                                <Input id="gymImage" type="file" accept="image/*" required onChange={(e) => { setGymImage(e.target.files?.[0] || null); setError(""); }} className="bg-zinc-900 border-white/10 text-white file:text-[#6BD85E] file:bg-zinc-800 file:border-0 file:mr-4 file:px-4 file:py-2 file:rounded-xl hover:file:bg-zinc-700" />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="priceImage" className="text-white">Upload Membership Price Image (Optional)</Label>
@@ -374,15 +375,15 @@ export default function ListYourGymForm() {
                         <h3 className="text-lg font-bold text-white border-b border-white/10 pb-2">9. Consent & Agreement</h3>
                         <div className="space-y-3">
                             <div className="flex items-start space-x-2">
-                                <Checkbox id="consent1" checked={consentAccurate} onCheckedChange={(c) => setConsentAccurate(c === true)} className="mt-1 border-white/50 data-[state=checked]:bg-[#6BD85E] data-[state=checked]:border-[#6BD85E] data-[state=checked]:text-black" />
+                                <Checkbox id="consent1" checked={consentAccurate} onCheckedChange={(c) => { setConsentAccurate(!!c); setError(""); }} className="mt-1 border-white/50 data-[state=checked]:bg-[#6BD85E] data-[state=checked]:border-[#6BD85E] data-[state=checked]:text-black" />
                                 <Label htmlFor="consent1" className="text-sm text-slate-300 font-medium cursor-pointer leading-tight">I confirm the information provided is accurate <span className="text-red-500">*</span></Label>
                             </div>
                             <div className="flex items-start space-x-2">
-                                <Checkbox id="consent2" checked={consentDisplay} onCheckedChange={(c) => setConsentDisplay(c === true)} className="mt-1 border-white/50 data-[state=checked]:bg-[#6BD85E] data-[state=checked]:border-[#6BD85E] data-[state=checked]:text-black" />
+                                <Checkbox id="consent2" checked={consentDisplay} onCheckedChange={(c) => { setConsentDisplay(!!c); setError(""); }} className="mt-1 border-white/50 data-[state=checked]:bg-[#6BD85E] data-[state=checked]:border-[#6BD85E] data-[state=checked]:text-black" />
                                 <Label htmlFor="consent2" className="text-sm text-slate-300 font-medium cursor-pointer leading-tight">I agree to GymSaver displaying this information on its platform <span className="text-red-500">*</span></Label>
                             </div>
                             <div className="flex items-start space-x-2">
-                                <Checkbox id="consent3" checked={consentLink} onCheckedChange={(c) => setConsentLink(c === true)} className="mt-1 border-white/50 data-[state=checked]:bg-[#6BD85E] data-[state=checked]:border-[#6BD85E] data-[state=checked]:text-black" />
+                                <Checkbox id="consent3" checked={consentLink} onCheckedChange={(c) => { setConsentLink(!!c); setError(""); }} className="mt-1 border-white/50 data-[state=checked]:bg-[#6BD85E] data-[state=checked]:border-[#6BD85E] data-[state=checked]:text-black" />
                                 <Label htmlFor="consent3" className="text-sm text-slate-300 font-medium cursor-pointer leading-tight">I agree Gymsaver may link users to our website <span className="text-red-500">*</span></Label>
                             </div>
                         </div>

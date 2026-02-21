@@ -23,8 +23,8 @@ service cloud.firestore {
     
     // Pending Gym Listings rules
     match /pending_gym_listings/{listingId} {
-      // Allow public creation for guest gym listings
-      allow create: if true;
+      // Allow only authenticated users to create guest gym listings
+      allow create: if request.auth != null;
       
       // Only the admin can read, update, or delete pending listings
       allow read, update, delete: if request.auth != null && 

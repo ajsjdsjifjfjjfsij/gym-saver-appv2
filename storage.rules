@@ -14,8 +14,8 @@ service firebase.storage {
     
     // Gym listings images path
     match /gym-listings/{allPaths=**} {
-      // Allow public creation for guest gym listings
-      allow create: if true;
+      // Allow only authenticated users to upload gym listings
+      allow write: if request.auth != null;
       
       // Allow public read access so admin and app can display them
       allow read: if true;
