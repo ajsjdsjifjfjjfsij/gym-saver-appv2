@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Star, MapPin, Bookmark, BookmarkCheck } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -21,6 +22,34 @@ interface GymCardProps {
 export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onToggleSave, onToggleCompare, onAuthRequired, onOpenGallery }: GymCardProps) {
   const { user } = useAuth()
   const router = useRouter()
+
+  // Lazy-fetch a real photo when the gym has no stored photo reference.
+  // Most Firestore gyms only have a place_id — use that to look up a photo.
+  const hasStoredPhoto = !!(gym.photo_reference || (gym.photos && gym.photos.length > 0));
+  const [resolvedPhotoUrl, setResolvedPhotoUrl] = useState<string | null>(
+    hasStoredPhoto ? getGooglePhotoUrl(gym.photo_reference || gym.photos?.[0]) : null
+  );
+
+  useEffect(() => {
+    if (hasStoredPhoto) return; // Already have a photo — skip
+    const placeId = gym.id; // id is the place_id in Firestore
+    if (!placeId || placeId.startsWith('trap-')) return; // Skip honeypot / bad ids
+
+    let cancelled = false;
+    fetch(`/api/gyms/photo?place_id=${encodeURIComponent(placeId)}`)
+      .then(r => r.json())
+      .then(data => {
+        if (!cancelled && data.photoUrl) {
+          setResolvedPhotoUrl(data.photoUrl);
+        }
+      })
+      .catch(() => { }); // Silently fail — placeholder will show
+
+    return () => { cancelled = true; };
+  }, [gym.id, hasStoredPhoto]);
+
+  // The image src to display: resolved photo, stored photo, or placeholder
+  const imageSrc = resolvedPhotoUrl || "/placeholder-gym.jpg";
 
   const handleSaveClick = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -96,7 +125,7 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
         onClick={handleGalleryClick}
       >
         <img
-          src={getGooglePhotoUrl(gym.photo_reference || (gym.photos && gym.photos.length > 0 ? gym.photos[0] : undefined))}
+          src={imageSrc}
           alt={gym.name}
           className="absolute inset-0 w-full h-full object-cover block transition-transform duration-700 group-hover:scale-110"
           onError={(e) => {

@@ -215,9 +215,23 @@ export async function GET(request: Request) {
             const combinedResults = [...firestoreResults, ...approvedListingsResults].filter(g => {
                 const data = g as any;
                 const name = (data.name || "").toLowerCase();
-                // Hide if name starts with "better " or contains "better gym"
-                // Also check for "better:"
-                return !name.startsWith("better ") && !name.includes("better gym") && !name.includes("better:");
+                const website = (data.website || "").toLowerCase();
+
+                // Filter out Better (GLL) by name prefix
+                if (name.startsWith("better ") || name.includes("better gym") || name.includes("better:")) return false;
+
+                // Filter out Better (GLL) by website domain
+                if (website.includes("better.org.uk") || website.includes("gll.org")) return false;
+
+                // Filter out Better (GLL) by membership plan names (e.g. 'Better Health UK (Monthly)')
+                if (Array.isArray(data.memberships)) {
+                    const hasBetterMembership = data.memberships.some((m: any) =>
+                        typeof m.name === 'string' && m.name.toLowerCase().startsWith("better")
+                    );
+                    if (hasBetterMembership) return false;
+                }
+
+                return true;
             });
 
             return NextResponse.json(
