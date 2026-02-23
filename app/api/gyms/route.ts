@@ -1,9 +1,24 @@
 import { NextResponse } from "next/server"
+import { initializeApp, getApps, getApp } from "firebase/app";
+import { getFirestore, collection, query as fsQuery, where, orderBy, limit as fsLimit, getDocs } from "firebase/firestore";
 
 export const dynamic = "force-dynamic";
 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY
 const BASE_URL = "https://maps.googleapis.com/maps/api/place"
+
+const firebaseConfig = {
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+    databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
+};
+
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const db = getFirestore(app);
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
@@ -125,24 +140,6 @@ export async function GET(request: Request) {
     // ---------------------------------------------------------
     try {
         if (source === "firestore") {
-            // Dynamic imports to save bundle size if not used
-            const { getFirestore, collection, query: fsQuery, where, orderBy, limit: fsLimit, getDocs } = await import("firebase/firestore");
-            const { initializeApp, getApps, getApp } = await import("firebase/app");
-            // NOTE: Removed server-side auth import to prevent 500 errors in serverless environment without Admin SDK
-
-            const firebaseConfig = {
-                apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-                authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-                projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-                storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-                messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-                appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-                databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
-            };
-
-            const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-            const db = getFirestore(app);
-
             // Calculate bounding box based on radius
             // 1 degree lat ~= 111 km
             const radiusInMeters = parseFloat(radius) || 50000;
@@ -158,7 +155,7 @@ export async function GET(request: Request) {
                 where("location.lat", ">=", minLat),
                 where("location.lat", "<=", maxLat),
                 orderBy("location.lat"),
-                fsLimit(1000) // Increase limit to ensure we get all gyms in the radius
+                fsLimit(5000) // Significantly increase limit to ensure we get all gyms across a very wide radius before client-side distance sorting
             );
 
             // Fetch Approved Gym Listings from new flat structure

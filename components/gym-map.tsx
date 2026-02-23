@@ -406,15 +406,28 @@ export function GymMap({ gyms, selectedGym, onGymSelect, userLocation }: GymMapP
       // Add user location
       bounds.extend(userLocation)
 
-      // Add all gym locations
-      gyms.forEach(gym => {
+      // Add closest gym locations (up to 15) to prevent zooming out too far
+      const closestGyms = gyms.slice(0, 15)
+      closestGyms.forEach(gym => {
         bounds.extend({ lat: Number(gym.lat), lng: Number(gym.lng) })
       })
 
       map.fitBounds(bounds)
 
-      // Optional: If bounds are too tight (e.g. only 1 result very close), prevent excessive zoom?
-      // Google Maps handles this reasonably well usually.
+      // Enforce zoom limits after fitBounds
+      const listener = google.maps.event.addListenerOnce(map, "bounds_changed", () => {
+        const currentZoom = map.getZoom();
+        if (currentZoom !== undefined) {
+          if (currentZoom > 15) map.setZoom(15);
+          if (currentZoom < 10) map.setZoom(10); // Force minimum zoom to stay localized
+        }
+      });
+
+      // Cleanup listener just in case
+      setTimeout(() => {
+        google.maps.event.removeListener(listener);
+      }, 500);
+
     } else {
       map.panTo(userLocation)
       map.setZoom(14)

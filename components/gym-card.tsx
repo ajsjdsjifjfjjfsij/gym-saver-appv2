@@ -23,20 +23,30 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
   const { user } = useAuth()
   const router = useRouter()
 
-  // Lazy-fetch a real photo when the gym has no stored photo reference.
-  // Most Firestore gyms only have a place_id — use that to look up a photo.
-  const hasStoredPhoto = !!(gym.photo_reference || (gym.photos && gym.photos.length > 0));
+  // Prioritize the high-quality hero_image_url synced from Google Places API (New)
+  // Fallback to legacy photo_reference or the first photo in the array
+  const initialPhotoUrl = gym.hero_image_url || getGooglePhotoUrl(gym.photo_reference || gym.photos?.[0]);
+  const hasValidStoredPhoto = !!gym.hero_image_url || (initialPhotoUrl !== "/placeholder-gym.jpg" && !gym.photo_reference?.startsWith('places/'));
+
   const [resolvedPhotoUrl, setResolvedPhotoUrl] = useState<string | null>(
-    hasStoredPhoto ? getGooglePhotoUrl(gym.photo_reference || gym.photos?.[0]) : null
+    hasValidStoredPhoto ? initialPhotoUrl : null
   );
 
   useEffect(() => {
-    if (hasStoredPhoto) return; // Already have a photo — skip
+    // If we already have a direct hero_image_url or a valid resolved URL, skip fetching
+    if (hasValidStoredPhoto || gym.hero_image_url) return;
+
     const placeId = gym.id; // id is the place_id in Firestore
+    const photoReference = gym.photo_reference || gym.photos?.[0];
+
     if (!placeId || placeId.startsWith('trap-')) return; // Skip honeypot / bad ids
 
+    let queryParam = photoReference && photoReference.startsWith('places/')
+      ? `photo_name=${encodeURIComponent(photoReference)}`
+      : `place_id=${encodeURIComponent(placeId)}`;
+
     let cancelled = false;
-    fetch(`/api/gyms/photo?place_id=${encodeURIComponent(placeId)}`)
+    fetch(`/api/gyms/photo?${queryParam}`)
       .then(r => r.json())
       .then(data => {
         if (!cancelled && data.photoUrl) {
@@ -46,10 +56,11 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
       .catch(() => { }); // Silently fail — placeholder will show
 
     return () => { cancelled = true; };
-  }, [gym.id, hasStoredPhoto]);
+  }, [gym.id, hasValidStoredPhoto]);
 
   // The image src to display: resolved photo, stored photo, or placeholder
   const imageSrc = resolvedPhotoUrl || "/placeholder-gym.jpg";
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const handleSaveClick = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -121,14 +132,22 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
 
       {/* Gym Image - Left Side / Top on Mobile */}
       <div
-        className="w-full h-48 sm:h-full sm:w-64 shrink-0 relative bg-black/50 overflow-hidden sm:border-r border-b sm:border-b-0 border-white/10 cursor-zoom-in"
+        className="w-full h-48 sm:h-full sm:w-64 shrink-0 relative bg-slate-900 overflow-hidden sm:border-r border-b sm:border-b-0 border-white/10 cursor-zoom-in"
         onClick={handleGalleryClick}
       >
+        {/* Shimmer Placeholder while loading */}
+        {!imageLoaded && (
+          <div className="absolute inset-0 w-full h-full bg-slate-800/80 animate-pulse flex items-center justify-center z-10">
+            <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin opacity-50"></div>
+          </div>
+        )}
         <img
           src={imageSrc}
           alt={gym.name}
-          className="absolute inset-0 w-full h-full object-cover block transition-transform duration-700 group-hover:scale-110"
+          onLoad={() => setImageLoaded(true)}
+          className={`absolute inset-0 w-full h-full object-cover block transition-all duration-700 group-hover:scale-110 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
           onError={(e) => {
+            setImageLoaded(true); // Don't leave pulsing loader forever
             const target = e.target as HTMLImageElement;
             if (!target.src.includes("unsplash")) {
               target.src = "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop";
@@ -164,10 +183,12 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
             >
               {gym.name}
             </h3>
-            <p className="text-[11px] text-slate-400 flex items-center gap-1 truncate font-light italic">
-              <MapPin className="h-3 w-3 shrink-0" />
-              {gym.address}
-            </p>
+            {gym.address && (
+              <p className="text-[11px] text-slate-400 flex items-center gap-1 truncate font-light italic">
+                <MapPin className="h-3 w-3 shrink-0" />
+                {gym.address}
+              </p>
+            )}
             {gym.latestOffer && (
               <div className="mt-1 flex items-center">
                 <span className="text-[10px] font-bold text-black bg-[#6BD85E] px-2 py-0.5 rounded-full shadow-sm blink-soft">

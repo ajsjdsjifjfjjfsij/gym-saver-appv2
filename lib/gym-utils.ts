@@ -17,6 +17,10 @@ export interface Gym {
     user_ratings_total?: number;
     googleMapsUri?: string;
     is_24hr?: boolean;
+    hero_image_url?: string;
+    gallery_image_urls?: string[];
+    photo_attributions?: { author: string; authorUrl: string }[];
+    images_last_synced_at?: any;
     location?: {
         lat: number;
         lng: number;
@@ -118,6 +122,10 @@ export function getGooglePhotoUrl(photoReference?: string): string {
     // Valid Google Places photo resource path — build media URL
     if (photoReference.startsWith("places/")) {
         return `https://places.googleapis.com/v1/${photoReference}/media?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&maxHeightPx=400&maxWidthPx=400`;
+    }
+    // Legacy Google Places API photo reference
+    if (photoReference.length > 50 && !photoReference.startsWith("ChIJ")) {
+        return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&maxheight=400&photoreference=${photoReference}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`;
     }
     // FIX 4: Bare Place IDs (e.g. ChIJ...) are NOT photo resource paths.
     // Using them would generate a broken URL, so fall back to placeholder.

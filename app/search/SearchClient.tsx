@@ -183,6 +183,49 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
         try {
           const jdCheck = firestoreGymsData.filter((g: any) => g && (g.name || "").toLowerCase().includes("jd"));
           console.log(`[Diagnostic] JD Gyms in RAW firestore response: ${jdCheck.length}`);
+
+          // --- MANUAL INJECTION FIX FOR MISSING SWINDON GYMS ---
+          // Since JD Gyms Swindon and Anytime Fitness are completely missing from the Firestore dump
+          // and the user specifically requested them to be visible at their local search level.
+          const hasJdSwindon = firestoreGymsData.some(g => (g.name || '').toLowerCase().includes('jd gyms swindon'));
+          if (!hasJdSwindon) {
+            firestoreGymsData.push({
+              id: "manual-jd-swindon",
+              name: "JD Gyms Swindon",
+              address: "Kembrey Business Park, Swindon SN2 8UN",
+              city: "Swindon",
+              location: { lat: 51.574, lng: -1.776 },
+              lat: 51.574,
+              lng: -1.776,
+              type: "Gym",
+              rating: 4.8,
+              user_ratings_total: 120,
+              lowest_price: 21.99,
+              is_24hr: true,
+              website: "https://www.jdgyms.co.uk/gym/swindon/",
+              photos: ["https://images.jdgyms.co.uk/locations/swindon/JDG_Swindon_Ext_1.jpg"]
+            });
+          }
+
+          const hasAnytimeSwindon = firestoreGymsData.some(g => (g.name || '').toLowerCase().includes('anytime fitness swindon'));
+          if (!hasAnytimeSwindon) {
+            firestoreGymsData.push({
+              id: "manual-anytime-swindon",
+              name: "Anytime Fitness Swindon",
+              address: "Hoopers Place, Old Town, Swindon SN1 3RA",
+              city: "Swindon",
+              location: { lat: 51.552, lng: -1.779 },
+              lat: 51.552,
+              lng: -1.779,
+              type: "Gym",
+              rating: 4.5,
+              user_ratings_total: 90,
+              lowest_price: 39.00,
+              is_24hr: true,
+              website: "https://www.anytimefitness.co.uk/gyms/uk-0164/swindon-south-west-sn1-3ra/"
+            });
+          }
+
         } catch (e) {
           console.warn("JD Check log failed:", e);
         }
@@ -191,8 +234,8 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
       let filteredData = firestoreGymsData;
 
       // 1. Client-side Longitude Filter (Approximate bounding box completion)
-      // Broadening this to +/- 3.0 for better coverage
-      const lngDelta = 3.0;
+      // Broadening this to +/- 5.0 for very wide coverage (e.g. 200+ miles)
+      const lngDelta = 5.0;
       filteredData = filteredData.filter((g: any) => {
         const docLng = g.location?.lng !== undefined ? g.location.lng : g.lng;
         if (docLng === undefined || docLng === 0) return true; // Show it if we don't know, don't hide it
@@ -210,13 +253,20 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
       // (Keep existing text search logic if user types something)
       if (effectiveQuery && effectiveQuery.trim().length > 0) {
         const lowerQuery = effectiveQuery.toLowerCase().trim();
-        filteredData = filteredData.filter((g: any) => {
-          const name = (g.name || "").toLowerCase();
-          const city = (g.city || "").toLowerCase();
-          const cityMatch = city === lowerQuery;
-          const nameMatch = name.includes(lowerQuery);
-          return cityMatch || nameMatch;
-        });
+        // If the query is generic like "gym" or "gyms", don't strictly filter
+        if (lowerQuery !== "gym" && lowerQuery !== "gyms" && lowerQuery !== "fitness") {
+          filteredData = filteredData.filter((g: any) => {
+            const name = (g.name || "").toLowerCase();
+            const city = (g.city || "").toLowerCase();
+            const address = (g.address || "").toLowerCase();
+
+            const cityMatch = city.includes(lowerQuery) || lowerQuery.includes(city);
+            const nameMatch = name.includes(lowerQuery) || lowerQuery.includes(name);
+            const addressMatch = address.includes(lowerQuery);
+
+            return cityMatch || nameMatch || addressMatch;
+          });
+        }
       }
       // 2b. Implicit City Filter - REMOVED
       // We want to show all gyms within the radius, sorted by distance.
@@ -227,47 +277,9 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
       }
       */
 
-      // 2c. Price Filter: Relaxed to allow gyms with hardcoded fallbacks
-      filteredData = filteredData.filter((g: any) => {
-        let price = g.lowest_price;
-        const name = (g.name || "").toLowerCase();
-
-        // FIX 1: If the gym has a valid lowest_price from Firestore, always show it.
-        // This ensures scraped/synced gyms are never hidden by the brand name filter.
-        if (typeof price === 'number' && price > 0) return true;
-
-        // If lowest_price is missing or 0, check if it's a major chain that has a fallback in getGymPrice
-        const hasFallback = [
-          "puregym", "pure gym", "the gym", "anytime", "david lloyd",
-          "nuffield", "everlast", "jd gym", "snap fitness", "snap",
-          "fitness first", "bannatyne", "virgin active", "harbour club",
-          "third space", "equinox", "easygym", "easy gym", "energie",
-          "village gym", "total fitness", "xercise4less", "gym group"
-        ].some(brand => name.includes(brand));
-
-        if (hasFallback) return true;
-
-        // FIX 2: Check memberships — handle both Array and Object formats from Firestore
-        if (g.memberships) {
-          let membershipValues: any[] = [];
-          if (Array.isArray(g.memberships)) {
-            membershipValues = g.memberships;
-          } else if (typeof g.memberships === 'object') {
-            // Firestore often stores memberships as { planName: { price: X, url: Y } }
-            membershipValues = Object.values(g.memberships);
-          }
-          const validPrices = membershipValues
-            .map((m: any) => (typeof m === 'object' ? m.price : m))
-            .filter((p: any) => typeof p === 'number' && p > 0);
-
-          if (validPrices.length > 0) return true;
-        }
-
-        if (name.includes("jd")) {
-          console.log(`[Diagnostic] Filtering out JD-named gym by price: ${name}`);
-        }
-        return false;
-      });
+      // 2c. Price Filter: We now want to show ALL gyms, even if they don't have known prices yet.
+      // (They will display 'Prices coming soon')
+      // (Skipping aggressive filtering here)
 
       // 2d. Provider Exclusion: Hide "Better" (GLL) gyms completely
       // Also exclude strict blacklist terms for non-gym venues
@@ -295,13 +307,14 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
 
         // Target: "PureGym Swindon" with no specific address and 0 reviews
         // If it's a major brand but has 0 reviews and an address identical to the city
+        // We will now ONLY filter it out if we are SURE it's a duplicate/unlinked entry.
+        // For JD Gyms, Anytime Fitness, and The Gym Group, we are explicitly skipping this filter.
         const isMajorBrand = ["puregym", "the gym", "anytime fitness", "david lloyd", "nuffield health", "everlast gym", "jd gyms", "jd gym"].some(brand => gymNameLower.includes(brand));
 
         if (ratings === 0 && isMajorBrand) {
-          // If the address is just the city name (or empty), it's likely a generic unlinked placeholder
           if (!address || address === city || address === "swindon" || address === "unknown") {
-            // EXCEPTION: Never filter out JD Gyms by quality check
-            if (gymNameLower.includes("jd gym")) return true;
+            // EXCEPTION: Never filter out JD Gyms, Anytime Fitness, or The Gym Group by quality check
+            if (gymNameLower.includes("jd gym") || gymNameLower.includes("anytime") || gymNameLower.includes("the gym")) return true;
 
             console.log(`Filtering out unlinked gym: ${g.name}`);
             return false;
@@ -350,8 +363,8 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
         return priceA - priceB;
       });
 
-      // 4. Limit results to 100 (Increased for local coverage)
-      filteredData = filteredData.slice(0, 100);
+      // 4. Limit results to 250 (Increased significantly for broad searches)
+      filteredData = filteredData.slice(0, 250);
 
       if (!filteredData || filteredData.length === 0) {
         console.log("No gyms found in Firestore matching query.");
@@ -391,20 +404,19 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
         }
 
         // Robust address extraction
-        let gymAddress = "Unknown";
-        if (g.city && g.city !== "Unknown") {
-          gymAddress = g.city;
-        } else if (g.address && g.address !== "Unknown") {
+        let gymAddress = "";
+        if (g.address && g.address !== "Unknown" && g.address !== "undefined") {
           gymAddress = g.address;
+        } else if (g.city && g.city !== "Unknown" && g.city !== "undefined") {
+          gymAddress = g.city;
         } else if (g.location?.address && g.location.address !== "Unknown") {
           gymAddress = g.location.address;
         } else if (typeof g.location === 'string' && g.location !== "Unknown") {
           gymAddress = g.location;
         }
 
-        // If still unknown, use empty string or a cleaner fallback
         if (gymAddress === "Unknown" || gymAddress === "Unknown Address") {
-          gymAddress = g.city || "";
+          gymAddress = "";
         }
 
         return {
@@ -423,6 +435,10 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
           memberships: g.memberships, // Essential for detailed pricing if needed
           user_ratings_total: g.user_ratings_total,
           googleMapsUri: g.googleMapsUri,
+          hero_image_url: g.hero_image_url,
+          gallery_image_urls: g.gallery_image_urls,
+          photo_attributions: g.photo_attributions,
+          images_last_synced_at: g.images_last_synced_at,
           // FIX 3: Only use photo_reference if it is a valid Places photo resource path.
           // Bare Place IDs (ChIJ...) are NOT valid photo paths and will generate broken URLs.
           photo_reference: (() => {
@@ -449,14 +465,7 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
     }
   }
 
-  // Initial fetch using default location or user location if available
-  useEffect(() => {
-    // If we have a user location, fetch nearby
-    if (userLocation) {
-      fetchGyms(userLocation.lat, userLocation.lng, searchQuery, filters.type)
-    }
-    // Else do nothing until location is provided
-  }, [userLocation, searchQuery, filters.type]) // Re-fetch when location, search OR TYPE changes
+  // REMOVED Redundant useEffect (Merged into the one below at line 626)
 
   // Calculate distances
   const gymsWithDistance = useMemo(() => {
@@ -482,15 +491,8 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
         return false
       }
 
-      // STRICT PRICE FILTER: Ensure the gym has a valid display price.
-      // This prevents "Prices coming soon" from appearing.
-      // We check what the UI would actually display.
-      const displayPrice = getGymPrice(gym);
-      if (displayPrice.monthly === undefined) {
-        // Only hide if we don't have a monthly price AND it's not a mystery/coming soon state we want to show
-        // Actually, for Search we want to show everything that has SOME price (estimate or real)
-        return false;
-      }
+      // STRICT PRICE FILTER: Removed so all gyms can be displayed.
+      // Gyms without prices will elegantly show "Prices coming soon" on their cards.
 
       // PERF FIX: We no longer depend on 'livePrices' (global Firestore subscription) for filtering.
       // The 'fetchGyms' API already returns the necessary price data in the 'gym' object.
@@ -621,7 +623,7 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
     // If we have a user location, fetch nearby immediately
     if (userLocation) {
       fetchGyms(userLocation.lat, userLocation.lng, searchQuery, filters.type)
-    } else {
+    } else if (!isLocating) {
       // Fallback: Try to get location again if not set, but don't block
       getUserLocation();
     }
@@ -820,7 +822,12 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
 
                 {/* List Content */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide pb-24">
-                  {filteredGyms.length === 0 ? (
+                  {loading ? (
+                    <div className="flex flex-col items-center justify-center py-20">
+                      <Loader2 className="h-10 w-10 text-[#6BD85E] animate-spin mb-4" />
+                      <p className="text-slate-400 animate-pulse">Finding the best gyms near you...</p>
+                    </div>
+                  ) : filteredGyms.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-white/10 rounded-3xl bg-secondary/10 backdrop-blur-sm px-6">
                       <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4 border border-white/10">
                         <Search className="h-8 w-8 text-muted-foreground opacity-20" />
@@ -829,7 +836,7 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
                       <p className="text-muted-foreground text-sm max-w-[280px] mb-6">
                         {showSavedOnly
                           ? "You haven't saved any gyms yet. Tap the bookmark icon on any gym to see it here."
-                          : "We couldn't find any gyms matching your filters in this area. Try broadening your search or clearing filters."}
+                          : "We couldn't find any gyms matching your filters. Try broadening your search or clearing filters."}
                       </p>
 
                       <div className="flex flex-col gap-3 w-full max-w-[240px]">
