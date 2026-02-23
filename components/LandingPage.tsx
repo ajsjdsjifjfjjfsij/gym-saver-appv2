@@ -35,9 +35,8 @@ export default function LandingPage() {
                         />
                     </div>
                     <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-6 text-sm font-medium text-gray-400">
-                        <Link href="#features" className="hover:text-white transition-colors">Features</Link>
-                        <Link href="/affiliate" className="hover:text-white transition-colors">Affiliate</Link>
-                        <Link href="/search" className="hover:text-white transition-colors">Web App</Link>
+                        <Link href="/list-your-gym" className="hover:text-white transition-colors">List Your Gym</Link>
+                        <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
                     </div>
                     <div className="flex items-center gap-3">
                         <Button variant="ghost" asChild className="text-gray-400 hover:text-white">
@@ -76,7 +75,7 @@ export default function LandingPage() {
                     </h1>
 
                     <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-                        One search. Every price. Zero over paying.
+                        One search. Every price. Zero overpaying.
                     </p>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

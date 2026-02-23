@@ -31,7 +31,7 @@ export default function ListYourGymPage() {
 
             <main className="flex-1 w-full max-w-4xl mx-auto px-4 py-8 md:py-12 pb-24">
                 <div className="mb-8 pl-2">
-                    <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">Partner with us.</h1>
+                    <h1 className="text-4xl md:text-5xl font-bold text-[#6BD85E] mb-4 tracking-tight">Partner with us.</h1>
                     <p className="text-slate-400 text-lg max-w-2xl">
                         List your gym on GymSaver to reach thousands of users actively looking for memberships in your area.
                         Fill out the details below and our team will review your submission.

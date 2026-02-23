@@ -106,10 +106,10 @@
     border: 1px solid rgba(74, 222, 128, 0.5) !important;
   }
 
-  /* PREMIUM GLASS - Dark, heavy blur for headers/tabs */
+  /* PREMIUM GLASS - Responsive, heavy blur for headers/tabs */
   .glass-premium {
-    @apply bg-black/60 backdrop-blur-xl border-b border-white/10 shadow-lg;
-    /* Subtle noise or gradient could be added here if needed */
+    @apply bg-white dark:bg-black/60 backdrop-blur-xl border-b border-black/5 dark:border-white/10 shadow-lg;
+    box-shadow: 0 4px 20px rgba(107, 216, 94, 0.15); /* Light neon green glow */
   }
 
   /* GLOSSY TAB - Liquid appearance */

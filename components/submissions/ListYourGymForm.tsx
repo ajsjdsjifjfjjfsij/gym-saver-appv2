@@ -13,7 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Loader2, CheckCircle } from "lucide-react";
+import { Loader2, CheckCircle, Star } from "lucide-react";
 
 export default function ListYourGymForm() {
     const router = useRouter();
@@ -21,6 +21,7 @@ export default function ListYourGymForm() {
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const [showFeaturedUpsell, setShowFeaturedUpsell] = useState(false);
 
     // Section 1: BASIC GYM DETAILS
     const [gymName, setGymName] = useState("");
@@ -159,8 +160,12 @@ export default function ListYourGymForm() {
                 }
             });
 
-            setMessage(featuredPartner === "yes" ? "Thank you! We've received your featured listing request and will be in contact shortly." : "Listing submitted successfully!");
-            setIsSubmitted(true);
+            if (featuredPartner === "yes") {
+                setShowFeaturedUpsell(true);
+            } else {
+                setIsSubmitted(true);
+            }
+            setMessage(featuredPartner === "yes" ? "Gym listing data saved! Please review the featured options below." : "Listing submitted successfully!");
 
         } catch (err: any) {
             console.error("Error submitting gym listing:", err);
@@ -169,6 +174,96 @@ export default function ListYourGymForm() {
             setLoading(false);
         }
     };
+
+    if (showFeaturedUpsell) {
+        return (
+            <Card className="w-full max-w-2xl mx-auto bg-black border border-[#6BD85E]/30 neon-glow-card shadow-[0_0_30px_rgba(107,216,94,0.2)]">
+                <CardHeader className="text-center pb-2 px-4 md:px-6">
+                    <CardTitle className="text-3xl md:text-4xl font-bold text-[#6BD85E] mb-2">Upgrade to Featured Partner</CardTitle>
+                    <CardDescription className="text-slate-400 text-lg">
+                        Maximize your gym's visibility and attract more members.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-8 p-8">
+                    {/* Free Listing Section */}
+                    <div className="space-y-4 p-6 rounded-2xl bg-white/5 border border-white/10">
+                        <div className="flex items-center gap-2">
+                            <div className="h-2 w-2 rounded-full bg-[#6BD85E]" />
+                            <h4 className="text-lg font-bold text-[#6BD85E]">Free Listing (Already included)</h4>
+                        </div>
+                        <ul className="space-y-2 ml-4">
+                            <li className="flex items-center gap-3 text-slate-300">
+                                <div className="h-1.5 w-1.5 rounded-full bg-white" />
+                                standard placement
+                            </li>
+                            <li className="flex items-center gap-3 text-slate-300">
+                                <div className="h-1.5 w-1.5 rounded-full bg-white" />
+                                visible to users
+                            </li>
+                        </ul>
+                    </div>
+
+                    {/* Featured Partner Section */}
+                    <div className="space-y-6 p-8 rounded-2xl bg-gradient-to-br from-[#6BD85E]/10 to-transparent border border-[#6BD85E]/30 relative overflow-hidden group">
+
+                        <div className="space-y-2">
+                            <div className="flex items-center gap-3">
+                                <Star className="w-6 h-6 text-yellow-500 fill-yellow-500" />
+                                <h4 className="text-2xl font-bold text-[#6BD85E]">Featured Partner</h4>
+                            </div>
+                            <div className="mb-1 flex flex-wrap items-baseline gap-x-2">
+                                <span className="text-lg md:text-xl text-white font-bold">From</span>
+                                <span className="text-3xl md:text-4xl font-bold text-[#6BD85E]">£49.99</span>
+                                <span className="text-lg md:text-xl text-white font-bold">/Month</span>
+                            </div>
+                            <div className="text-xs text-white/70 italic leading-relaxed">
+                                (Early partner rates - Limited availability)<br />
+                                (Final pricing depends on location, category and number of sites)
+                            </div>
+                        </div>
+
+                        <ul className="space-y-3">
+                            {[
+                                "Appear above competitors",
+                                "Priority placement in area",
+                                "Featured badge",
+                                "Increased clicks"
+                            ].map((benefit, i) => (
+                                <li key={i} className="flex items-center gap-3 text-slate-200">
+                                    <div className="h-2 w-2 rounded-full bg-[#6BD85E]" />
+                                    {benefit}
+                                </li>
+                            ))}
+                        </ul>
+
+                        <Button
+                            className="w-full h-14 text-lg bg-[#6BD85E] hover:bg-[#5bc250] text-black font-bold shadow-[0_0_20px_rgba(107,216,94,0.3)] hover:shadow-[0_0_30px_rgba(107,216,94,0.5)] transition-all"
+                            onClick={() => {
+                                setShowFeaturedUpsell(false);
+                                setIsSubmitted(true);
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }}
+                        >
+                            Apply for Featured Slot
+                        </Button>
+                    </div>
+                </CardContent>
+                <CardFooter className="justify-center border-t border-white/10 pt-6">
+                    <button
+                        onClick={() => {
+                            setShowFeaturedUpsell(false);
+                            setIsSubmitted(true);
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        className="text-slate-500 hover:text-white transition-colors text-sm font-medium"
+                    >
+                        Maybe later, continue with free listing
+                    </button>
+                </CardFooter>
+            </Card>
+        );
+    }
+
 
     if (isSubmitted) {
         return (
@@ -188,6 +283,7 @@ export default function ListYourGymForm() {
                     </Button>
                     <Button onClick={() => {
                         setIsSubmitted(false);
+                        setShowFeaturedUpsell(false);
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                     }} className="bg-[#6BD85E] hover:bg-[#5bc250] text-black font-bold h-12 px-8">
                         Submit Another
@@ -210,7 +306,7 @@ export default function ListYourGymForm() {
 
                     {/* SECTION 1: BASIC GYM DETAILS */}
                     <div className="space-y-4">
-                        <h3 className="text-lg font-bold text-white border-b border-white/10 pb-2">1. Basic Gym Details</h3>
+                        <h3 className="text-lg font-bold text-[#6BD85E] border-b border-white/10 pb-2">Basic Gym Details</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="gymName" className="text-white">Gym Name <span className="text-red-500">*</span></Label>
@@ -237,7 +333,7 @@ export default function ListYourGymForm() {
 
                     {/* SECTION 2: CONTACT DETAILS */}
                     <div className="space-y-4">
-                        <h3 className="text-lg font-bold text-white border-b border-white/10 pb-2">2. Contact Details</h3>
+                        <h3 className="text-lg font-bold text-[#6BD85E] border-b border-white/10 pb-2">Contact Details</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="contactName" className="text-white">Contact Name <span className="text-red-500">*</span></Label>
@@ -269,7 +365,7 @@ export default function ListYourGymForm() {
 
                     {/* SECTION 3: MEMBERSHIPS */}
                     <div className="space-y-4">
-                        <h3 className="text-lg font-bold text-white border-b border-white/10 pb-2">3. Memberships</h3>
+                        <h3 className="text-lg font-bold text-[#6BD85E] border-b border-white/10 pb-2">Memberships</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="monthlyPrice" className="text-white">Monthly Membership Price (Current) (£) <span className="text-red-500">*</span></Label>
@@ -288,7 +384,7 @@ export default function ListYourGymForm() {
 
                     {/* SECTION 4: SIGN UP / JOIN LINK */}
                     <div className="space-y-4">
-                        <h3 className="text-lg font-bold text-white border-b border-white/10 pb-2">4. Sign Up / Join Link</h3>
+                        <h3 className="text-lg font-bold text-[#6BD85E] border-b border-white/10 pb-2">Sign Up / Join Link</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="websiteUrl" className="text-white">Website URL <span className="text-red-500">*</span></Label>
@@ -303,7 +399,7 @@ export default function ListYourGymForm() {
 
                     {/* SECTION 5: GYM TYPE & FEATURES */}
                     <div className="space-y-4">
-                        <h3 className="text-lg font-bold text-white border-b border-white/10 pb-2">5. Gym Type & Features</h3>
+                        <h3 className="text-lg font-bold text-[#6BD85E] border-b border-white/10 pb-2">Gym Type & Features</h3>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                             {[
                                 { id: 'is24hr', label: '24hr Gym' },
@@ -333,7 +429,7 @@ export default function ListYourGymForm() {
 
                     {/* SECTION 6: CURRENT OFFERS */}
                     <div className="space-y-4">
-                        <h3 className="text-lg font-bold text-white border-b border-white/10 pb-2">6. Current Offers</h3>
+                        <h3 className="text-lg font-bold text-[#6BD85E] border-b border-white/10 pb-2">Current Offers</h3>
                         <div className="space-y-2">
                             <Label htmlFor="currentOffers" className="text-white">Current Promotions / Offers (Optional)</Label>
                             <Textarea id="currentOffers" value={currentOffers} onChange={(e) => setCurrentOffers(e.target.value)} className="bg-zinc-900 border-white/10 text-white focus-visible:ring-[#6BD85E]" placeholder='e.g. "No joining fee this month"' />
@@ -342,11 +438,11 @@ export default function ListYourGymForm() {
 
                     {/* SECTION 7: FEATURED PARTNER OPTION */}
                     <div className="space-y-4">
-                        <h3 className="text-lg font-bold text-white border-b border-white/10 pb-2">7. Featured Partner Option</h3>
+                        <h3 className="text-lg font-bold text-[#6BD85E] border-b border-white/10 pb-2">Featured Partner Option</h3>
                         <RadioGroup value={featuredPartner} onValueChange={setFeaturedPartner} className="space-y-2">
                             <div className="flex items-center space-x-2 bg-zinc-900/50 p-3 rounded-lg border border-white/5">
                                 <RadioGroupItem value="yes" id="featured-yes" className="border-white/50 text-[#6BD85E]" />
-                                <Label htmlFor="featured-yes" className="text-white cursor-pointer font-medium">Yes, I want to be listed for my area above competitors.</Label>
+                                <Label htmlFor="featured-yes" className="text-white cursor-pointer font-medium">Yes, I'm interested in a Featured Partner slot (priority placement above competitors)</Label>
                             </div>
                             <div className="flex items-center space-x-2 bg-zinc-900/50 p-3 rounded-lg border border-white/5">
                                 <RadioGroupItem value="no" id="featured-no" className="border-white/50 text-[#6BD85E]" />
@@ -357,7 +453,7 @@ export default function ListYourGymForm() {
 
                     {/* SECTION 8: IMAGE / MEDIA */}
                     <div className="space-y-4">
-                        <h3 className="text-lg font-bold text-white border-b border-white/10 pb-2">8. Image / Media</h3>
+                        <h3 className="text-lg font-bold text-[#6BD85E] border-b border-white/10 pb-2">Image / Media</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="gymImage" className="text-white">Upload Gym Images <span className="text-red-500">*</span></Label>
@@ -372,7 +468,7 @@ export default function ListYourGymForm() {
 
                     {/* SECTION 9: CONSENT & AGREEMENT */}
                     <div className="space-y-4">
-                        <h3 className="text-lg font-bold text-white border-b border-white/10 pb-2">9. Consent & Agreement</h3>
+                        <h3 className="text-lg font-bold text-[#6BD85E] border-b border-white/10 pb-2">Consent & Agreement</h3>
                         <div className="space-y-3">
                             <div className="flex items-start space-x-2">
                                 <Checkbox id="consent1" checked={consentAccurate} onCheckedChange={(c) => { setConsentAccurate(!!c); setError(""); }} className="mt-1 border-white/50 data-[state=checked]:bg-[#6BD85E] data-[state=checked]:border-[#6BD85E] data-[state=checked]:text-black" />

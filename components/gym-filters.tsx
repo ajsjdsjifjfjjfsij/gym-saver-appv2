@@ -25,7 +25,7 @@ export function GymFilters({ filters, onFilterChange }: GymFiltersProps) {
       {/* Type Filter */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className={`rounded-full border transition-all ${filters.type !== "all" ? "bg-black/60 backdrop-blur-md border-[#6BD85E]/50 text-[#6BD85E] shadow-[0_0_15px_rgba(107,216,94,0.2)]" : "bg-black/40 backdrop-blur-md border-white/10 text-slate-300 hover:bg-black/60 hover:text-white"}`}>
+          <Button variant="outline" size="sm" className={`rounded-full border transition-all ${filters.type !== "all" ? "bg-white dark:bg-black/60 backdrop-blur-md border-[#6BD85E]/50 text-[#6BD85E] shadow-[0_0_15px_rgba(107,216,94,0.2)]" : "bg-white dark:bg-black/40 backdrop-blur-md border-slate-200 dark:border-white/10 text-muted-foreground hover:bg-slate-50 dark:hover:bg-black/60 hover:text-foreground dark:hover:text-white"}`}>
             {filters.type === "all" ? "All Types" :
               filters.type === "gyms" ? "Gyms" :
                 filters.type === "24hr" ? "24hr gyms" :
@@ -44,7 +44,7 @@ export function GymFilters({ filters, onFilterChange }: GymFiltersProps) {
       {/* Distance Filter */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className={`rounded-full border transition-all ${filters.distance !== "all" ? "bg-black/60 backdrop-blur-md border-[#6BD85E]/50 text-[#6BD85E] shadow-[0_0_15px_rgba(107,216,94,0.2)]" : "bg-black/40 backdrop-blur-md border-white/10 text-slate-300 hover:bg-black/60 hover:text-white"}`}>
+          <Button variant="outline" size="sm" className={`rounded-full border transition-all ${filters.distance !== "all" ? "bg-white dark:bg-black/60 backdrop-blur-md border-[#6BD85E]/50 text-[#6BD85E] shadow-[0_0_15px_rgba(107,216,94,0.2)]" : "bg-white dark:bg-black/40 backdrop-blur-md border-slate-200 dark:border-white/10 text-muted-foreground hover:bg-slate-50 dark:hover:bg-black/60 hover:text-foreground dark:hover:text-white"}`}>
             {filters.distance === "all" ? "Any Distance" : `< ${filters.distance} mi`}
             <ChevronDown className="ml-1 h-3 w-3" />
           </Button>
@@ -61,7 +61,7 @@ export function GymFilters({ filters, onFilterChange }: GymFiltersProps) {
       {/* Price Filter */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className={`rounded-full border transition-all ${filters.price !== "all" ? "bg-black/60 backdrop-blur-md border-[#6BD85E]/50 text-[#6BD85E] shadow-[0_0_15px_rgba(107,216,94,0.2)]" : "bg-black/40 backdrop-blur-md border-white/10 text-slate-300 hover:bg-black/60 hover:text-white"}`}>
+          <Button variant="outline" size="sm" className={`rounded-full border transition-all ${filters.price !== "all" ? "bg-white dark:bg-black/60 backdrop-blur-md border-[#6BD85E]/50 text-[#6BD85E] shadow-[0_0_15px_rgba(107,216,94,0.2)]" : "bg-white dark:bg-black/40 backdrop-blur-md border-slate-200 dark:border-white/10 text-muted-foreground hover:bg-slate-50 dark:hover:bg-black/60 hover:text-foreground dark:hover:text-white"}`}>
             {filters.price === "all" ? "Any Price" : filters.price}
             <ChevronDown className="ml-1 h-3 w-3" />
           </Button>
@@ -77,7 +77,7 @@ export function GymFilters({ filters, onFilterChange }: GymFiltersProps) {
       {/* Rating Filter */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className={`rounded-full border transition-all ${filters.rating !== "all" ? "bg-black/60 backdrop-blur-md border-[#6BD85E]/50 text-[#6BD85E] shadow-[0_0_15px_rgba(107,216,94,0.2)]" : "bg-black/40 backdrop-blur-md border-white/10 text-slate-300 hover:bg-black/60 hover:text-white"}`}>
+          <Button variant="outline" size="sm" className={`rounded-full border transition-all ${filters.rating !== "all" ? "bg-white dark:bg-black/60 backdrop-blur-md border-[#6BD85E]/50 text-[#6BD85E] shadow-[0_0_15px_rgba(107,216,94,0.2)]" : "bg-white dark:bg-black/40 backdrop-blur-md border-slate-200 dark:border-white/10 text-muted-foreground hover:bg-slate-50 dark:hover:bg-black/60 hover:text-foreground dark:hover:text-white"}`}>
             {filters.rating === "all" ? "Any Rating" : `${filters.rating}+ Stars`}
             <ChevronDown className="ml-1 h-3 w-3" />
           </Button>

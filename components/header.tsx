@@ -109,7 +109,7 @@ export function Header({
               <div className="relative hover:scale-105 transition-transform duration-500">
                 <Image
                   src="/images/gymsaver_logo_new.png"
-                  alt="Gym Saver App"
+                  alt="GymSaver App"
                   width={1080}
                   height={432}
                   className="h-56 sm:h-64 md:h-80 w-auto max-w-full object-contain relative drop-shadow-[0_0_35px_rgba(77,132,68,0.5)]"

@@ -698,7 +698,7 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
         </div>
 
         {/* NEW: Full-Width Search & Filters Header (Sticky) */}
-        <div className="sticky top-0 z-30 glass-premium p-4 md:p-6 space-y-4 w-full">
+        <div className="sticky top-0 z-30 glass-premium p-4 md:p-6 space-y-4 w-full border-b dark:border-white/10">
           {/* Search Bar (Priority Position) */}
           <div className="max-w-7xl mx-auto relative w-full">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -707,7 +707,7 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
               placeholder="Search gyms by name, location..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 h-14 text-lg bg-black/40 border-white/10 text-white placeholder:text-slate-500 rounded-2xl focus:bg-black/60 focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all w-full tracking-tight shadow-inner"
+              className="pl-12 h-14 text-lg bg-slate-50 dark:bg-black/40 border-slate-200 dark:border-white/10 text-foreground dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-2xl focus:bg-white dark:focus:bg-black/60 focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all w-full tracking-tight shadow-sm"
             />
           </div>
 
