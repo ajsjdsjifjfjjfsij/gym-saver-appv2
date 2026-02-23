@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Star, MapPin, Bookmark, BookmarkCheck } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -26,15 +26,16 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
   // Prioritize the high-quality hero_image_url synced from Google Places API (New)
   // Fallback to legacy photo_reference or the first photo in the array
   const initialPhotoUrl = gym.hero_image_url || getGooglePhotoUrl(gym.photo_reference || gym.photos?.[0]);
-  const hasValidStoredPhoto = !!gym.hero_image_url || (initialPhotoUrl !== "/placeholder-gym.jpg" && !gym.photo_reference?.startsWith('places/'));
+  // We can show the initialPhotoUrl immediately if it's not the placeholder
+  const hasValidStoredPhoto = !!gym.hero_image_url || initialPhotoUrl !== "/placeholder-gym.jpg";
 
   const [resolvedPhotoUrl, setResolvedPhotoUrl] = useState<string | null>(
     hasValidStoredPhoto ? initialPhotoUrl : null
   );
 
   useEffect(() => {
-    // If we already have a direct hero_image_url or a valid resolved URL, skip fetching
-    if (hasValidStoredPhoto || gym.hero_image_url) return;
+    // If we already have a direct hero_image_url, skip fetching
+    if (gym.hero_image_url) return;
 
     const placeId = gym.id; // id is the place_id in Firestore
     const photoReference = gym.photo_reference || gym.photos?.[0];
@@ -102,12 +103,28 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
     }
   }
 
-  const handleGalleryClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleMouseEnter = () => {
     if (onOpenGallery) {
-      onOpenGallery()
+      hoverTimeoutRef.current = setTimeout(() => {
+        onOpenGallery();
+      }, 500);
     }
-  }
+  };
+
+  const handleMouseLeave = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+  };
+
+  const handleGalleryClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    handleMouseLeave(); // Clear timeout if user clicks manually
+    onOpenGallery?.();
+  };
 
   return (
     <div
@@ -134,6 +151,8 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
       <div
         className="w-full h-48 sm:h-full sm:w-64 shrink-0 relative bg-slate-900 overflow-hidden sm:border-r border-b sm:border-b-0 border-white/10 cursor-zoom-in"
         onClick={handleGalleryClick}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         {/* Shimmer Placeholder while loading */}
         {!imageLoaded && (

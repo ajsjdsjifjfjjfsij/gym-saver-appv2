@@ -193,8 +193,10 @@ export function GymMap({ gyms, selectedGym, onGymSelect, userLocation }: GymMapP
           ];
 
           const mapInstance = new MapConstructor(mapRef.current, {
-            center: userLocation || { lat: 40.7128, lng: -74.006 },
-            zoom: 13,
+            center: userLocation || { lat: 51.5074, lng: -0.1278 }, // Default to London, not NY
+            zoom: 12,
+            minZoom: 10,
+            maxZoom: 18,
             disableDefaultUI: true,
             keyboardShortcuts: false,
             clickableIcons: false,
@@ -396,43 +398,16 @@ export function GymMap({ gyms, selectedGym, onGymSelect, userLocation }: GymMapP
     });
   }, [map, theme]);
 
-  // Update Map Center when userLocation changes
-  // Update Map Bounds to show User and Gyms
+  // Update Map Center and Zoom when userLocation or gyms change
   useEffect(() => {
     if (!map || !userLocation) return
 
-    if (gyms.length > 0) {
-      const bounds = new google.maps.LatLngBounds()
-      // Add user location
-      bounds.extend(userLocation)
+    // Prioritize centering on the user's location at the requested town/city zoom level
+    map.panTo(userLocation)
+    map.setZoom(12)
 
-      // Add closest gym locations (up to 15) to prevent zooming out too far
-      const closestGyms = gyms.slice(0, 15)
-      closestGyms.forEach(gym => {
-        bounds.extend({ lat: Number(gym.lat), lng: Number(gym.lng) })
-      })
-
-      map.fitBounds(bounds)
-
-      // Enforce zoom limits after fitBounds
-      const listener = google.maps.event.addListenerOnce(map, "bounds_changed", () => {
-        const currentZoom = map.getZoom();
-        if (currentZoom !== undefined) {
-          if (currentZoom > 15) map.setZoom(15);
-          if (currentZoom < 10) map.setZoom(10); // Force minimum zoom to stay localized
-        }
-      });
-
-      // Cleanup listener just in case
-      setTimeout(() => {
-        google.maps.event.removeListener(listener);
-      }, 500);
-
-    } else {
-      map.panTo(userLocation)
-      map.setZoom(14)
-    }
-  }, [map, userLocation, gyms]) // Trigger when gyms update too
+    // We strictly avoid fitBounds now to ensure the zoom stays at the level you requested
+  }, [map, userLocation, gyms])
 
   // Update Markers
   useEffect(() => {
