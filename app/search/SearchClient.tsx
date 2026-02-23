@@ -232,34 +232,41 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
         let price = g.lowest_price;
         const name = (g.name || "").toLowerCase();
 
+        // FIX 1: If the gym has a valid lowest_price from Firestore, always show it.
+        // This ensures scraped/synced gyms are never hidden by the brand name filter.
+        if (typeof price === 'number' && price > 0) return true;
+
         // If lowest_price is missing or 0, check if it's a major chain that has a fallback in getGymPrice
-        if (price === undefined || price === null || price === 0) {
-          const hasFallback = [
-            "puregym", "pure gym", "the gym", "anytime", "david lloyd",
-            "nuffield", "everlast", "jd gym", "snap fitness", "snap",
-            "fitness first", "bannatyne", "virgin active", "harbour club",
-            "third space", "equinox", "easygym", "easy gym"
-          ].some(brand => name.includes(brand));
+        const hasFallback = [
+          "puregym", "pure gym", "the gym", "anytime", "david lloyd",
+          "nuffield", "everlast", "jd gym", "snap fitness", "snap",
+          "fitness first", "bannatyne", "virgin active", "harbour club",
+          "third space", "equinox", "easygym", "easy gym", "energie",
+          "village gym", "total fitness", "xercise4less", "gym group"
+        ].some(brand => name.includes(brand));
 
-          if (hasFallback) return true;
+        if (hasFallback) return true;
 
-          // Otherwise check memberships
-          if (g.memberships && Array.isArray(g.memberships) && g.memberships.length > 0) {
-            const validPrices = g.memberships
-              .map((m: any) => m.price)
-              .filter((p: any) => typeof p === 'number' && p > 0);
-
-            if (validPrices.length > 0) {
-              price = Math.min(...validPrices);
-            }
+        // FIX 2: Check memberships — handle both Array and Object formats from Firestore
+        if (g.memberships) {
+          let membershipValues: any[] = [];
+          if (Array.isArray(g.memberships)) {
+            membershipValues = g.memberships;
+          } else if (typeof g.memberships === 'object') {
+            // Firestore often stores memberships as { planName: { price: X, url: Y } }
+            membershipValues = Object.values(g.memberships);
           }
+          const validPrices = membershipValues
+            .map((m: any) => (typeof m === 'object' ? m.price : m))
+            .filter((p: any) => typeof p === 'number' && p > 0);
+
+          if (validPrices.length > 0) return true;
         }
 
-        const keep = (typeof price === 'number' && price > 0);
-        if (!keep && name.includes("jd")) {
-          console.log(`[Diagnostic] Filtering out JD Gym by price: ${name} (Price: ${price})`);
+        if (name.includes("jd")) {
+          console.log(`[Diagnostic] Filtering out JD-named gym by price: ${name}`);
         }
-        return keep;
+        return false;
       });
 
       // 2d. Provider Exclusion: Hide "Better" (GLL) gyms completely
@@ -416,8 +423,15 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
           memberships: g.memberships, // Essential for detailed pricing if needed
           user_ratings_total: g.user_ratings_total,
           googleMapsUri: g.googleMapsUri,
-          photo_reference: g.photo_reference || g.photo || (g.photos && g.photos.length > 0 ? g.photos[0] : undefined),
-          photos: g.photos || (g.photo_reference ? [g.photo_reference] : []),
+          // FIX 3: Only use photo_reference if it is a valid Places photo resource path.
+          // Bare Place IDs (ChIJ...) are NOT valid photo paths and will generate broken URLs.
+          photo_reference: (() => {
+            const ref = g.photo_reference || g.photo;
+            if (ref && (ref.startsWith('places/') || ref.startsWith('http'))) return ref;
+            // Fall through to photos array which may have a proper resource path
+            return g.photos && g.photos.length > 0 ? g.photos[0] : undefined;
+          })(),
+          photos: g.photos || (g.photo_reference && (g.photo_reference.startsWith('places/') || g.photo_reference.startsWith('http')) ? [g.photo_reference] : []),
           website: g.website,
         };
       });

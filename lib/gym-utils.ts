@@ -113,8 +113,15 @@ export function getGymPrice(gym: Gym) {
 
 export function getGooglePhotoUrl(photoReference?: string): string {
     if (!photoReference) return "/placeholder-gym.jpg";
+    // Already a full URL — use directly
     if (photoReference.startsWith("http")) return photoReference;
-    return `https://places.googleapis.com/v1/${photoReference}/media?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&maxHeightPx=400&maxWidthPx=400`;
+    // Valid Google Places photo resource path — build media URL
+    if (photoReference.startsWith("places/")) {
+        return `https://places.googleapis.com/v1/${photoReference}/media?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&maxHeightPx=400&maxWidthPx=400`;
+    }
+    // FIX 4: Bare Place IDs (e.g. ChIJ...) are NOT photo resource paths.
+    // Using them would generate a broken URL, so fall back to placeholder.
+    return "/placeholder-gym.jpg";
 }
 
 export function getGymFacilities(gym: Gym) {
