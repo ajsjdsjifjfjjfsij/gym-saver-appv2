@@ -19,7 +19,13 @@ export const SEARCH_ENGINE_BOTS = [
     "facebot",
     "twitterbot",
     "linkedinbot",
-    "slackbot"
+    "slackbot",
+    "snapchat",
+    "whatsapp",
+    "facebookexternalhit",
+    "discordbot",
+    "telegrambot",
+    "applebot"
 ];
 
 export const isSearchEngineBot = (userAgent?: string): boolean => {
