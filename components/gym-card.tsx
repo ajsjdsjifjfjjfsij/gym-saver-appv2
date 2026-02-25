@@ -106,7 +106,12 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleMouseEnter = () => {
-    if (onOpenGallery) {
+    // Prevent hover logic on touch devices
+    const isTouchDevice =
+      typeof window !== "undefined" &&
+      ("ontouchstart" in window || navigator.maxTouchPoints > 0);
+
+    if (onOpenGallery && !isTouchDevice) {
       hoverTimeoutRef.current = setTimeout(() => {
         onOpenGallery();
       }, 500);
@@ -163,6 +168,8 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
         <img
           src={imageSrc}
           alt={gym.name}
+          loading="lazy"
+          decoding="async"
           onLoad={() => setImageLoaded(true)}
           className={`absolute inset-0 w-full h-full object-cover block transition-all duration-700 group-hover:scale-110 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
           onError={(e) => {

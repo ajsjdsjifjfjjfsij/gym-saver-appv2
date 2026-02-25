@@ -178,7 +178,7 @@ export default function LandingPage() {
                             className="relative overflow-visible"
                             style={{
                                 width: '180px',
-                                transform: 'translate(-32px, 0px)'
+                                transform: 'translate(-6px, 0px)'
                             }}
                         >
                             <Image

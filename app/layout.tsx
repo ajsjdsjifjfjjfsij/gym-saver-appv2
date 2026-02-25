@@ -104,9 +104,9 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`font-sans antialiased`} suppressHydrationWarning>
         <AuthProvider>
+          <SplashScreen />
           {isSearchEngine ? content : (
             <BotGuard serverBotDetected={isSearchEngine}>
-              <SplashScreen />
               {content}
             </BotGuard>
           )}

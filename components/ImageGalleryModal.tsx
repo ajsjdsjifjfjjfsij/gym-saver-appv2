@@ -123,6 +123,8 @@ export function ImageGalleryModal({ gym, isOpen, onClose }: ImageGalleryModalPro
                                                 <img
                                                     src={getGooglePhotoUrl(photoRef)}
                                                     alt={`${gym.name} photo ${index + 1}`}
+                                                    loading="lazy"
+                                                    decoding="async"
                                                     className="w-full h-full object-contain"
                                                 />
                                             </div>

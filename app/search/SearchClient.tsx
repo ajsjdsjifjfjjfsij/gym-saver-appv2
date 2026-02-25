@@ -184,61 +184,8 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
           const jdCheck = firestoreGymsData.filter((g: any) => g && (g.name || "").toLowerCase().includes("jd"));
           console.log(`[Diagnostic] JD Gyms in RAW firestore response: ${jdCheck.length}`);
 
-          // --- MANUAL INJECTION FIX FOR MISSING SWINDON GYMS ---
-          // Since JD Gyms Swindon and Anytime Fitness are completely missing from the Firestore dump
-          // and the user specifically requested them to be visible at their local search level.
-          const hasJdSwindon = firestoreGymsData.some(g => (g.name || '').toLowerCase().includes('jd gyms swindon'));
-          if (!hasJdSwindon) {
-            firestoreGymsData.push({
-              id: "ChIJZ5SiGRBFcUgRY-I-lHuXS1E",
-              name: "JD Gyms Swindon",
-              address: "Kembrey Business Park, Swindon SN2 8UN",
-              city: "Swindon",
-              location: { lat: 51.574, lng: -1.776 },
-              lat: 51.574,
-              lng: -1.776,
-              type: "Gym",
-              rating: 4.8,
-              user_ratings_total: 120,
-              lowest_price: 21.99,
-              is_24hr: true,
-              website: "https://www.jdgyms.co.uk/gym/swindon/",
-              photo_reference: "places/ChIJZ5SiGRBFcUgRY-I-lHuXS1E/photos/ATCDNfVV52OaHDJD0bjN25zuyfc8hxyAAZBLa0w-qmhYcsFxAd61QFND-CYoBXu2QnmnHvNrREFcJZDbUEUwsIwtGDW9tV7t0fu_pKWuFy6drZcdwXVpbXjy7cTr3iB3vWowMoa8OSoJlTIV2WAz18P-pK14Ar9sCwhngK3uEHjMOj_YYKNsBZqYSShjl3UgB2QwWj3whS9QJtw_jzcXJAuhkw07QLEsZcpn4YscEsfROlNb9sqOrldv40UK7uOBqRGzhPyUEUXpJMI7g0egP4mG1Uht_66oEPKG1OiQS4zabo9hjg",
-              photos: [
-                "places/ChIJZ5SiGRBFcUgRY-I-lHuXS1E/photos/ATCDNfVV52OaHDJD0bjN25zuyfc8hxyAAZBLa0w-qmhYcsFxAd61QFND-CYoBXu2QnmnHvNrREFcJZDbUEUwsIwtGDW9tV7t0fu_pKWuFy6drZcdwXVpbXjy7cTr3iB3vWowMoa8OSoJlTIV2WAz18P-pK14Ar9sCwhngK3uEHjMOj_YYKNsBZqYSShjl3UgB2QwWj3whS9QJtw_jzcXJAuhkw07QLEsZcpn4YscEsfROlNb9sqOrldv40UK7uOBqRGzhPyUEUXpJMI7g0egP4mG1Uht_66oEPKG1OiQS4zabo9hjg",
-                "places/ChIJZ5SiGRBFcUgRY-I-lHuXS1E/photos/ATCDNfVit3CT6gi5zlSVbSxFmNjpWHuLSwJOyubOlgyMKyKrQEm1ddY9IHQqKmoG9kjiwGcUnt9TxzBG15S7Ri4G-SsVJHCuS08sd9lPgUfJQ5RkLMjiaLaEa_brt_hXWXN_gOWqjIKIKPCuhv6zmFKP1zqJLSWCXdXAcyg_OFE7y970W0Ovv4lAH4zufWX13XBNNEUBvIu_6_W8DDsaKn9jncfo4bM4uPjYMWZnXFBM8dOevf7KPJkmiqQetohbIZlagIBnTKylgMzXJKKr3Lyd1DaDlwQYGbQ6-rUds--KnCLiWw",
-                "places/ChIJZ5SiGRBFcUgRY-I-lHuXS1E/photos/ATCDNfXq29qIkzZqlwCp06G-2bbcpuNUW0gC5cB1wWkPeRwwTYbdJtOh4Rv4vrVajKqyUTDtI6nRhlBYN_nH0FXeBj4Vww8ATyPA5GAN7Joiy1CPDKvpFRIxR-UvEwZ3ti0XvBh1L98BGHxYUsv1ztoEeJzK_5VusbLB6KcdhUet2aDdhUj9gQehH4dN_j6e3lZzIw0O1gwbubKaxzXsOGJrXzCYdOiHbwYBexS7n4kMjpixu8WlPh34h2iJvFhfNqn0Nisx-JmZ9liSMvFKXHnWbJdNQgYHZQEck5Ut3asgXZvJNA"
-              ]
-            });
-          }
-
-          const hasAnytimeSwindon = firestoreGymsData.some(g => (g.name || '').toLowerCase().includes('anytime fitness swindon'));
-          if (!hasAnytimeSwindon) {
-            firestoreGymsData.push({
-              id: "ChIJae5cS1REcUgRwCtwisx48g0",
-              name: "Anytime Fitness Swindon",
-              address: "Hoopers Place, Old Town, Swindon SN1 3RA",
-              city: "Swindon",
-              location: { lat: 51.552, lng: -1.779 },
-              lat: 51.552,
-              lng: -1.779,
-              type: "Gym",
-              rating: 4.5,
-              user_ratings_total: 90,
-              lowest_price: 39.00,
-              is_24hr: true,
-              website: "https://www.anytimefitness.co.uk/gyms/uk-0164/swindon-south-west-sn1-3ra/",
-              photo_reference: "places/ChIJae5cS1REcUgRwCtwisx48g0/photos/ATCDNfXFOhUikvO7ii6lLRXMQBAHGommZnKNdc7jEt8mUUtwXxUfSxcfojKtLRJNjhaiGSGFNdLfDkEGyrSq-GsIFjW8ugkLZrZtYcPnOF2TqL6fyKuWNlZP7X4iMUS31OpZEHdnBTHnrnBPPfHRoUT2k-g4TP6HK60ODfy0IIudFtGHbk6O0_e_Tcddi9j2ENtGyjAdKBITJlgEsrlbvYCwKxy9akApITlUjF7mkw0DhgqDloLXPJaI2FVKlU9c8CUzDAPxPD1hZLFg98YhSDweZYNQCxhpZsSyw6SRoIrIBZmxnA",
-              photos: [
-                "places/ChIJae5cS1REcUgRwCtwisx48g0/photos/ATCDNfXFOhUikvO7ii6lLRXMQBAHGommZnKNdc7jEt8mUUtwXxUfSxcfojKtLRJNjhaiGSGFNdLfDkEGyrSq-GsIFjW8ugkLZrZtYcPnOF2TqL6fyKuWNlZP7X4iMUS31OpZEHdnBTHnrnBPPfHRoUT2k-g4TP6HK60ODfy0IIudFtGHbk6O0_e_Tcddi9j2ENtGyjAdKBITJlgEsrlbvYCwKxy9akApITlUjF7mkw0DhgqDloLXPJaI2FVKlU9c8CUzDAPxPD1hZLFg98YhSDweZYNQCxhpZsSyw6SRoIrIBZmxnA",
-                "places/ChIJae5cS1REcUgRwCtwisx48g0/photos/ATCDNfXfH-YL95G-0SsqsrPTFeto2M3dL_RzRHC5qaj3LffyXieV89YhjfhHQV10674Wv9TtrtJ-zIPQrvadFYej-C8z7AxG_fmi9DakUfycFNdPlcJk3pYtlISY-MgnkC4ty8pQUvGyQS2lk5jzq9dXL2Zl6kwQyuyj7Gge1IBJ1xd0Xzhw5BCiScg037oSwHTfYiDoTlX1JiuxA8POYsN_iNPErQe40y9V-j5H-GvEt-MwYQNwaMl1sAnOGJs89ZdCzTT8yovnO3OvT0sYGD0az6tajcEtgJ-qwaEbOW5BK89bC0Ohurohwgko5E1ZF_5mH8dqD0mBM7R6fzE47-xAapJ8GJeGgJ4E9R2ZFmzwFPMUfzxYJd1udzJ4n64yzfCBA7i092C3yQjHH-HyeUYLHGX2RgyIl2GLpYwrmQFYcGvx6zo",
-                "places/ChIJae5cS1REcUgRwCtwisx48g0/photos/ATCDNfX2Z7QYTN_UnbXUG0YPrExyerLNmJiiH3UJeESh0IAP7cZ17b0g1qgVheBBvyNWOLEUqV8FA31relJMgLTaent1-1nQuw9Nf3egUZtXcvh0CR-GmA_Zbr7A0pG9sj9sNFHrxUCYIB6F8qpLer2p3pOrd1Ofstf9HBBr2n13fgHE-jav-tELmgYvujFzImBaFadlYxYnoaRARntT86pPyJQucGIzDFJKqqUlA01um-nVrOoa2LL_olXbdkgSlOzLWtL_6LAVus0vJwFiF5kL_SJgRTa91-Eq5Plmdfxxlk2FVg"
-              ]
-            });
-          }
-
         } catch (e) {
-          console.warn("JD Check log failed:", e);
+          console.warn("Log failed:", e);
         }
       }
 
@@ -394,19 +341,36 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
         // Specific Fixes
         if (gymName === "Swindon Stratton") gymName = "PureGym Swindon Stratton";
 
-        // Brand Standardisation
+        // Brand Standardisation and Missing Brand Name Injection
+        const websiteLower = (g.website || "").toLowerCase();
+
         if (gymName.toLowerCase().includes("puregym")) {
           gymName = gymName.replace(/puregym/i, "PureGym");
-        } else if (gymName.toLowerCase().includes("jd gym")) {
+        } else if (websiteLower.includes("puregym") && !gymName.toLowerCase().includes("puregym")) {
+          gymName = `PureGym ${gymName}`;
+        }
+
+        if (gymName.toLowerCase().includes("jd gym")) {
           gymName = gymName.replace(/jd\s?gyms?/i, "JD Gyms");
-        } else if (gymName.toLowerCase().includes("the gym")) {
-          // Only replace if it doesn't already look like "The Gym Group"
+        } else if (websiteLower.includes("jdgyms") && !gymName.toLowerCase().includes("jd")) {
+          gymName = `JD Gyms ${gymName}`;
+        }
+
+        if (gymName.toLowerCase().includes("the gym")) {
           if (!gymName.includes("The Gym Group")) {
             gymName = gymName.replace(/the\s?gym/i, "The Gym Group");
           }
-        } else if (gymName.toLowerCase().includes("anytime fitness")) {
+        } else if (websiteLower.includes("thegymgroup") && !gymName.toLowerCase().includes("the gym")) {
+          gymName = `The Gym Group ${gymName}`;
+        }
+
+        if (gymName.toLowerCase().includes("anytime fitness")) {
           gymName = gymName.replace(/anytime\s?fitness/i, "Anytime Fitness");
-        } else if (gymName.toLowerCase().includes("nuffield health")) {
+        } else if (websiteLower.includes("anytimefitness") && !gymName.toLowerCase().includes("anytime")) {
+          gymName = `Anytime Fitness ${gymName}`;
+        }
+
+        if (gymName.toLowerCase().includes("nuffield health")) {
           gymName = gymName.replace(/nuffield\s?health/i, "Nuffield Health");
         } else if (gymName.toLowerCase().includes("david lloyd")) {
           gymName = gymName.replace(/david\s?lloyd/i, "David Lloyd");

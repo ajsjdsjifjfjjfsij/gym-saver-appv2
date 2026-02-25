@@ -66,7 +66,7 @@ export async function GET(request: Request) {
         // Now fetch the actual Media URI (lh3.googleusercontent.com)
         // This URI has no Referer restrictions, so the client can load it directly.
         const mediaRes = await fetch(
-            `https://places.googleapis.com/v1/${finalPhotoName}/media?key=${apiKey}&maxHeightPx=1200&maxWidthPx=1600&skipHttpRedirect=true`,
+            `https://places.googleapis.com/v1/${finalPhotoName}/media?key=${apiKey}&maxHeightPx=400&maxWidthPx=400&skipHttpRedirect=true`,
             {
                 headers: {
                     "Referer": referer,
