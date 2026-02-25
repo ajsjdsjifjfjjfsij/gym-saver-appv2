@@ -24,9 +24,6 @@ async function runDir() {
     });
 
     const data = await res.json();
-    const places = data.places || [];
-    console.log(`Places found: ${places.length}`);
-    const jd = places.filter(p => (p.displayName.text || '').toLowerCase().includes('jd'));
-    console.log("JD Places:", JSON.stringify(jd, null, 2));
+    console.log("Response:", JSON.stringify(data, null, 2));
 }
 runDir();
