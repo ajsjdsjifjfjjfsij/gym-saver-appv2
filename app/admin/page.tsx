@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth/AuthContext";
 import { useRouter } from "next/navigation";
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc, getDoc, setDoc, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, Check, X, FileText, ImageIcon, DollarSign, Mail, AlertCircle } from "lucide-react";
+import { Loader2, Check, X, FileText, ImageIcon, DollarSign, Mail, AlertCircle, Star } from "lucide-react";
 import { sendEmailVerification } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import Image from "next/image";
@@ -62,9 +62,16 @@ export default function AdminDashboard() {
     const router = useRouter();
     const [submissions, setSubmissions] = useState<Submission[]>([]);
     const [gymListings, setGymListings] = useState<GymListing[]>([]);
+    const [featuredGyms, setFeaturedGyms] = useState<any[]>([]);
     const [dataLoading, setDataLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [verifying, setVerifying] = useState(false);
+
+    // Featured Gym Management State
+    const [featurePlaceId, setFeaturePlaceId] = useState("");
+    const [featureFrom, setFeatureFrom] = useState("");
+    const [featureUntil, setFeatureUntil] = useState("");
+    const [featureLoading, setFeatureLoading] = useState(false);
 
     // Security Check
     useEffect(() => {
@@ -100,6 +107,17 @@ export default function AdminDashboard() {
                     const listings: GymListing[] = [];
                     snapshot.forEach((doc) => listings.push({ id: doc.id, ...doc.data() } as GymListing));
                     setGymListings(listings);
+                },
+                (err) => handleError(err)
+            );
+
+            // Query Featured Gyms
+            const qFeatured = query(collection(db, "gyms"), where("isFeatured", "==", true));
+            const unsubFeatured = onSnapshot(qFeatured,
+                (snapshot) => {
+                    const featured: any[] = [];
+                    snapshot.forEach((doc) => featured.push({ id: doc.id, ...doc.data() }));
+                    setFeaturedGyms(featured);
                     setDataLoading(false);
                 },
                 (err) => handleError(err)
@@ -116,6 +134,7 @@ export default function AdminDashboard() {
             return () => {
                 unsubSubs();
                 unsubListings();
+                unsubFeatured();
             };
         }
     }, [user]);
@@ -220,6 +239,54 @@ export default function AdminDashboard() {
         } catch (error) {
             console.error("Error updating Place ID:", error);
             alert("Failed to update Place ID.");
+        }
+    };
+
+    // Featured Gyms Handlers
+    const handleSetFeatured = async () => {
+        if (!featurePlaceId || !featureFrom || !featureUntil) {
+            alert("Please fill out all fields (Place ID, From Date, Until Date).");
+            return;
+        }
+
+        setFeatureLoading(true);
+        try {
+            const gymRef = doc(db, "gyms", featurePlaceId);
+            const gymSnap = await getDoc(gymRef);
+
+            if (!gymSnap.exists()) {
+                alert(`Error: Gym with Place ID ${featurePlaceId} does not exist in the database.`);
+                setFeatureLoading(false);
+                return;
+            }
+
+            await updateDoc(gymRef, {
+                isFeatured: true,
+                featuredFrom: new Date(featureFrom),
+                featuredUntil: new Date(featureUntil)
+            });
+
+            alert(`Successfully set Gym ${featurePlaceId} as featured!`);
+            setFeaturePlaceId("");
+            setFeatureFrom("");
+            setFeatureUntil("");
+        } catch (error) {
+            console.error("Error setting featured gym:", error);
+            alert("Failed to set featured gym.");
+        } finally {
+            setFeatureLoading(false);
+        }
+    };
+
+    const handleRemoveFeatured = async (id: string) => {
+        if (!confirm("Remove featured status from this gym?")) return;
+        try {
+            await updateDoc(doc(db, "gyms", id), {
+                isFeatured: false
+            });
+        } catch (error) {
+            console.error("Error removing featured status:", error);
+            alert("Failed to remove featured status.");
         }
     };
 
@@ -344,9 +411,10 @@ export default function AdminDashboard() {
 
                 {/* Tabs for Submissions vs Listings */}
                 <Tabs defaultValue="gym-listings" className="w-full">
-                    <TabsList className="grid w-full mb-6 grid-cols-2 bg-white/5 border border-white/10 rounded-xl p-1">
+                    <TabsList className="grid w-full mb-6 grid-cols-3 bg-white/5 border border-white/10 rounded-xl p-1">
                         <TabsTrigger value="gym-listings" className="rounded-lg data-[state=active]:bg-[#6BD85E] data-[state=active]:text-black text-white hover:bg-white/10 transition-colors py-2">Gym Listings</TabsTrigger>
                         <TabsTrigger value="price-changes" className="rounded-lg data-[state=active]:bg-[#6BD85E] data-[state=active]:text-black text-white hover:bg-white/10 transition-colors py-2">Price Changes</TabsTrigger>
+                        <TabsTrigger value="featured" className="rounded-lg data-[state=active]:bg-yellow-500 data-[state=active]:text-black text-white hover:bg-white/10 transition-colors py-2">Featured Options</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="price-changes" className="mt-0">
@@ -683,6 +751,130 @@ export default function AdminDashboard() {
                                                 <TableRow>
                                                     <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
                                                         No rejected listings.
+                                                    </TableCell>
+                                                </TableRow>
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="featured" className="mt-0 space-y-6">
+                        {/* FEATURE A GYM */}
+                        <Card className="bg-gradient-to-br from-yellow-900/20 to-black border-yellow-500/20 text-white overflow-hidden shadow-[0_0_15px_rgba(234,179,8,0.1)]">
+                            <CardHeader>
+                                <CardTitle className="text-yellow-500 flex items-center gap-2">
+                                    <Star className="h-5 w-5 fill-yellow-500 text-yellow-500" />
+                                    Feature a Gym
+                                </CardTitle>
+                                <CardDescription>Promote a gym to the top of the search results for its area.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-slate-400">Google Place ID</label>
+                                        <input
+                                            type="text"
+                                            value={featurePlaceId}
+                                            onChange={(e) => setFeaturePlaceId(e.target.value)}
+                                            placeholder="ChIJ..."
+                                            className="w-full bg-black border border-white/10 rounded-md p-2 text-white focus:border-yellow-500 outline-none"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-slate-400">Featured From</label>
+                                        <input
+                                            type="datetime-local"
+                                            value={featureFrom}
+                                            onChange={(e) => setFeatureFrom(e.target.value)}
+                                            className="w-full bg-black border border-white/10 rounded-md p-2 text-white focus:border-yellow-500 outline-none"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-slate-400">Featured Until</label>
+                                        <input
+                                            type="datetime-local"
+                                            value={featureUntil}
+                                            onChange={(e) => setFeatureUntil(e.target.value)}
+                                            className="w-full bg-black border border-white/10 rounded-md p-2 text-white focus:border-yellow-500 outline-none"
+                                        />
+                                    </div>
+                                </div>
+                                <Button
+                                    className="w-full md:w-auto bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-amber-500 text-black font-bold border-none"
+                                    onClick={handleSetFeatured}
+                                    disabled={featureLoading}
+                                >
+                                    {featureLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Star className="mr-2 h-4 w-4 fill-black" />}
+                                    Set Featured Status
+                                </Button>
+                            </CardContent>
+                        </Card>
+
+                        {/* ACTIVE & EXPIRED FEATURED GYMS */}
+                        <Card className="bg-white/5 border-white/10 text-white overflow-hidden">
+                            <CardHeader>
+                                <CardTitle>Featured Gyms Roster</CardTitle>
+                                <CardDescription>Monitor currently active and expired featured placements.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="rounded-md border border-white/10 overflow-x-auto">
+                                    <Table>
+                                        <TableHeader className="bg-white/5 whitespace-nowrap">
+                                            <TableRow className="border-white/10 hover:bg-white/5">
+                                                <TableHead className="text-gray-400">Gym</TableHead>
+                                                <TableHead className="text-gray-400">Status</TableHead>
+                                                <TableHead className="text-gray-400">Duration</TableHead>
+                                                <TableHead className="text-right text-gray-400">Actions</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {featuredGyms.map((gym) => {
+                                                const now = new Date();
+                                                const untilDate = gym.featuredUntil ? new Date(gym.featuredUntil.seconds * 1000) : new Date(0);
+                                                const isExpired = now > untilDate;
+                                                const fromDate = gym.featuredFrom ? new Date(gym.featuredFrom.seconds * 1000) : new Date();
+                                                const isFuture = now < fromDate;
+
+                                                return (
+                                                    <TableRow key={gym.id} className={`border-white/10 hover:bg-white/5 ${isExpired ? 'opacity-70' : ''}`}>
+                                                        <TableCell>
+                                                            <div className="font-bold">{gym.name || 'Unknown Gym'}</div>
+                                                            <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1 font-mono">
+                                                                PID: {gym.id}
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {isExpired ? (
+                                                                <Badge variant="destructive" className="bg-red-500/20 text-red-400 border border-red-500/30">Expired</Badge>
+                                                            ) : isFuture ? (
+                                                                <Badge variant="secondary" className="bg-blue-500/20 text-blue-400 border border-blue-500/30">Scheduled</Badge>
+                                                            ) : (
+                                                                <Badge variant="default" className="bg-yellow-500/20 text-yellow-500 border border-yellow-500/30 font-bold">
+                                                                    <Star className="w-3 h-3 mr-1 fill-yellow-500 inline" /> Active
+                                                                </Badge>
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <div className="flex flex-col text-sm">
+                                                                <span className="text-slate-300">From: {fromDate.toLocaleString()}</span>
+                                                                <span className={isExpired ? "text-red-400" : "text-slate-300"}>To: {untilDate.toLocaleString()}</span>
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell className="text-right">
+                                                            <Button size="sm" variant="ghost" className="h-8 text-red-400 hover:text-red-300 hover:bg-red-900/20" onClick={() => handleRemoveFeatured(gym.id)}>
+                                                                Clear Status
+                                                            </Button>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                )
+                                            })}
+                                            {featuredGyms.length === 0 && (
+                                                <TableRow>
+                                                    <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
+                                                        No gyms are currently flagged as featured.
                                                     </TableCell>
                                                 </TableRow>
                                             )}

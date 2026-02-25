@@ -63,6 +63,12 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
   const imageSrc = resolvedPhotoUrl || "/placeholder-gym.jpg";
   const [imageLoaded, setImageLoaded] = useState(false);
 
+  // Check if currently featured
+  const now = new Date();
+  const isCurrentlyFeatured = gym.isFeatured === true &&
+    (!gym.featuredFrom || now >= new Date(gym.featuredFrom.seconds ? gym.featuredFrom.seconds * 1000 : gym.featuredFrom)) &&
+    (!gym.featuredUntil || now <= new Date(gym.featuredUntil.seconds ? gym.featuredUntil.seconds * 1000 : gym.featuredUntil));
+
   const handleSaveClick = (e: React.MouseEvent) => {
     e.stopPropagation()
     if (!user) {
@@ -137,9 +143,11 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
       className={`
         group relative overflow-hidden rounded-2xl transition-all duration-500 cursor-pointer flex flex-col sm:flex-row h-auto sm:h-40
         premium-lift
-        ${isSelected
-          ? "ring-2 ring-primary neon-glow-card scale-[1.01] bg-white/10"
-          : "neon-glow-card glass-card scale-100"
+        ${isCurrentlyFeatured
+          ? "ring-2 ring-yellow-500 bg-gradient-to-r from-yellow-900/40 to-black shadow-[0_0_20px_rgba(234,179,8,0.2)]"
+          : isSelected
+            ? "ring-2 ring-primary neon-glow-card scale-[1.01] bg-white/10"
+            : "neon-glow-card glass-card scale-100"
         }
         ${isCompared ? "ring-2 ring-blue-500 bg-blue-500/10" : ""} 
       `}
@@ -182,8 +190,13 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
         />
 
 
-        {/* Floating Distance Badge */}
-        <div className="absolute top-3 left-3 z-10 flex gap-2">
+        {/* Floating Badges */}
+        <div className="absolute top-3 left-3 z-10 flex flex-col items-start gap-2">
+          {isCurrentlyFeatured && (
+            <span className="text-[10px] font-bold text-black bg-gradient-to-r from-yellow-400 to-yellow-600 px-3 py-1 rounded-full shadow-[0_0_15px_rgba(234,179,8,0.6)] border border-yellow-300 uppercase tracking-widest flex items-center gap-1 animate-pulse" style={{ animationDuration: '3s' }}>
+              <Star className="w-3 h-3 fill-black" /> Featured
+            </span>
+          )}
           {gym.distance !== undefined && (
             <span className="text-[10px] font-bold text-black bg-[#6BD85E] px-2 py-0.5 rounded-full shadow-lg">
               {gym.distance.toFixed(1)} miles away
@@ -204,7 +217,8 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
         <div className="flex items-start justify-between gap-3">
           <div className="flex flex-col gap-1 min-w-0 flex-1">
             <h3
-              className="font-bold text-xl sm:text-lg leading-tight truncate text-[#6BD85E] group-hover:scale-[1.01] origin-left transition-transform tracking-wide cursor-pointer hover:underline"
+              className={`font-bold text-xl sm:text-lg leading-tight truncate group-hover:scale-[1.01] origin-left transition-transform tracking-wide cursor-pointer hover:underline ${isCurrentlyFeatured ? "text-yellow-500" : "text-[#6BD85E]"
+                }`}
               onClick={handleGalleryClick}
             >
               {gym.name}

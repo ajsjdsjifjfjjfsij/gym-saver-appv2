@@ -21,6 +21,9 @@ export interface Gym {
     gallery_image_urls?: string[];
     photo_attributions?: { author: string; authorUrl: string }[];
     images_last_synced_at?: any;
+    isFeatured?: boolean;
+    featuredFrom?: any;
+    featuredUntil?: any;
     location?: {
         lat: number;
         lng: number;

@@ -409,11 +409,13 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
           lowest_price: g.lowest_price, // Essential for getGymPrice
           memberships: g.memberships, // Essential for detailed pricing if needed
           user_ratings_total: g.user_ratings_total,
-          googleMapsUri: g.googleMapsUri,
           hero_image_url: g.hero_image_url,
           gallery_image_urls: g.gallery_image_urls,
           photo_attributions: g.photo_attributions,
           images_last_synced_at: g.images_last_synced_at,
+          isFeatured: g.isFeatured,
+          featuredFrom: g.featuredFrom,
+          featuredUntil: g.featuredUntil,
           // FIX 3: Only use photo_reference if it is a valid Places photo resource path.
           // Bare Place IDs (ChIJ...) are NOT valid photo paths and will generate broken URLs.
           photo_reference: (() => {
@@ -528,7 +530,21 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
 
       return true
     }).sort((a, b) => {
-      // 3. Sorting
+      // 3. Sorting with Featured Override
+      const now = new Date();
+
+      const isAFeatured = a.isFeatured === true &&
+        (!a.featuredFrom || now >= new Date(a.featuredFrom.seconds ? a.featuredFrom.seconds * 1000 : a.featuredFrom)) &&
+        (!a.featuredUntil || now <= new Date(a.featuredUntil.seconds ? a.featuredUntil.seconds * 1000 : a.featuredUntil));
+
+      const isBFeatured = b.isFeatured === true &&
+        (!b.featuredFrom || now >= new Date(b.featuredFrom.seconds ? b.featuredFrom.seconds * 1000 : b.featuredFrom)) &&
+        (!b.featuredUntil || now <= new Date(b.featuredUntil.seconds ? b.featuredUntil.seconds * 1000 : b.featuredUntil));
+
+      // Featured items always go to the top. If both are featured (or neither are), sort by regular criteria.
+      if (isAFeatured && !isBFeatured) return -1;
+      if (!isAFeatured && isBFeatured) return 1;
+
       switch (filters.sortBy || "distance_asc") { // Default to distance
         case "price_asc":
           const priceA = getGymPrice(a).monthly || 1000;
