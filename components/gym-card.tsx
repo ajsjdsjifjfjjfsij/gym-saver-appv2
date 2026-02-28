@@ -229,7 +229,7 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
                 {gym.address}
               </p>
             )}
-            {gym.latestOffer && (
+            {gym.latestOffer && typeof gym.latestOffer === "string" && !gym.latestOffer.toLowerCase().includes("coming soon") && (
               <div className="mt-1 flex items-center">
                 <span className="text-[10px] font-bold text-black bg-[#6BD85E] px-2 py-0.5 rounded-full shadow-sm blink-soft">
                   {gym.latestOffer}

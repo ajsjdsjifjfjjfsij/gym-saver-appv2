@@ -73,6 +73,7 @@ export const metadata: Metadata = {
 
 import { BotGuard } from '@/components/BotGuard'
 import { JsonLd } from '@/components/JsonLd'
+import { InAppBrowserPrompt } from '@/components/InAppBrowserPrompt'
 import { headers } from 'next/headers'
 
 export default async function RootLayout({
@@ -105,6 +106,7 @@ export default async function RootLayout({
       <body className={`font-sans antialiased`} suppressHydrationWarning>
         <AuthProvider>
           <SplashScreen />
+          <InAppBrowserPrompt />
           {isSearchEngine ? content : (
             <BotGuard serverBotDetected={isSearchEngine}>
               {content}

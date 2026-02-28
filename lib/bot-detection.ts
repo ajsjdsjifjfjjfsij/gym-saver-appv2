@@ -53,6 +53,24 @@ export const isBot = (): boolean => {
     return false;
 };
 
+export const isInAppBrowser = (): boolean => {
+    if (typeof window === "undefined") return false;
+    const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+    const isInstagram = userAgent.includes("Instagram");
+    const isFacebook = userAgent.includes("FBAN") || userAgent.includes("FBAV");
+    const isTikTok = userAgent.includes("TikTok") || userAgent.includes("Bytedance");
+    return isInstagram || isFacebook || isTikTok;
+};
+
+export const getInAppBrowserType = (): string | null => {
+    if (typeof window === "undefined") return null;
+    const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+    if (userAgent.includes("Instagram")) return "Instagram";
+    if (userAgent.includes("FBAN") || userAgent.includes("FBAV")) return "Facebook";
+    if (userAgent.includes("TikTok") || userAgent.includes("Bytedance")) return "TikTok";
+    return null;
+};
+
 /**
  * Generates a dynamic, time-based secret for API requests.
  * Uses a secondary fallback secret known to the client.

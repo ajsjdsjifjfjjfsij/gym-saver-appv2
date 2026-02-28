@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     const source = searchParams.get("source") || "places" // 'places' or 'firestore'
 
     // ---------------------------------------------------------
-    // 1. Rate Limiting and Initial Security Check (TOP LEVEL)
+    // 1. Initial Security Check (TOP LEVEL)
     // ---------------------------------------------------------
     const ip = request.headers.get("x-forwarded-for") || "unknown"
     const globalAny = global as any;
@@ -62,25 +62,6 @@ export async function GET(request: Request) {
     }
 
     const now = Date.now()
-    const timeWindow = 60 * 1000 // 1 minute
-    const limit = 20 // 20 requests per minute per IP
-
-    if (!globalAny.rateLimitMap) globalAny.rateLimitMap = new Map();
-    const requestLog = globalAny.rateLimitMap.get(ip) || []
-    const recentRequests = requestLog.filter((time: number) => now - time < timeWindow)
-
-    if (recentRequests.length >= limit) {
-        console.warn(`Rate limit exceeded for IP: ${ip}`)
-        return NextResponse.json(
-            { error: "Too many requests. Please try again later." },
-            { status: 429 }
-        )
-    }
-
-    recentRequests.push(now)
-    globalAny.rateLimitMap.set(ip, recentRequests)
-
-    // ---------------------------------------------------------
     // 2. Strict Browser Signal Validation
     // ---------------------------------------------------------
     const userAgent = request.headers.get("user-agent") || ""
@@ -155,7 +136,7 @@ export async function GET(request: Request) {
                 where("location.lat", ">=", minLat),
                 where("location.lat", "<=", maxLat),
                 orderBy("location.lat"),
-                fsLimit(5000) // Significantly increase limit to ensure we get all gyms across a very wide radius before client-side distance sorting
+                fsLimit(10000) // Firestore maximum query limit is 10000
             );
 
             // Fetch Approved Gym Listings from new flat structure
@@ -285,7 +266,8 @@ export async function GET(request: Request) {
             headers: {
                 "Content-Type": "application/json",
                 "X-Goog-Api-Key": apiKey,
-                "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.priceLevel,places.primaryType,places.regularOpeningHours,places.photos,places.websiteUri,places.googleMapsUri"
+                "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.priceLevel,places.primaryType,places.regularOpeningHours,places.photos,places.websiteUri,places.googleMapsUri",
+                "Referer": process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://www.gymsaverapp.com"
             },
             body: JSON.stringify(body)
         });
