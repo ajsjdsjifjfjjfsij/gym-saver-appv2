@@ -7,18 +7,18 @@ import { initializeApp, getApps, cert } from 'firebase-admin/app';
 
 // Dynamic SSG generation for top UK cities
 export async function generateStaticParams() {
-    return [
-        { city: 'london' },
-        { city: 'manchester' },
-        { city: 'birmingham' },
-        { city: 'leeds' },
-        { city: 'glasgow' },
-        { city: 'sheffield' },
-        { city: 'liverpool' },
-        { city: 'edinburgh' },
-        { city: 'bristol' },
-        { city: 'cardiff' }
+    // Top ~100 UK towns and cities for search volume coverage
+    const cities = [
+        'london', 'manchester', 'birmingham', 'leeds', 'glasgow', 'sheffield', 'liverpool', 'edinburgh', 'bristol', 'cardiff',
+        'leicester', 'coventry', 'nottingham', 'bradford', 'newcastle', 'belfast', 'brighton', 'hull', 'plymouth', 'wolverhampton',
+        'derby', 'swansea', 'southampton', 'salford', 'aberdeen', 'portsmouth', 'york', 'sunderland', 'dundee', 'bournemouth',
+        'reading', 'middlesbrough', 'bolton', 'blackpool', 'milton-keynes', 'peterborough', 'swindon', 'slough', 'oxford', 'cambridge',
+        'gloucester', 'newport', 'preston', 'exeter', 'rotherham', 'cheltenham', 'basingstoke', 'maidstone', 'worcester', 'chelmsford',
+        'cheltenham', 'stockport', 'watford', 'woking', 'guildford', 'harrogate', 'farnham', 'west-bridgford', 'gillingham', 'hornchurch',
+        'shrewsbury', 'stratford-upon-avon', 'hartlepool', 'northampton', 'scunthorpe', 'gateshead', 'bedford', 'basildon', 'warrington', 'canterbury',
+        'stevenage', 'dartford', 'solihull', 'st-albans', 'chester', 'halifax', 'blackburn', 'weymouth', 'taunton', 'hereford', 'bath', 'stafford'
     ];
+    return cities.map(city => ({ city }));
 }
 
 interface LocationPageProps {
