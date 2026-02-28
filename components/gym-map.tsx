@@ -571,6 +571,11 @@ export function GymMap(props: GymMapProps) {
         className="h-full w-full [&_.gm-style-cc]:hidden [&_.gmnoprint]:hidden"
         style={{ backgroundColor: '#0e1114' }}
       />
+      {(propsZoom ?? (map?.getZoom() || 12)) > 10 && (
+        <div className="absolute top-[80px] left-1/2 -translate-x-1/2 bg-black/80 text-[#d59563] text-xs font-medium px-4 py-2 rounded-full backdrop-blur-md pointer-events-none z-10 shadow-lg border border-[#38414e] whitespace-nowrap animate-in fade-in slide-in-from-top-4 duration-500">
+          🔥 New heat map: zoom out to view
+        </div>
+      )}
     </div>
   )
 }
