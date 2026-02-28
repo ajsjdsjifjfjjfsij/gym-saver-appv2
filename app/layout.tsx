@@ -21,11 +21,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.gymsaverapp.com'),
   title: {
-    default: 'GymSaver | Compare Gym Prices, Find Deals & Save Money',
+    default: 'GymSaver | Compare Gym Prices, Find Deals & Save Money in the UK',
     template: '%s | GymSaver'
   },
-  description: 'Compare gym prices across the UK. One search to find the best gym deals, membership prices, and fitness offers near you. Save money on your next gym membership with GymSaver.',
-  keywords: ['gym prices', 'compare gyms', 'gym deals', 'uk gyms', 'fitness memberships', 'cheap gyms', 'gym saver'],
+  description: 'Compare gym prices and memberships across the UK. One search to find the best gym deals, 24-hour fitness centers, and cheap gym offers near you. Stop overpaying for your gym membership with GymSaver.',
+  keywords: ['gym prices', 'compare gyms', 'gym deals', 'uk gyms', 'fitness memberships', 'cheap gyms', 'gym saver', 'find a gym', 'gym locator'],
   authors: [{ name: 'GymSaver Team' }],
   creator: 'GymSaver',
   publisher: 'GymSaver',
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'GymSaver | Compare Gym Prices & Save Money',
-    description: 'Find the best gym deals and membership prices near you. One search, every price, zero over-paying.',
+    description: 'Find the best gym deals and membership prices near you. Compare PureGym, The Gym Group, JD Gyms, and more in one place. Zero over-paying.',
     url: 'https://www.gymsaverapp.com',
     siteName: 'GymSaver',
     images: [
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
         url: '/opengraph-image.png',
         width: 1200,
         height: 630,
-        alt: 'GymSaver - Compare Gym Prices',
+        alt: 'GymSaver - Compare UK Gym Prices',
       },
     ],
     locale: 'en_GB',
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'GymSaver | Compare Gym Prices & Save Money',
-    description: 'Find the best gym deals and membership prices near you. Save money with GymSaver.',
+    description: 'Find the best gym deals and membership prices near you in the UK. Stop overpaying with GymSaver.',
     images: ['/opengraph-image.png'],
     creator: '@gymsaverapp',
   },
@@ -68,7 +68,6 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-
 }
 
 import { BotGuard } from '@/components/BotGuard'

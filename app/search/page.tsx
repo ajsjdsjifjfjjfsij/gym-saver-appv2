@@ -3,8 +3,9 @@ import SearchClient from "./SearchClient";
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Search Gyms | GymSaver',
-    description: 'Find and compare gym prices near you. Filter by price, location, and facilities.',
+    title: 'Search & Compare Gyms Near Me | GymSaver',
+    description: 'Find gyms near you, compare membership prices, and discover exclusive deals. Filter by 24-hour access, swimming pools, day passes, and more.',
+    keywords: ['find a gym', 'gyms near me', 'compare gym memberships', 'gym database', 'fitness clubs UK', 'local gym deals'],
     alternates: {
         canonical: 'https://www.gymsaverapp.com/search',
     },

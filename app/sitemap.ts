@@ -8,6 +8,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     const routes = [
         '',
         '/search',
+        '/compare',
+        '/list-your-gym',
+        '/contact',
         '/affiliate',
         '/download',
         '/legal/privacy',
