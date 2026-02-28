@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: ChainPageProps): Promise<Meta
     return {
         title: `Compare ${chainName} Prices & Memberships | GymSaver UK`,
         description: `Find ${chainName} locations near you. Compare their membership prices, day passes, and facilities with other local gyms to make sure you get the best deal.`,
-        keywords: [`${chainName} prices`, `${chainName} near me`, `${chainName} memberships`, `compare ${chainName}`, `cheap ${chainName} deals`],
+        keywords: [`${chainName} prices`, `${chainName} near me`, `${chainName} memberships`, `compare ${chainName}`, `cheap ${chainName} deals`, `24hr gym near me`, `cheap gyms near me`],
         alternates: {
             canonical: `https://www.gymsaverapp.com/gym-chain/${params.chain}`,
         },

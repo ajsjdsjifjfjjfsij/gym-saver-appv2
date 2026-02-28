@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import Header from '@/components/header';
+import { Header } from '@/components/header';
 import SearchClient from '@/app/search/SearchClient';
 import { getFirestore } from 'firebase-admin/firestore';
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: LocationPageProps): Promise<M
     return {
         title: `Cheap Gyms in ${cityName} | Compare Gym Prices | GymSaver`,
         description: `Find the best and cheapest gym deals in ${cityName}. Compare prices for PureGym, The Gym Group, JD Gyms, and local fitness centers near you.`,
-        keywords: [`gyms in ${cityName}`, `cheap gyms ${cityName}`, `compare gym prices ${cityName}`, `${cityName} fitness memberships`, `24 hour gyms ${cityName}`],
+        keywords: [`gyms in ${cityName}`, `cheap gyms ${cityName}`, `compare gym prices ${cityName}`, `${cityName} fitness memberships`, `24 hour gyms ${cityName}`, `24hr gym near me`, `cheap gyms near me`],
         alternates: {
             canonical: `https://www.gymsaverapp.com/location/${params.city}`,
         },
