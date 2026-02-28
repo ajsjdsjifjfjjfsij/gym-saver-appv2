@@ -60,11 +60,11 @@ export async function fetchGymsFromFirestore(centerLat: number, centerLng: numbe
 }
 
 
-export default function GymSaverApp({ initialBotLocation }: { initialBotLocation?: { lat: number; lng: number } | null }) {
+export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: { initialBotLocation?: { lat: number; lng: number } | null, initialSearchQuery?: string }) {
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const [showAuthModal, setShowAuthModal] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery || "")
 
   const handleAuthRequired = () => {
     setShowAuthModal(true)
@@ -702,19 +702,22 @@ export default function GymSaverApp({ initialBotLocation }: { initialBotLocation
 
   // Initial fetch using default location or user location if available
   useEffect(() => {
-    // If we have a user location, fetch nearby immediately
+    // If we have a user location (e.g. from bot or Geocode), fetch nearby immediately
     // BUT skip this if we are currently zoomed out in National Heatmap Mode
     // to prevent redundant "local" 8km searches from clearing the heatmap.
     if (userLocation && currentZoom > 10) {
       fetchGyms(userLocation.lat, userLocation.lng, searchQuery, filters.type, 8000)
     } else if (!userLocation && !isLocating) {
-      // Fallback: Try to get location again if not set, but don't block
-      // Only do this automatically if we are NOT in an in-app browser
-      if (!isInAppBrowser()) {
+      // If we have an initial query (e.g. from SEO Location page) but no location, trigger geocode
+      if (initialSearchQuery) {
+        handleGeocodeSearch(new Event("submit") as any);
+      } else if (!isInAppBrowser()) {
+        // Fallback: Try to get location again if not set, but don't block
+        // Only do this automatically if we are NOT in an in-app browser
         handleLocationDetection();
       }
     }
-  }, [userLocation?.lat, userLocation?.lng, searchQuery, filters.type, currentZoom]) // Deep compare location props
+  }, [userLocation?.lat, userLocation?.lng, searchQuery, filters.type, currentZoom, initialSearchQuery]) // Deep compare location props
 
   // Save to localStorage when savedGyms changes
   useEffect(() => {
