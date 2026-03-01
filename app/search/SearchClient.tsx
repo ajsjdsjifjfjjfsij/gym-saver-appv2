@@ -960,224 +960,225 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
               </button>
             </div>
           </div>
-          {/* Main Content: Split Layout */}
-          <div className="flex-1 flex overflow-hidden relative">
-            {!userLocation ? (
-              <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
-                <div className="bg-[#153255]/50 border border-[#6BD85E]/30 p-8 rounded-3xl max-w-md w-full text-center space-y-6 shadow-[0_0_50px_rgba(107,216,94,0.1)]">
-                  <div className="bg-[#4D8444]/20 w-20 h-20 mx-auto rounded-full flex items-center justify-center border border-[#6BD85E]/50 shadow-inner">
-                    <MapPin className="h-10 w-10 text-[#6BD85E] animate-pulse" />
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="text-2xl font-bold text-white tracking-tight">Location Required</h3>
-                    <p className="text-slate-400">
-                      GymSaver needs your location to find the best gyms and offers near you. Please enable location access to continue.
-                    </p>
-                  </div>
-                  <Button
-                    onClick={handleLocationDetection}
-                    disabled={isLocating}
-                    className="w-full bg-[#6BD85E] hover:bg-[#5bc250] text-black font-bold h-12 rounded-xl text-lg shadow-[0_0_20px_rgba(107,216,94,0.3)] hover:shadow-[0_0_30px_rgba(107,216,94,0.5)] transition-all duration-300"
-                  >
-                    {isLocating ? (
-                      <>
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                        Locating...
-                      </>
-                    ) : (
-                      "Enable Location"
-                    )}
-                  </Button>
+        </div>
+        {/* Main Content: Split Layout */}
+        <div className="flex-1 flex overflow-hidden relative">
+          {!userLocation ? (
+            <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+              <div className="bg-[#153255]/50 border border-[#6BD85E]/30 p-8 rounded-3xl max-w-md w-full text-center space-y-6 shadow-[0_0_50px_rgba(107,216,94,0.1)]">
+                <div className="bg-[#4D8444]/20 w-20 h-20 mx-auto rounded-full flex items-center justify-center border border-[#6BD85E]/50 shadow-inner">
+                  <MapPin className="h-10 w-10 text-[#6BD85E] animate-pulse" />
                 </div>
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-white tracking-tight">Location Required</h3>
+                  <p className="text-slate-400">
+                    GymSaver needs your location to find the best gyms and offers near you. Please enable location access to continue.
+                  </p>
+                </div>
+                <Button
+                  onClick={handleLocationDetection}
+                  disabled={isLocating}
+                  className="w-full bg-[#6BD85E] hover:bg-[#5bc250] text-black font-bold h-12 rounded-xl text-lg shadow-[0_0_20px_rgba(107,216,94,0.3)] hover:shadow-[0_0_30px_rgba(107,216,94,0.5)] transition-all duration-300"
+                >
+                  {isLocating ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      Locating...
+                    </>
+                  ) : (
+                    "Enable Location"
+                  )}
+                </Button>
               </div>
-            ) : (
-              <>
-                {/* Left Panel: Gym List */}
-                <div className={`
+            </div>
+          ) : (
+            <>
+              {/* Left Panel: Gym List */}
+              <div className={`
                 flex flex-col bg-background z-20 transition-transform duration-300 ease-in-out
                 w-full md:w-[60%] shrink-0 border-r border-white/5
                 ${activeView === "list" ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
                 absolute inset-0 md:relative md:transform-none
               `}>
-                  <div className={`flex-1 overflow-y-auto overflow-x-hidden pb-32 pb-safe ${activeView === 'list' ? 'block' : 'hidden md:block'}`}>
-                    <div className="p-4 space-y-4 max-w-2xl mx-auto">
-                      {currentZoom <= 10 ? (
-                        <div className="flex flex-col gap-4">
-                          <div className="flex flex-col items-center justify-center py-24 text-center border border-[#6BD85E]/20 rounded-3xl bg-[#6BD85E]/5 backdrop-blur-sm px-8 space-y-4">
-                            <div className="w-20 h-20 bg-[#6BD85E]/10 rounded-full flex items-center justify-center border border-[#6BD85E]/30 mb-2">
-                              <MapPin className="h-10 w-10 text-[#6BD85E] animate-pulse" />
-                            </div>
-                            <div className="space-y-2">
-                              <h3 className="text-2xl font-bold text-white tracking-tight">National Heatmap Mode</h3>
-                              <p className="text-slate-400 text-sm max-w-[300px] leading-relaxed">
-                                You are currently viewing a wide area. Please zoom in or return to a specific location to see detailed gym results here.
-                              </p>
-                            </div>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="border-[#6BD85E]/30 text-[#6BD85E] hover:bg-[#6BD85E]/10 rounded-full px-6"
-                              onClick={handleRecenter}
-                            >
-                              Return to my location
-                            </Button>
+                <div className={`flex-1 overflow-y-auto overflow-x-hidden pb-32 pb-safe ${activeView === 'list' ? 'block' : 'hidden md:block'}`}>
+                  <div className="p-4 space-y-4 max-w-2xl mx-auto">
+                    {currentZoom <= 10 ? (
+                      <div className="flex flex-col gap-4">
+                        <div className="flex flex-col items-center justify-center py-24 text-center border border-[#6BD85E]/20 rounded-3xl bg-[#6BD85E]/5 backdrop-blur-sm px-8 space-y-4">
+                          <div className="w-20 h-20 bg-[#6BD85E]/10 rounded-full flex items-center justify-center border border-[#6BD85E]/30 mb-2">
+                            <MapPin className="h-10 w-10 text-[#6BD85E] animate-pulse" />
                           </div>
-                        </div>
-                      ) : loading ? (
-                        <div className="flex flex-col items-center justify-center py-20">
-                          <Loader2 className="h-10 w-10 text-[#6BD85E] animate-spin mb-4" />
-                          <p className="text-slate-400 animate-pulse">Finding the best gyms near you...</p>
-                        </div>
-                      ) : filteredGyms.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-white/10 rounded-3xl bg-secondary/10 backdrop-blur-sm px-6">
-                          <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4 border border-white/10">
-                            <Search className="h-8 w-8 text-muted-foreground opacity-20" />
+                          <div className="space-y-2">
+                            <h3 className="text-2xl font-bold text-white tracking-tight">National Heatmap Mode</h3>
+                            <p className="text-slate-400 text-sm max-w-[300px] leading-relaxed">
+                              You are currently viewing a wide area. Please zoom in or return to a specific location to see detailed gym results here.
+                            </p>
                           </div>
-                          <h3 className="text-xl font-bold text-white mb-2">No gyms found nearby</h3>
-                          <p className="text-muted-foreground text-sm max-w-[280px] mb-6">
-                            {showSavedOnly
-                              ? "You haven't saved any gyms yet. Tap the bookmark icon on any gym to see it here."
-                              : "We couldn't find any gyms matching your filters. Try broadening your search or clearing filters."}
-                          </p>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-[#6BD85E]/30 text-[#6BD85E] hover:bg-[#6BD85E]/10 rounded-full px-6"
+                            onClick={handleRecenter}
+                          >
+                            Return to my location
+                          </Button>
+                        </div>
+                      </div>
+                    ) : loading ? (
+                      <div className="flex flex-col items-center justify-center py-20">
+                        <Loader2 className="h-10 w-10 text-[#6BD85E] animate-spin mb-4" />
+                        <p className="text-slate-400 animate-pulse">Finding the best gyms near you...</p>
+                      </div>
+                    ) : filteredGyms.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-white/10 rounded-3xl bg-secondary/10 backdrop-blur-sm px-6">
+                        <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4 border border-white/10">
+                          <Search className="h-8 w-8 text-muted-foreground opacity-20" />
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-2">No gyms found nearby</h3>
+                        <p className="text-muted-foreground text-sm max-w-[280px] mb-6">
+                          {showSavedOnly
+                            ? "You haven't saved any gyms yet. Tap the bookmark icon on any gym to see it here."
+                            : "We couldn't find any gyms matching your filters. Try broadening your search or clearing filters."}
+                        </p>
 
-                          <div className="flex flex-col gap-3 w-full max-w-[240px]">
+                        <div className="flex flex-col gap-3 w-full max-w-[240px]">
+                          <Button
+                            variant="outline"
+                            className="w-full border-white/10 hover:bg-white/5 text-white h-11 rounded-xl"
+                            onClick={() => {
+                              setFilters({ type: "all", distance: "all", price: "all", rating: "all", sortBy: "distance_asc" })
+                              setSearchQuery("")
+                              setShowSavedOnly(false)
+                            }}
+                          >
+                            Clear All Filters
+                          </Button>
+
+                          {!showSavedOnly && (
                             <Button
-                              variant="outline"
-                              className="w-full border-white/10 hover:bg-white/5 text-white h-11 rounded-xl"
+                              variant="default"
+                              className="w-full bg-[#6BD85E] hover:bg-[#5bc250] text-black font-bold h-11 rounded-xl shadow-[0_0_20px_rgba(107,216,94,0.1)]"
                               onClick={() => {
-                                setFilters({ type: "all", distance: "all", price: "all", rating: "all", sortBy: "distance_asc" })
-                                setSearchQuery("")
-                                setShowSavedOnly(false)
+                                fetchGyms(51.5074, -0.1278, "", "all", 8000)
                               }}
                             >
-                              Clear All Filters
+                              Explore UK Gyms
                             </Button>
-
-                            {!showSavedOnly && (
-                              <Button
-                                variant="default"
-                                className="w-full bg-[#6BD85E] hover:bg-[#5bc250] text-black font-bold h-11 rounded-xl shadow-[0_0_20px_rgba(107,216,94,0.1)]"
-                                onClick={() => {
-                                  fetchGyms(51.5074, -0.1278, "", "all", 8000)
-                                }}
-                              >
-                                Explore UK Gyms
-                              </Button>
-                            )}
-                          </div>
+                          )}
                         </div>
-                      ) : (
-                        <div className="flex flex-col gap-4">
-                          {filteredGyms.map((gym, index) => {
-                            const isFirst = index === 0;
-                            return (
-                              <div key={gym.id} className="flex flex-col gap-4">
-                                <Tooltip open={isFirst && showCompareTooltip}>
-                                  <TooltipTrigger asChild>
-                                    <div>
-                                      <GymCard
-                                        gym={gym}
-                                        isSelected={selectedGym?.id === gym.id}
-                                        isSaved={savedGyms.some(g => g.id === gym.id)}
-                                        isCompared={comparedGyms.some(g => g.id === gym.id)}
-                                        onSelect={() => {
-                                          setSelectedGym(gym)
-                                        }}
-                                        onToggleSave={() => toggleSaveGym(gym)}
-                                        onToggleCompare={() => toggleCompare(gym)}
-                                        onAuthRequired={handleAuthRequired}
-                                        onOpenGallery={() => setGalleryGym(gym)}
-                                      />
-                                    </div>
-                                  </TooltipTrigger>
-                                  {isFirst && (
-                                    <TooltipContent
-                                      side="top"
-                                      align="end"
-                                      className="bg-[#6BD85E] text-black font-bold border-0"
-                                      onPointerDownOutside={handleTooltipDismiss}
-                                    >
-                                      <p>Select two gyms to compare them side by side!</p>
-                                    </TooltipContent>
-                                  )}
-                                </Tooltip>
-                              </div>
-                            )
-                          })}
-                        </div>
-                      )}
-                    </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col gap-4">
+                        {filteredGyms.map((gym, index) => {
+                          const isFirst = index === 0;
+                          return (
+                            <div key={gym.id} className="flex flex-col gap-4">
+                              <Tooltip open={isFirst && showCompareTooltip}>
+                                <TooltipTrigger asChild>
+                                  <div>
+                                    <GymCard
+                                      gym={gym}
+                                      isSelected={selectedGym?.id === gym.id}
+                                      isSaved={savedGyms.some(g => g.id === gym.id)}
+                                      isCompared={comparedGyms.some(g => g.id === gym.id)}
+                                      onSelect={() => {
+                                        setSelectedGym(gym)
+                                      }}
+                                      onToggleSave={() => toggleSaveGym(gym)}
+                                      onToggleCompare={() => toggleCompare(gym)}
+                                      onAuthRequired={handleAuthRequired}
+                                      onOpenGallery={() => setGalleryGym(gym)}
+                                    />
+                                  </div>
+                                </TooltipTrigger>
+                                {isFirst && (
+                                  <TooltipContent
+                                    side="top"
+                                    align="end"
+                                    className="bg-[#6BD85E] text-black font-bold border-0"
+                                    onPointerDownOutside={handleTooltipDismiss}
+                                  >
+                                    <p>Select two gyms to compare them side by side!</p>
+                                  </TooltipContent>
+                                )}
+                              </Tooltip>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
                   </div>
                 </div>
+              </div>
 
-                {/* Right Panel: Map */}
-                <div className={`
+              {/* Right Panel: Map */}
+              <div className={`
                 flex flex-col bg-background z-10 transition-transform duration-300 ease-in-out
                 w-full md:flex-1 p-1 md:p-2
                 ${activeView === "map" ? "translate-x-0" : "translate-x-full md:translate-x-0"}
                 absolute inset-0 md:relative md:transform-none
               `}>
-                  <div className="flex-1 relative w-full h-full overflow-hidden border border-white/5 rounded-2xl shadow-2xl bg-black neon-glow-card">
-                    {userLocation ? (
-                      <div className="w-full h-full relative">
-                        <GymMap
-                          gyms={filteredGyms}
-                          allGyms={allGyms}
-                          selectedGym={selectedGym}
-                          onGymSelect={(gym) => {
-                            setSelectedGym(gym);
-                          }}
-                          userLocation={userLocation}
-                          onMapIdle={handleMapIdle}
-                          currentZoom={currentZoom}
-                          onZoomChange={(zoom) => setCurrentZoom(zoom)}
-                          recenterToken={recenterToken}
-                        />
-                        <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/10 via-transparent to-black/20" />
+                <div className="flex-1 relative w-full h-full overflow-hidden border border-white/5 rounded-2xl shadow-2xl bg-black neon-glow-card">
+                  {userLocation ? (
+                    <div className="w-full h-full relative">
+                      <GymMap
+                        gyms={filteredGyms}
+                        allGyms={allGyms}
+                        selectedGym={selectedGym}
+                        onGymSelect={(gym) => {
+                          setSelectedGym(gym);
+                        }}
+                        userLocation={userLocation}
+                        onMapIdle={handleMapIdle}
+                        currentZoom={currentZoom}
+                        onZoomChange={(zoom) => setCurrentZoom(zoom)}
+                        recenterToken={recenterToken}
+                      />
+                      <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/10 via-transparent to-black/20" />
 
-                        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 pointer-events-none flex items-center gap-3">
-                          <Button
-                            onClick={() => setActiveView("list")}
-                            className="pointer-events-auto md:hidden shadow-lg bg-[#6BD85E] hover:bg-[#5bc250] text-black font-bold rounded-full px-6"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" /></svg>
-                            Back to Gyms
-                          </Button>
-                          <Button
-                            size="icon"
-                            onClick={handleRecenter}
-                            className="pointer-events-auto shadow-lg bg-black/80 hover:bg-black text-white border border-white/20 rounded-full h-10 w-10 backdrop-blur-md"
-                            title="Recenter Map"
-                          >
-                            <MapPin className="h-5 w-5" />
-                          </Button>
-                        </div>
+                      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 pointer-events-none flex items-center gap-3">
+                        <Button
+                          onClick={() => setActiveView("list")}
+                          className="pointer-events-auto md:hidden shadow-lg bg-[#6BD85E] hover:bg-[#5bc250] text-black font-bold rounded-full px-6"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" /></svg>
+                          Back to Gyms
+                        </Button>
+                        <Button
+                          size="icon"
+                          onClick={handleRecenter}
+                          className="pointer-events-auto shadow-lg bg-black/80 hover:bg-black text-white border border-white/20 rounded-full h-10 w-10 backdrop-blur-md"
+                          title="Recenter Map"
+                        >
+                          <MapPin className="h-5 w-5" />
+                        </Button>
                       </div>
-                    ) : null}
-                  </div>
+                    </div>
+                  ) : null}
                 </div>
-              </>
-            )}
-          </div>
-
-          {/* Sticky Compare Bar */}
-          <CompareBar
-            count={comparedGyms.length}
-            onCompare={handleCompareAction}
-            onClear={clearComparison}
-          />
-
-          <AuthGateModal
-            open={showAuthModal}
-            onOpenChange={setShowAuthModal}
-            onSignUp={handleSignUp}
-          />
-          <ImageGalleryModal
-            gym={galleryGym}
-            isOpen={!!galleryGym}
-            onClose={() => setGalleryGym(null)}
-          />
+              </div>
+            </>
+          )}
         </div>
-    </TooltipProvider >
+
+        {/* Sticky Compare Bar */}
+        <CompareBar
+          count={comparedGyms.length}
+          onCompare={handleCompareAction}
+          onClear={clearComparison}
+        />
+
+        <AuthGateModal
+          open={showAuthModal}
+          onOpenChange={setShowAuthModal}
+          onSignUp={handleSignUp}
+        />
+        <ImageGalleryModal
+          gym={galleryGym}
+          isOpen={!!galleryGym}
+          onClose={() => setGalleryGym(null)}
+        />
+      </div>
+    </TooltipProvider>
   )
 }
