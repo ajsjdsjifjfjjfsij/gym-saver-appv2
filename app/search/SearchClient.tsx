@@ -470,7 +470,7 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
       // 1. Query is too short (to prevent jumpy results while typing)
       // 2. Query matches geocoded location (unless it's a brand search)
       // 3. Query is generic ("gym", "fitness")
-      const shouldFilter = lowerSearchQuery.length >= 3 &&
+      const shouldFilter = lowerSearchQuery.length >= 4 &&
         (lowerSearchQuery !== lastGeocodedLower || isBrand) &&
         lowerSearchQuery !== "gym" &&
         lowerSearchQuery !== "fitness";
@@ -705,13 +705,13 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
     }
 
     const timer = setTimeout(() => {
-      handleGeocodeSearch();
+      handleGeocodeSearch(undefined, true); // Silent mode enabled for auto-search
     }, 700); // 700ms provides a comfortable delay for typing before triggering a heavy API call
 
     return () => clearTimeout(timer);
   }, [searchQuery, lastGeocodedQuery]);
 
-  const handleGeocodeSearch = useCallback(async (e?: React.KeyboardEvent<HTMLInputElement> | React.FormEvent) => {
+  const handleGeocodeSearch = useCallback(async (e?: React.KeyboardEvent<HTMLInputElement> | React.FormEvent, silent = false) => {
     if (e) {
       e.preventDefault();
     }
@@ -750,11 +750,15 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
         setLastGeocodedQuery(searchQuery);
         console.log(`Geocoded to: ${data.formattedAddress}`);
       } else {
-        alert(data.error || "Could not find that location. Please try a different search.");
+        if (!silent) {
+          alert(data.error || "Could not find that location. Please try a different search.");
+        }
       }
     } catch (err) {
       console.error("Geocoding failed:", err);
-      alert("An error occurred while searching for that location. Please try again.");
+      if (!silent) {
+        alert("An error occurred while searching for that location. Please try again.");
+      }
     } finally {
       setIsGeocoding(false);
     }
@@ -924,7 +928,7 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
                   className={`flex-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${activeView === "list" ? "bg-[#6BD85E] text-black shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-white/5"}`}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" /></svg>
-                  List
+                  Gyms
                 </button>
                 <button
                   onClick={() => {
@@ -944,8 +948,8 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
 
             {userLocation && (
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1 text-[10px] font-bold text-primary uppercase tracking-wider animate-pulse">
-                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                <div className="flex items-center gap-1 text-[8px] sm:text-[10px] font-bold text-primary uppercase tracking-wider animate-pulse whitespace-nowrap">
+                  <div className="w-1 h-1 rounded-full bg-primary" />
                   Sorting by Distance
                 </div>
                 <button onClick={handleRecenter} className="text-muted-foreground hover:text-white transition-colors bg-white/5 p-1.5 rounded-full" title="Recenter to my location">
@@ -1137,7 +1141,7 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
                           className="pointer-events-auto md:hidden shadow-lg bg-[#6BD85E] hover:bg-[#5bc250] text-black font-bold rounded-full px-6"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" /></svg>
-                          Back to List
+                          Back to Gyms
                         </Button>
                         <Button
                           size="icon"
