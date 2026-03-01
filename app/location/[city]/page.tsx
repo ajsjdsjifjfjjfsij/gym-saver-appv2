@@ -2,8 +2,6 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Header } from '@/components/header';
 import SearchClient from '@/app/search/SearchClient';
-import { getFirestore } from 'firebase-admin/firestore';
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
 
 // Dynamic SSG generation for top UK cities
 export async function generateStaticParams() {
@@ -22,11 +20,15 @@ export async function generateStaticParams() {
 }
 
 interface LocationPageProps {
-    params: { city: string };
+    params: Promise<{ city: string }>;
 }
 
 // Format the URL slug "manchester" back into "Manchester"
-function formatCityName(slug: string): string {
+function formatCityName(slug: string | null | undefined): string {
+    if (!slug) {
+        console.warn("⚠️ Warning: Empty slug passed to formatCityName");
+        return "Unknown City";
+    }
     return slug
         .split('-')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
@@ -35,19 +37,20 @@ function formatCityName(slug: string): string {
 
 // Generate highly targeted SEO metadata for each specific city page
 export async function generateMetadata({ params }: LocationPageProps): Promise<Metadata> {
-    const cityName = formatCityName(params.city);
+    const { city } = await params;
+    const cityName = formatCityName(city);
 
     return {
         title: `Cheap Gyms in ${cityName} | Compare Gym Prices | GymSaver`,
         description: `Find the best and cheapest gym deals in ${cityName}. Compare prices for PureGym, The Gym Group, JD Gyms, and local fitness centers near you.`,
         keywords: [`gyms in ${cityName}`, `cheap gyms ${cityName}`, `compare gym prices ${cityName}`, `${cityName} fitness memberships`, `24 hour gyms ${cityName}`, `24hr gym near me`, `cheap gyms near me`],
         alternates: {
-            canonical: `https://www.gymsaverapp.com/location/${params.city}`,
+            canonical: `https://www.gymsaverapp.com/location/${city}`,
         },
         openGraph: {
             title: `Best Gym Deals in ${cityName} | GymSaver`,
             description: `Compare prices for top gyms in ${cityName} and stop overpaying for memberships.`,
-            url: `https://www.gymsaverapp.com/location/${params.city}`,
+            url: `https://www.gymsaverapp.com/location/${city}`,
             siteName: 'GymSaver',
             images: [
                 {
@@ -63,7 +66,8 @@ export async function generateMetadata({ params }: LocationPageProps): Promise<M
 }
 
 export default async function LocationPage({ params }: LocationPageProps) {
-    const cityName = formatCityName(params.city);
+    const { city } = await params;
+    const cityName = formatCityName(city);
 
     // We pass the city name nicely to the search client to instantly fetch that city
     // In order to properly center the map, we need the coordinates for this city.

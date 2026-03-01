@@ -27,7 +27,7 @@ if (firebaseConfig.apiKey) {
         db = getFirestore(app);
         storage = getStorage(app);
     } catch (error) {
-        console.error("Firebase initialization failed:", error);
+        console.warn("Firebase initialization failed:", error);
     }
 } else {
     console.warn("Firebase configuration missing. Auth and DB features will be disabled.");

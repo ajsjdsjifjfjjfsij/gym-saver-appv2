@@ -37,7 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
                     const result = await signInAnonymously(auth);
                     console.log("Anonymous sign-in success:", result.user.uid);
                 } catch (error) {
-                    console.error("Anonymous sign-in failed:", error);
+                    console.warn("Anonymous sign-in failed (common in restricted networks):", error);
                     setLoading(false); // Stop loading even on failure
                 }
             } else {

@@ -51,13 +51,17 @@ export function Header({
 
   // Initial Load - Check for Saved Settings
   useEffect(() => {
-    const savedSize = localStorage.getItem('headerLogoSize');
-    const savedX = localStorage.getItem('headerLogoX');
-    const savedY = localStorage.getItem('headerLogoY');
+    try {
+      const savedSize = localStorage.getItem('headerLogoSize');
+      const savedX = localStorage.getItem('headerLogoX');
+      const savedY = localStorage.getItem('headerLogoY');
 
-    if (savedSize) setLogoSize(parseInt(savedSize));
-    if (savedX) setLogoX(parseInt(savedX));
-    if (savedY) setLogoY(parseInt(savedY));
+      if (savedSize) setLogoSize(parseInt(savedSize));
+      if (savedX) setLogoX(parseInt(savedX));
+      if (savedY) setLogoY(parseInt(savedY));
+    } catch (e) {
+      console.warn("localStorage access denied in header:", e);
+    }
   }, []);
 
   // Save Settings on Change
@@ -65,9 +69,13 @@ export function Header({
     setLogoSize(size);
     setLogoX(x);
     setLogoY(y);
-    localStorage.setItem('headerLogoSize', size.toString());
-    localStorage.setItem('headerLogoX', x.toString());
-    localStorage.setItem('headerLogoY', y.toString());
+    try {
+      localStorage.setItem('headerLogoSize', size.toString());
+      localStorage.setItem('headerLogoX', x.toString());
+      localStorage.setItem('headerLogoY', y.toString());
+    } catch (e) {
+      console.warn("localStorage setItem failed in header:", e);
+    }
   };
 
   const isAppMode = variant === "app";

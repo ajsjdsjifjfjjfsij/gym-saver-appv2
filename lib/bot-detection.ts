@@ -72,17 +72,30 @@ export const getInAppBrowserType = (): string | null => {
 };
 
 /**
+ * SSR and environment-safe base64 encoding.
+ */
+export const safeBtoa = (str: string): string => {
+    try {
+        if (typeof window !== "undefined" && typeof window.btoa === "function") {
+            return window.btoa(str);
+        }
+        if (typeof Buffer !== "undefined") {
+            return Buffer.from(str).toString('base64');
+        }
+        // Fallback for extremely restricted environments
+        return str;
+    } catch (e) {
+        console.warn("Base64 encoding failed, using raw string:", e);
+        return str;
+    }
+};
+
+/**
  * Generates a dynamic, time-based secret for API requests.
- * Uses a secondary fallback secret known to the client.
  */
 export const getDynamicSecret = (): string => {
     const ts = Math.floor(Date.now() / 1000 / 60);
     const secret = "gymsaver-secure-v1";
     const str = `${secret}:${ts}`;
-
-    // SSR safe base64
-    if (typeof window === "undefined") {
-        return Buffer.from(str).toString('base64');
-    }
-    return btoa(str);
+    return safeBtoa(str);
 };

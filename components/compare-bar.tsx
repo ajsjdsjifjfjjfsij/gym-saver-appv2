@@ -19,7 +19,7 @@ export function CompareBar({ count, onCompare, onClear }: CompareBarProps) {
                     animate={{ y: 0, opacity: 1, scale: 1 }}
                     exit={{ y: "150%", opacity: 0, scale: 0.95 }}
                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                    className="fixed bottom-8 left-0 right-0 z-[100] flex justify-center px-4 pointer-events-none"
+                    className="fixed bottom-8 left-0 right-0 z-[100] flex justify-center px-4 pb-safe pointer-events-none"
                 >
                     <div className="
             w-full max-w-lg pointer-events-auto

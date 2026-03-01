@@ -80,11 +80,19 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const headersList = await headers()
-  const userAgent = headersList.get('user-agent') || ''
+  let userAgent = "";
+  let isSearchEngine = false;
 
-  const { isSearchEngineBot } = require('@/lib/bot-detection')
-  const isSearchEngine = isSearchEngineBot(userAgent)
+  if (!process.env.CAPACITOR_BUILD) {
+    try {
+      const headersList = await headers()
+      userAgent = headersList.get('user-agent') || ''
+      const { isSearchEngineBot } = require('@/lib/bot-detection')
+      isSearchEngine = isSearchEngineBot(userAgent)
+    } catch (e) {
+      console.warn("Headers not available during static build/prerender.");
+    }
+  }
 
   const content = (
     <ThemeProvider

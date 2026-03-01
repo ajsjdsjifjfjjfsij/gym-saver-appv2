@@ -1,7 +1,7 @@
 "use client"
 // Deployment trigger: 2026-02-12T21:50:00Z - Switch to Firestore-only search
 
-import { useState, useEffect, useMemo, useRef } from "react"
+import { useState, useEffect, useMemo, useRef, useCallback } from "react"
 import { Header } from "@/components/header"
 import { GymMap } from "@/components/gym-map"
 import { GymFilters } from "@/components/gym-filters"
@@ -26,6 +26,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { isBot, getDynamicSecret, isInAppBrowser } from "@/lib/bot-detection"
 import { calculateDistance, Gym, getGymPrice } from "@/lib/gym-utils"
 import { ImageGalleryModal } from "@/components/ImageGalleryModal"
+import { getApiBaseUrl } from "@/lib/api-env"
 
 export async function fetchGymsFromFirestore(centerLat: number, centerLng: number, searchTerm?: string, radiusMs = 8000) {
   // 1. Bot Check
@@ -37,7 +38,8 @@ export async function fetchGymsFromFirestore(centerLat: number, centerLng: numbe
   const secret = getDynamicSecret();
   // Add a timestamp for cache busting
   const ts = Date.now();
-  const url = `/api/gyms?lat=${centerLat}&lng=${centerLng}&source=firestore${searchTerm ? `&query=${encodeURIComponent(searchTerm)}` : ''}&radius=${radiusMs}&_ts=${ts}`;
+  const baseUrl = getApiBaseUrl();
+  const url = `${baseUrl}/api/gyms?lat=${centerLat}&lng=${centerLng}&source=firestore${searchTerm ? `&query=${encodeURIComponent(searchTerm)}` : ''}&radius=${radiusMs}&_ts=${ts}`;
   console.log(`[Diagnostic] Fetching: ${url}`);
 
   try {
@@ -90,6 +92,8 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
   const [lastGeocodedQuery, setLastGeocodedQuery] = useState("")
   const [recenterToken, setRecenterToken] = useState(0)
   const lastFetchRef = useRef({ lat: 0, lng: 0, radius: 0 })
+  const hasAttemptedLocatingRef = useRef(false)
+  const isInitialMountRef = useRef(true)
 
   // Diagnostic Logging
   useEffect(() => {
@@ -111,7 +115,13 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
 
   // Check for first-time user tooltip
   useEffect(() => {
-    const hasSeenTooltip = localStorage.getItem("hasSeenCompareTooltip")
+    let hasSeenTooltip = false;
+    try {
+      hasSeenTooltip = !!localStorage.getItem("hasSeenCompareTooltip");
+    } catch (e) {
+      console.warn("localStorage access denied:", e);
+    }
+
     if (!hasSeenTooltip) {
       // Delay slightly to let UI settle
       const timeout = setTimeout(() => {
@@ -123,7 +133,11 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
 
   const handleTooltipDismiss = () => {
     setShowCompareTooltip(false)
-    localStorage.setItem("hasSeenCompareTooltip", "true")
+    try {
+      localStorage.setItem("hasSeenCompareTooltip", "true")
+    } catch (e) {
+      console.warn("localStorage setItem failed:", e);
+    }
   }
 
   const toggleCompare = (gym: Gym) => {
@@ -160,7 +174,7 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
   };
 
   // Fetch gyms from Firestore ONLY
-  const fetchGyms = async (lat: number, lng: number, query?: string, type?: string, radius?: number) => {
+  const fetchGyms = async (lat: number, lng: number, query?: string, type?: string, radius?: number, forceSkipFilter?: boolean) => {
     // Only show spinner if we aren't in national heatmap mode
     if (currentZoom > 10) {
       setLoading(true)
@@ -212,23 +226,39 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
       // which hides valid gyms like "JD Gyms". We rely on client-side filteredGyms logic instead.
       let effectiveQuery = query;
 
-
       // 2. Filter by: city == <searchTerm> OR name contains <searchTerm>
       // (Keep existing text search logic if user types something)
       if (effectiveQuery && effectiveQuery.trim().length > 0) {
         const lowerQuery = effectiveQuery.toLowerCase().trim();
+        // BRAND NORMALIZATION: If user searches for "Pure Gym", they should find "PureGym"
+        const normalizedQuery = lowerQuery.replace(/\s/g, "");
+
+        // Detect brand-intent
+        const isBrand = normalizedQuery.includes("puregym") ||
+          normalizedQuery.includes("jdgym") ||
+          normalizedQuery.includes("thegym");
+
+        // If the query is exactly what we just geocoded (a location search), 
+        // don't strictly filter the results by name/city text UNLESS it's a brand search.
+        const matchesGeocode = (forceSkipFilter || lowerQuery === lastGeocodedQuery.toLowerCase().trim()) && !isBrand;
+
         // If the query is generic like "gym" or "gyms", don't strictly filter
-        if (lowerQuery !== "gym" && lowerQuery !== "gyms" && lowerQuery !== "fitness") {
+        if (lowerQuery !== "gym" && lowerQuery !== "gyms" && lowerQuery !== "fitness" && !matchesGeocode) {
           filteredData = filteredData.filter((g: any) => {
             const name = (g.name || "").toLowerCase();
+            const normalizedName = name.replace(/\s/g, "");
+            const website = (g.website || "").toLowerCase();
             const city = (g.city || "").toLowerCase();
             const address = (g.address || "").toLowerCase();
 
             const cityMatch = city.includes(lowerQuery) || lowerQuery.includes(city);
-            const nameMatch = name.includes(lowerQuery) || lowerQuery.includes(name);
+            const nameMatch = name.includes(lowerQuery) || lowerQuery.includes(name) || normalizedName.includes(normalizedQuery);
             const addressMatch = address.includes(lowerQuery);
+            const brandMatch = (normalizedQuery.includes("puregym") && (website.includes("puregym") || normalizedName.includes("puregym"))) ||
+              (normalizedQuery.includes("jdgym") && (website.includes("jdgym") || normalizedName.includes("jdgym"))) ||
+              (normalizedQuery.includes("thegym") && (website.includes("thegymgroup") || normalizedName.includes("thegym")));
 
-            return cityMatch || nameMatch || addressMatch;
+            return cityMatch || nameMatch || addressMatch || brandMatch;
           });
         }
       }
@@ -273,14 +303,17 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
         // If it's a major brand but has 0 reviews and an address identical to the city
         // We will now ONLY filter it out if we are SURE it's a duplicate/unlinked entry.
         // For JD Gyms, Anytime Fitness, and The Gym Group, we are explicitly skipping this filter.
-        const isMajorBrand = ["puregym", "the gym", "anytime fitness", "david lloyd", "nuffield health", "everlast gym", "jd gyms", "jd gym"].some(brand => gymNameLower.includes(brand));
+        const gymNameNormalized = gymNameLower.replace(/\s/g, "");
+        const majorBrandsNormalized = ["puregym", "thegym", "anytimefitness", "davidlloyd", "nuffieldhealth", "everlastgym", "jdgym", "snapfitness"];
 
-        if (ratings === 0 && isMajorBrand) {
-          if (!address || address === city || address === "swindon" || address === "unknown") {
-            // EXCEPTION: Never filter out JD Gyms, Anytime Fitness, or The Gym Group by quality check
-            if (gymNameLower.includes("jd gym") || gymNameLower.includes("anytime") || gymNameLower.includes("the gym")) return true;
+        const isMajorBrand = majorBrandsNormalized.some(brand => gymNameNormalized.includes(brand));
 
-            console.log(`Filtering out unlinked gym: ${g.name}`);
+        if (ratings === 0) {
+          const hasImage = g.hero_image_url || (g.photos && g.photos.length > 0) || g.photo_reference || g.photo;
+          const isGenericAddress = !address || address === city || address === "swindon" || address === "unknown" || address.trim().toLowerCase() === city.trim().toLowerCase();
+
+          if (isGenericAddress && !hasImage) {
+            console.log(`Filtering out incomplete gym entry: ${g.name}`);
             return false;
           }
         }
@@ -379,6 +412,7 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
           })(),
           photos: g.photos || [],
           website: g.website,
+          city: g.city,
         };
       });
 
@@ -423,12 +457,40 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
       // OPTION B FIX: If the current search query is exactly what we just geocoded,
       // bypass this strict local filter. This ensures when you search "London", 
       // you see ALL London gyms, rather than just gyms with "London" literally in the name/address.
-      if (searchQuery && searchQuery !== lastGeocodedQuery) {
-        if (
-          !gym.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-          !gym.address.toLowerCase().includes(searchQuery.toLowerCase())
-        ) {
-          return false
+      const lowerSearchQuery = (searchQuery || "").toLowerCase().trim();
+      const lastGeocodedLower = (lastGeocodedQuery || "").toLowerCase().trim();
+      const normalizedQuery = lowerSearchQuery.replace(/\s/g, "");
+
+      // Detect brand-intent
+      const isBrand = normalizedQuery.includes("puregym") ||
+        normalizedQuery.includes("jdgym") ||
+        normalizedQuery.includes("thegym");
+
+      // Don't filter if: 
+      // 1. Query is too short (to prevent jumpy results while typing)
+      // 2. Query matches geocoded location (unless it's a brand search)
+      // 3. Query is generic ("gym", "fitness")
+      const shouldFilter = lowerSearchQuery.length >= 3 &&
+        (lowerSearchQuery !== lastGeocodedLower || isBrand) &&
+        lowerSearchQuery !== "gym" &&
+        lowerSearchQuery !== "fitness";
+
+      if (shouldFilter) {
+        const name = (gym.name || "").toLowerCase();
+        const normalizedName = name.replace(/\s/g, "");
+        const website = (gym.website || "").toLowerCase();
+        const city = (gym.city || "").toLowerCase();
+        const address = (gym.address || "").toLowerCase();
+
+        const nameMatch = name.includes(lowerSearchQuery) || normalizedName.includes(normalizedQuery);
+        const cityMatch = city.includes(lowerSearchQuery);
+        const addressMatch = address.includes(lowerSearchQuery);
+        const brandMatch = (normalizedQuery.includes("puregym") && (website.includes("puregym") || normalizedName.includes("puregym"))) ||
+          (normalizedQuery.includes("jdgym") && (website.includes("jdgym") || normalizedName.includes("jdgym"))) ||
+          (normalizedQuery.includes("thegym") && (website.includes("thegymgroup") || normalizedName.includes("thegym")));
+
+        if (!nameMatch && !cityMatch && !addressMatch && !brandMatch) {
+          return false;
         }
       }
 
@@ -547,9 +609,10 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
     })
   }
 
-  const handleLocationDetection = () => {
+  const handleLocationDetection = useCallback(() => {
     setIsLocating(true)
     setError(null)
+    hasAttemptedLocatingRef.current = true
 
     if (!navigator.geolocation) {
       setError("Geolocation is not supported by your browser")
@@ -576,15 +639,11 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
       // Require high accuracy and give it 10 seconds to respond, otherwise fail faster
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     )
-  }
+  }, [searchQuery])
 
   // Handle map interaction (panning and bounding box expansion)
-  const handleMapIdle = (zoom: number, mapLat: number, mapLng: number) => {
+  const handleMapIdle = useCallback((zoom: number, mapLat: number, mapLng: number) => {
     // Determine the ideal radius based on the zoom level
-    // Zoom 12 (default local) ~ 8000m (8km)
-    // Zoom 10 (city/county level) ~ 30000m (30km)
-    // Zoom 8 (region level) ~ 150000m (150km)
-    // Zoom 5 (country level) ~ 1000000m (1000km)
     let dynamicRadius = 8000;
 
     if (zoom <= 6) {
@@ -600,24 +659,22 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
     }
 
     // Only trigger a new fetch if the user panned far enough away from the last search center
-    // OR if they zoomed out significantly exposing a larger radius
     if (!userLocation) return;
 
     // Always update zoom state for UI mode switching
     setCurrentZoom(zoom);
 
-    // Track the distance from the last known fetch center, not the "userLocation" which might have drifted
+    // Track the distance from the last known fetch center
     const fetchDistance = lastFetchRef.current.lat === 0 ? 0 : calculateDistance(lastFetchRef.current.lat, lastFetchRef.current.lng, mapLat, mapLng);
 
-    // Only fetch if we moved significantly from the last fetch center, 
-    // OR if we zoomed out requiring a dynamically larger radius than our last fetch
+    // Only fetch if we moved significantly or zoomed out
     if (fetchDistance > (dynamicRadius * 0.4) || dynamicRadius > lastFetchRef.current.radius) {
       console.log(`[Map Event] User panned/zoomed to new area. Zoom: ${zoom}, Radius: ${dynamicRadius}m. Fetching...`);
       lastFetchRef.current = { lat: mapLat, lng: mapLng, radius: dynamicRadius };
       setUserLocation({ lat: mapLat, lng: mapLng });
       fetchGyms(mapLat, mapLng, searchQuery, "all", dynamicRadius);
     }
-  }
+  }, [userLocation, searchQuery])
 
   const handleSearchClick = () => {
     // If the user wants to search a specific town manually while currently browsing the heatmap
@@ -642,18 +699,19 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
   useEffect(() => {
     // Only trigger auto-geocode if there's actually a substantial change 
     // and it's not empty (empty is handled by the regular onChange cleanup)
-    if (!searchQuery.trim() || searchQuery === lastGeocodedQuery) {
+    // We also require at least 3 characters for auto-geocode to prevent noise while typing
+    if (!searchQuery.trim() || searchQuery === lastGeocodedQuery || searchQuery.trim().length < 3) {
       return;
     }
 
     const timer = setTimeout(() => {
       handleGeocodeSearch();
-    }, 300); // 300ms so it feels "instant" but prevents spamming the API on every single keystroke
+    }, 700); // 700ms provides a comfortable delay for typing before triggering a heavy API call
 
     return () => clearTimeout(timer);
   }, [searchQuery, lastGeocodedQuery]);
 
-  const handleGeocodeSearch = async (e?: React.KeyboardEvent<HTMLInputElement> | React.FormEvent) => {
+  const handleGeocodeSearch = useCallback(async (e?: React.KeyboardEvent<HTMLInputElement> | React.FormEvent) => {
     if (e) {
       e.preventDefault();
     }
@@ -669,27 +727,29 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
 
     setIsGeocoding(true);
     try {
-      const response = await fetch(`/api/geocode?address=${encodeURIComponent(searchQuery)}`);
+      const secret = getDynamicSecret();
+      const response = await fetch(`/api/geocode?address=${encodeURIComponent(searchQuery)}`, {
+        headers: {
+          "x-gymsaver-app-secret": secret
+        }
+      });
       const data = await response.json();
 
       if (response.ok && data.lat && data.lng) {
-        // Update userLocation to the searched location.
-        // The existing useEffect will automatically trigger fetchGyms for this new location.
         setUserLocation({
           lat: data.lat,
           lng: data.lng
         });
         setRecenterToken(t => t + 1);
-        lastFetchRef.current = { lat: data.lat, lng: data.lng, radius: 8000 }
+        lastFetchRef.current = { lat: data.lat, lng: data.lng, radius: 15000 }
 
-        // Option B: Keep the text in the search bar, but mark it as the active geocoded query
-        // so the local text filter knows to ignore it and show all fetched gyms.
+        // Trigger explicit fetch for the geocoded location
+        // We use a larger radius (15km) for explicit searches to ensure brand coverage
+        fetchGyms(data.lat, data.lng, searchQuery, "all", 15000, true);
+
         setLastGeocodedQuery(searchQuery);
-
-        // Optionally log or store the formatted full address of the searched area
         console.log(`Geocoded to: ${data.formattedAddress}`);
       } else {
-        // Handle no results - alert or error state.
         alert(data.error || "Could not find that location. Please try a different search.");
       }
     } catch (err) {
@@ -698,35 +758,41 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
     } finally {
       setIsGeocoding(false);
     }
-  };
+  }, [searchQuery, originalUserLocation])
 
   // Initial fetch using default location or user location if available
   useEffect(() => {
-    // If we have a user location (e.g. from bot or Geocode), fetch nearby immediately
-    // BUT skip this if we are currently zoomed out in National Heatmap Mode
-    // to prevent redundant "local" 8km searches from clearing the heatmap.
-    if (userLocation && currentZoom > 10) {
-      fetchGyms(userLocation.lat, userLocation.lng, searchQuery, filters.type, 8000)
-    } else if (!userLocation && !isLocating) {
-      // If we have an initial query (e.g. from SEO Location page) but no location, trigger geocode
-      if (initialSearchQuery) {
-        handleGeocodeSearch(new Event("submit") as any);
-      } else if (!isInAppBrowser()) {
-        // Fallback: Try to get location again if not set, but don't block
-        // Only do this automatically if we are NOT in an in-app browser
-        handleLocationDetection();
+    if (isInitialMountRef.current) {
+      isInitialMountRef.current = false;
+
+      if (userLocation && currentZoom > 10) {
+        fetchGyms(userLocation.lat, userLocation.lng, searchQuery, filters.type, 8000)
+      } else if (!userLocation && !isLocating && !hasAttemptedLocatingRef.current) {
+        if (initialSearchQuery) {
+          handleGeocodeSearch();
+        } else if (!isInAppBrowser()) {
+          handleLocationDetection();
+        }
       }
     }
-  }, [userLocation?.lat, userLocation?.lng, searchQuery, filters.type, currentZoom, initialSearchQuery]) // Deep compare location props
+  }, [userLocation, searchQuery, filters.type, currentZoom, initialSearchQuery, isLocating, handleGeocodeSearch, handleLocationDetection])
 
   // Save to localStorage when savedGyms changes
   useEffect(() => {
-    localStorage.setItem("savedGyms", JSON.stringify(savedGyms))
+    try {
+      localStorage.setItem("savedGyms", JSON.stringify(savedGyms))
+    } catch (e) {
+      console.warn("localStorage save failed for savedGyms:", e);
+    }
   }, [savedGyms])
 
   // Save comparedGyms to localStorage so /compare page can read it
   useEffect(() => {
-    localStorage.setItem("comparedGyms", JSON.stringify(comparedGyms))
+    try {
+      localStorage.setItem("comparedGyms", JSON.stringify(comparedGyms))
+    } catch (e) {
+      console.warn("localStorage save failed for comparedGyms:", e);
+    }
   }, [comparedGyms])
 
   const handleCompareAction = () => {
@@ -750,8 +816,7 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
 
   return (
     <TooltipProvider>
-      <div className="flex flex-col h-screen w-full bg-background overflow-hidden">
-        {/* Header */}
+      <div className="flex flex-col h-dvh w-full overflow-hidden bg-background text-foreground touch-manipulation">
         {/* Header - Full Width App Mode */}
         <Header
           searchQuery={searchQuery}
@@ -803,9 +868,8 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
           </DropdownMenu>
         </div>
 
-        {/* NEW: Full-Width Search & Filters Header (Sticky) */}
+        {/* Search & Filters Header (Sticky) */}
         <div className="sticky top-0 z-30 glass-premium p-4 md:p-6 space-y-4 w-full border-b dark:border-white/10">
-          {/* Search Bar (Priority Position) */}
           <div className="max-w-7xl mx-auto relative w-full">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <form onSubmit={handleGeocodeSearch} className="w-full relative">
@@ -821,7 +885,6 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
                 onChange={(e) => {
                   const value = e.target.value;
                   setSearchQuery(value);
-                  // If they completely clear the search bar, automatically return to original location
                   if (value.trim() === '' && originalUserLocation) {
                     setUserLocation(originalUserLocation);
                     fetchGyms(originalUserLocation.lat, originalUserLocation.lng, "", "all", 8000);
@@ -837,12 +900,10 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
             </form>
           </div>
 
-          {/* Filters Row */}
           <div className="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
             <GymFilters filters={filters} onFilterChange={handleFilterChange} />
           </div>
 
-          {/* Mobile View Toggle & Results Count (Only visible on Mobile) */}
           <div className="md:hidden flex items-center justify-between h-9">
             <div className="flex items-center gap-2">
               {showSavedOnly && (
@@ -887,7 +948,6 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
                   <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                   Sorting by Distance
                 </div>
-                {/* Recenter Button (Mobile) */}
                 <button onClick={handleRecenter} className="text-muted-foreground hover:text-white transition-colors bg-white/5 p-1.5 rounded-full" title="Recenter to my location">
                   <MapPin className="w-3.5 h-3.5" />
                 </button>
@@ -928,122 +988,121 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
             </div>
           ) : (
             <>
-              {/* Left Panel: Gym List (Scrollable) */}
+              {/* Left Panel: Gym List */}
               <div className={`
                 flex flex-col bg-background z-20 transition-transform duration-300 ease-in-out
                 w-full md:w-[60%] shrink-0 border-r border-white/5
                 ${activeView === "list" ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
                 absolute inset-0 md:relative md:transform-none
               `}>
-
-                {/* List Content */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide pb-24">
-                  {currentZoom <= 10 ? (
-                    <div className="flex flex-col gap-4">
-                      <div className="flex flex-col items-center justify-center py-24 text-center border border-[#6BD85E]/20 rounded-3xl bg-[#6BD85E]/5 backdrop-blur-sm px-8 space-y-4">
-                        <div className="w-20 h-20 bg-[#6BD85E]/10 rounded-full flex items-center justify-center border border-[#6BD85E]/30 mb-2">
-                          <MapPin className="h-10 w-10 text-[#6BD85E] animate-pulse" />
-                        </div>
-                        <div className="space-y-2">
-                          <h3 className="text-2xl font-bold text-white tracking-tight">National Heatmap Mode</h3>
-                          <p className="text-slate-400 text-sm max-w-[300px] leading-relaxed">
-                            You are currently viewing a wide area. Please zoom in or return to a specific location to see detailed gym results here.
-                          </p>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="border-[#6BD85E]/30 text-[#6BD85E] hover:bg-[#6BD85E]/10 rounded-full px-6"
-                          onClick={handleRecenter}
-                        >
-                          Return to my location
-                        </Button>
-                      </div>
-                    </div>
-                  ) : loading ? (
-                    <div className="flex flex-col items-center justify-center py-20">
-                      <Loader2 className="h-10 w-10 text-[#6BD85E] animate-spin mb-4" />
-                      <p className="text-slate-400 animate-pulse">Finding the best gyms near you...</p>
-                    </div>
-                  ) : filteredGyms.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-white/10 rounded-3xl bg-secondary/10 backdrop-blur-sm px-6">
-                      <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4 border border-white/10">
-                        <Search className="h-8 w-8 text-muted-foreground opacity-20" />
-                      </div>
-                      <h3 className="text-xl font-bold text-white mb-2">No gyms found nearby</h3>
-                      <p className="text-muted-foreground text-sm max-w-[280px] mb-6">
-                        {showSavedOnly
-                          ? "You haven't saved any gyms yet. Tap the bookmark icon on any gym to see it here."
-                          : "We couldn't find any gyms matching your filters. Try broadening your search or clearing filters."}
-                      </p>
-
-                      <div className="flex flex-col gap-3 w-full max-w-[240px]">
-                        <Button
-                          variant="outline"
-                          className="w-full border-white/10 hover:bg-white/5 text-white h-11 rounded-xl"
-                          onClick={() => {
-                            setFilters({ type: "all", distance: "all", price: "all", rating: "all", sortBy: "distance_asc" })
-                            setSearchQuery("")
-                            setShowSavedOnly(false)
-                          }}
-                        >
-                          Clear All Filters
-                        </Button>
-
-                        {!showSavedOnly && (
+                <div className={`flex-1 overflow-y-auto overflow-x-hidden pb-32 pb-safe ${activeView === 'list' ? 'block' : 'hidden md:block'}`}>
+                  <div className="p-4 space-y-4 max-w-2xl mx-auto">
+                    {currentZoom <= 10 ? (
+                      <div className="flex flex-col gap-4">
+                        <div className="flex flex-col items-center justify-center py-24 text-center border border-[#6BD85E]/20 rounded-3xl bg-[#6BD85E]/5 backdrop-blur-sm px-8 space-y-4">
+                          <div className="w-20 h-20 bg-[#6BD85E]/10 rounded-full flex items-center justify-center border border-[#6BD85E]/30 mb-2">
+                            <MapPin className="h-10 w-10 text-[#6BD85E] animate-pulse" />
+                          </div>
+                          <div className="space-y-2">
+                            <h3 className="text-2xl font-bold text-white tracking-tight">National Heatmap Mode</h3>
+                            <p className="text-slate-400 text-sm max-w-[300px] leading-relaxed">
+                              You are currently viewing a wide area. Please zoom in or return to a specific location to see detailed gym results here.
+                            </p>
+                          </div>
                           <Button
-                            variant="default"
-                            className="w-full bg-[#6BD85E] hover:bg-[#5bc250] text-black font-bold h-11 rounded-xl shadow-[0_0_20px_rgba(107,216,94,0.1)]"
+                            variant="outline"
+                            size="sm"
+                            className="border-[#6BD85E]/30 text-[#6BD85E] hover:bg-[#6BD85E]/10 rounded-full px-6"
+                            onClick={handleRecenter}
+                          >
+                            Return to my location
+                          </Button>
+                        </div>
+                      </div>
+                    ) : loading ? (
+                      <div className="flex flex-col items-center justify-center py-20">
+                        <Loader2 className="h-10 w-10 text-[#6BD85E] animate-spin mb-4" />
+                        <p className="text-slate-400 animate-pulse">Finding the best gyms near you...</p>
+                      </div>
+                    ) : filteredGyms.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-white/10 rounded-3xl bg-secondary/10 backdrop-blur-sm px-6">
+                        <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4 border border-white/10">
+                          <Search className="h-8 w-8 text-muted-foreground opacity-20" />
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-2">No gyms found nearby</h3>
+                        <p className="text-muted-foreground text-sm max-w-[280px] mb-6">
+                          {showSavedOnly
+                            ? "You haven't saved any gyms yet. Tap the bookmark icon on any gym to see it here."
+                            : "We couldn't find any gyms matching your filters. Try broadening your search or clearing filters."}
+                        </p>
+
+                        <div className="flex flex-col gap-3 w-full max-w-[240px]">
+                          <Button
+                            variant="outline"
+                            className="w-full border-white/10 hover:bg-white/5 text-white h-11 rounded-xl"
                             onClick={() => {
-                              fetchGyms(51.5074, -0.1278, "", "all", 8000)
+                              setFilters({ type: "all", distance: "all", price: "all", rating: "all", sortBy: "distance_asc" })
+                              setSearchQuery("")
+                              setShowSavedOnly(false)
                             }}
                           >
-                            Explore UK Gyms
+                            Clear All Filters
                           </Button>
-                        )}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col gap-4">
-                      {filteredGyms.map((gym, index) => {
-                        const isFirst = index === 0;
-                        return (
-                          <div key={gym.id} className="flex flex-col gap-4">
 
-                            <Tooltip open={isFirst && showCompareTooltip}>
-                              <TooltipTrigger asChild>
-                                <div>
-                                  <GymCard
-                                    gym={gym}
-                                    isSelected={selectedGym?.id === gym.id}
-                                    isSaved={savedGyms.some(g => g.id === gym.id)}
-                                    isCompared={comparedGyms.some(g => g.id === gym.id)}
-                                    onSelect={() => {
-                                      setSelectedGym(gym)
-                                    }}
-                                    onToggleSave={() => toggleSaveGym(gym)}
-                                    onToggleCompare={() => toggleCompare(gym)}
-                                    onAuthRequired={handleAuthRequired}
-                                    onOpenGallery={() => setGalleryGym(gym)}
-                                  />
-                                </div>
-                              </TooltipTrigger>
-                              {isFirst && (
-                                <TooltipContent
-                                  side="top"
-                                  align="end"
-                                  className="bg-[#6BD85E] text-black font-bold border-0"
-                                  onPointerDownOutside={handleTooltipDismiss}
-                                >
-                                  <p>Select two gyms to compare them side by side!</p>
-                                </TooltipContent>
-                              )}
-                            </Tooltip>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  )}
+                          {!showSavedOnly && (
+                            <Button
+                              variant="default"
+                              className="w-full bg-[#6BD85E] hover:bg-[#5bc250] text-black font-bold h-11 rounded-xl shadow-[0_0_20px_rgba(107,216,94,0.1)]"
+                              onClick={() => {
+                                fetchGyms(51.5074, -0.1278, "", "all", 8000)
+                              }}
+                            >
+                              Explore UK Gyms
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col gap-4">
+                        {filteredGyms.map((gym, index) => {
+                          const isFirst = index === 0;
+                          return (
+                            <div key={gym.id} className="flex flex-col gap-4">
+                              <Tooltip open={isFirst && showCompareTooltip}>
+                                <TooltipTrigger asChild>
+                                  <div>
+                                    <GymCard
+                                      gym={gym}
+                                      isSelected={selectedGym?.id === gym.id}
+                                      isSaved={savedGyms.some(g => g.id === gym.id)}
+                                      isCompared={comparedGyms.some(g => g.id === gym.id)}
+                                      onSelect={() => {
+                                        setSelectedGym(gym)
+                                      }}
+                                      onToggleSave={() => toggleSaveGym(gym)}
+                                      onToggleCompare={() => toggleCompare(gym)}
+                                      onAuthRequired={handleAuthRequired}
+                                      onOpenGallery={() => setGalleryGym(gym)}
+                                    />
+                                  </div>
+                                </TooltipTrigger>
+                                {isFirst && (
+                                  <TooltipContent
+                                    side="top"
+                                    align="end"
+                                    className="bg-[#6BD85E] text-black font-bold border-0"
+                                    onPointerDownOutside={handleTooltipDismiss}
+                                  >
+                                    <p>Select two gyms to compare them side by side!</p>
+                                  </TooltipContent>
+                                )}
+                              </Tooltip>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -1054,7 +1113,6 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
                 ${activeView === "map" ? "translate-x-0" : "translate-x-full md:translate-x-0"}
                 absolute inset-0 md:relative md:transform-none
               `}>
-
                 <div className="flex-1 relative w-full h-full overflow-hidden border border-white/5 rounded-2xl shadow-2xl bg-black neon-glow-card">
                   {userLocation ? (
                     <div className="w-full h-full relative">
@@ -1064,9 +1122,6 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
                         selectedGym={selectedGym}
                         onGymSelect={(gym) => {
                           setSelectedGym(gym);
-                          if (window.innerWidth < 768) {
-                            // Mobile logic remains
-                          }
                         }}
                         userLocation={userLocation}
                         onMapIdle={handleMapIdle}
@@ -1074,10 +1129,8 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
                         onZoomChange={(zoom) => setCurrentZoom(zoom)}
                         recenterToken={recenterToken}
                       />
-                      {/* Map Overlay Gradient */}
                       <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/10 via-transparent to-black/20" />
 
-                      {/* Mobile Floating Back to List Button & Recenter */}
                       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 pointer-events-none flex items-center gap-3">
                         <Button
                           onClick={() => setActiveView("list")}
@@ -1115,7 +1168,6 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
           onOpenChange={setShowAuthModal}
           onSignUp={handleSignUp}
         />
-        {/* Gallery Modal */}
         <ImageGalleryModal
           gym={galleryGym}
           isOpen={!!galleryGym}

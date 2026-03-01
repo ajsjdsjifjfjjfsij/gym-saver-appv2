@@ -1,6 +1,7 @@
 "use client"
 
 import React from "react"
+import { getApiBaseUrl } from "@/lib/api-env"
 
 /**
  * HoneypotGym
@@ -11,7 +12,8 @@ export const HoneypotGym = () => {
     const handleBotInteraction = async () => {
         // Trigger a "poison pill" request to the server
         try {
-            await fetch('/api/security/violation', {
+            const baseUrl = getApiBaseUrl();
+            await fetch(`${baseUrl}/api/security/violation`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ reason: 'honeypot_interaction', timestamp: Date.now() })

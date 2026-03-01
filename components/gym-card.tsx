@@ -6,6 +6,7 @@ import { Star, MapPin, Bookmark, BookmarkCheck } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/components/auth/AuthContext"
 import { getGymPrice, getGooglePhotoUrl, Gym } from "@/lib/gym-utils"
+import { getApiBaseUrl } from "@/lib/api-env"
 
 interface GymCardProps {
   gym: Gym
@@ -47,7 +48,8 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
       : `place_id=${encodeURIComponent(placeId)}`;
 
     let cancelled = false;
-    fetch(`/api/gyms/photo?${queryParam}`)
+    const baseUrl = getApiBaseUrl();
+    fetch(`${baseUrl}/api/gyms/photo?${queryParam}`)
       .then(r => r.json())
       .then(data => {
         if (!cancelled && data.photoUrl) {

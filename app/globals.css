@@ -136,6 +136,35 @@
   .text-glow-subtle {
     text-shadow: 0 0 10px rgba(74, 222, 128, 0.3);
   }
+
+  /* MOBILE OPTIMIZATIONS */
+  .h-dvh {
+    height: 100vh; /* Fallback */
+    height: 100dvh;
+  }
+
+  .min-h-dvh {
+    min-height: 100vh; /* Fallback */
+    min-height: 100dvh;
+  }
+
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0);
+  }
+
+  .px-safe {
+    padding-left: env(safe-area-inset-left, 0);
+    padding-right: env(safe-area-inset-right, 0);
+  }
+
+  /* Optimize touch responsiveness */
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
 }
 
 @theme inline {

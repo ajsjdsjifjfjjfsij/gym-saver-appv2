@@ -40,9 +40,16 @@ export function GymMap(props: GymMapProps) {
           let MapConstructor;
 
           if (typeof window.google === "object" && typeof window.google.maps === "object" && typeof window.google.maps.importLibrary === "function") {
-            const { Map } = await google.maps.importLibrary("maps") as google.maps.MapsLibrary;
-            MapConstructor = Map;
-          } else if (typeof window.google === "object" && typeof window.google.maps === "object") {
+            try {
+              const { Map } = await google.maps.importLibrary("maps") as google.maps.MapsLibrary;
+              MapConstructor = Map;
+            } catch (e) {
+              console.error("Error importing maps library:", e);
+              if (typeof window.google.maps.Map === "function") {
+                MapConstructor = google.maps.Map;
+              }
+            }
+          } else if (typeof window.google === "object" && typeof window.google.maps === "object" && typeof window.google.maps.Map === "function") {
             MapConstructor = google.maps.Map;
           }
 
@@ -58,12 +65,27 @@ export function GymMap(props: GymMapProps) {
             {
               featureType: "administrative.locality",
               elementType: "labels.text.fill",
-              stylers: [{ color: "#d59563" }],
+              stylers: [{ color: "#39FF14" }],
+            },
+            {
+              featureType: "administrative.neighborhood",
+              elementType: "labels.text.fill",
+              stylers: [{ color: "#39FF14" }],
+            },
+            {
+              featureType: "administrative.country",
+              elementType: "labels.text.fill",
+              stylers: [{ color: "#39FF14" }],
+            },
+            {
+              featureType: "administrative.province",
+              elementType: "labels.text.fill",
+              stylers: [{ color: "#39FF14" }],
             },
             {
               featureType: "poi",
               elementType: "labels.text.fill",
-              stylers: [{ color: "#d59563" }],
+              stylers: [{ color: "#39FF14" }],
             },
             {
               featureType: "poi.park",
@@ -113,7 +135,7 @@ export function GymMap(props: GymMapProps) {
             {
               featureType: "transit.station",
               elementType: "labels.text.fill",
-              stylers: [{ color: "#d59563" }],
+              stylers: [{ color: "#39FF14" }],
             },
             {
               featureType: "water",
@@ -252,8 +274,11 @@ export function GymMap(props: GymMapProps) {
       { elementType: "geometry", stylers: [{ color: "#0E1114" }] },
       { elementType: "labels.text.stroke", stylers: [{ color: "#0E1114" }] },
       { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
-      { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
-      { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
+      { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#39FF14" }] },
+      { featureType: "administrative.neighborhood", elementType: "labels.text.fill", stylers: [{ color: "#39FF14" }] },
+      { featureType: "administrative.country", elementType: "labels.text.fill", stylers: [{ color: "#39FF14" }] },
+      { featureType: "administrative.province", elementType: "labels.text.fill", stylers: [{ color: "#39FF14" }] },
+      { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#39FF14" }] },
       { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#263c3f" }] },
       { featureType: "poi.park", elementType: "labels.text.fill", stylers: [{ color: "#6b9a76" }] },
       { featureType: "road", elementType: "geometry", stylers: [{ color: "#38414e" }] },
@@ -263,7 +288,7 @@ export function GymMap(props: GymMapProps) {
       { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#1f2835" }] },
       { featureType: "road.highway", elementType: "labels.text.fill", stylers: [{ color: "#f3d19c" }] },
       { featureType: "transit", elementType: "geometry", stylers: [{ color: "#2f3948" }] },
-      { featureType: "transit.station", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
+      { featureType: "transit.station", elementType: "labels.text.fill", stylers: [{ color: "#39FF14" }] },
       { featureType: "water", elementType: "geometry", stylers: [{ color: "#17263c" }] },
       { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#515c6d" }] },
       { featureType: "water", elementType: "labels.text.stroke", stylers: [{ color: "#17263c" }] },
@@ -336,8 +361,10 @@ export function GymMap(props: GymMapProps) {
     });
 
     return () => {
-      google.maps.event.removeListener(idleListener);
-      google.maps.event.removeListener(zoomListener);
+      if (typeof google !== 'undefined' && google.maps && google.maps.event) {
+        google.maps.event.removeListener(idleListener);
+        google.maps.event.removeListener(zoomListener);
+      }
       clearTimeout(zoomTimeout);
     };
   }, [map, props.onMapIdle, props.onZoomChange]);
@@ -379,6 +406,11 @@ export function GymMap(props: GymMapProps) {
           `;
 
           const svgUrl = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svgContent);
+
+          if (typeof google === 'undefined' || !google.maps || !google.maps.Marker) {
+            console.warn("Google Maps Marker class not available");
+            return;
+          }
 
           const marker = new google.maps.Marker({
             map,
@@ -572,8 +604,8 @@ export function GymMap(props: GymMapProps) {
         style={{ backgroundColor: '#0e1114' }}
       />
       {(propsZoom ?? (map?.getZoom() || 12)) > 10 && (
-        <div className="absolute top-[80px] left-1/2 -translate-x-1/2 bg-black/80 text-[#d59563] text-xs font-medium px-4 py-2 rounded-full backdrop-blur-md pointer-events-none z-10 shadow-lg border border-[#38414e] whitespace-nowrap animate-in fade-in slide-in-from-top-4 duration-500">
-          🔥 New heat map: zoom out to view
+        <div className="absolute top-[80px] left-1/2 -translate-x-1/2 bg-black/80 text-white text-xs font-medium px-4 py-2 rounded-full backdrop-blur-md pointer-events-none z-10 shadow-lg border border-[#38414e] whitespace-nowrap animate-in fade-in slide-in-from-top-4 duration-500">
+          🔥 Heat map: Zoom out to view UK prices in heat
         </div>
       )}
     </div>

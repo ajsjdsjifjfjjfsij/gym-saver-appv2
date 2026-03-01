@@ -20,53 +20,56 @@ export async function GET(request: Request) {
     }
 
     try {
+        console.log(`[Geocode API] Searching for: ${address}`);
         // Use the Places API instead of Geocoding API to bypass strict referer restrictions
-        // that block the Geocoding API from server-side calls without a specific IP/Backend key.
         const url = `https://places.googleapis.com/v1/places:searchText`;
+        const headers = {
+            "Content-Type": "application/json",
+            "X-Goog-Api-Key": apiKey,
+            "X-Goog-FieldMask": "places.formattedAddress,places.location",
+            // ALWAYS use the primary domain as referer to satisfy API key restrictions
+            "Referer": "https://www.gymsaverapp.com"
+        };
 
         const response = await fetch(url, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-Goog-Api-Key": apiKey,
-                "X-Goog-FieldMask": "places.formattedAddress,places.location",
-                // Pass a referer to satisfy the key's HTTP referer restrictions
-                "Referer": process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://www.gymsaverapp.com"
-            },
+            headers,
             body: JSON.stringify({
                 textQuery: address,
-                includedType: "locality" // Optional: helps prioritize cities/towns over generic businesses
+                includedType: "locality"
             })
         });
 
         const data = await response.json();
+        console.log(`[Geocode API] Primary response status: ${response.status}`);
 
-        if (!response.ok || !data.places || data.places.length === 0) {
+        let results = data.places || [];
+
+        if (!response.ok || results.length === 0) {
+            console.log(`[Geocode API] No results with locality filter, trying fallback...`);
             // Fallback attempt without includedType if the first one fails
             const fbResponse = await fetch(url, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Goog-Api-Key": apiKey,
-                    "X-Goog-FieldMask": "places.formattedAddress,places.location",
-                    "Referer": process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://www.gymsaverapp.com"
-                },
+                headers,
                 body: JSON.stringify({
                     textQuery: address
                 })
             });
             const fbData = await fbResponse.json();
+            console.log(`[Geocode API] Fallback response status: ${fbResponse.status}`);
 
             if (!fbResponse.ok || !fbData.places || fbData.places.length === 0) {
+                console.error("[Geocode API] All attempts failed to find location:", address, fbData);
                 return NextResponse.json(
-                    { error: "Location not found" },
+                    { error: "Location not found", diagnostics: fbData },
                     { status: 404 }
                 );
             }
-            data.places = fbData.places;
+            results = fbData.places;
         }
 
-        const place = data.places[0];
+        const place = results[0];
+        console.log(`[Geocode API] Found: ${place.formattedAddress}`);
 
         return NextResponse.json({
             lat: place.location.latitude,

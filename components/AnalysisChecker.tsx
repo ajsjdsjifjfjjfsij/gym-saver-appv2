@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
+import { getApiBaseUrl } from "@/lib/api-env"
 
 export function AnalysisChecker() {
     useEffect(() => {
@@ -11,7 +12,8 @@ export function AnalysisChecker() {
 
         const checkAnalysis = async () => {
             try {
-                const res = await fetch("/api/debug/analyze")
+                const baseUrl = getApiBaseUrl();
+                const res = await fetch(`${baseUrl}/api/debug/analyze`)
                 const data = await res.json()
 
                 if (data.success) {
@@ -20,10 +22,13 @@ export function AnalysisChecker() {
                         console.warn("⚠️ Analysis detected potential issues. Check console for details.")
                     }
                 } else {
-                    console.error("❌ Startup Analysis Failed:", data.error)
+                    console.warn("Startup Analysis skipped or failed:", data.error)
                 }
             } catch (err) {
-                console.error("🚫 Connection to Analysis API failed:", err)
+                // Silently fail in production or restricted environments
+                if (process.env.NODE_ENV !== "production") {
+                    console.warn("Connection to Analysis API failed:", err)
+                }
             }
         }
 
