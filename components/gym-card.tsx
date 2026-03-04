@@ -24,27 +24,15 @@ function GymCardComponent({ gym, isSelected, isSaved, isCompared, onSelect, onTo
   const { user } = useAuth()
   const router = useRouter()
 
-  // Use useMemo for stable derived values to avoid unnecessary re-calculations
-  const initialPhotoUrl = useMemo(() => gym.hero_image_url ||
-    getGooglePhotoUrl(gym.photo_reference || gym.photos?.[0]) ||
-    (gym.gallery_image_urls && gym.gallery_image_urls.length > 0 ? gym.gallery_image_urls[0] : "/placeholder-gym.jpg"), [gym.id, gym.hero_image_url]);
-
-  const hasValidStoredPhoto = useMemo(() => !!gym.hero_image_url ||
-    (!!gym.photo_reference || (gym.photos && gym.photos.length > 0)) ||
-    (!!gym.gallery_image_urls && gym.gallery_image_urls.length > 0), [gym.id, gym.hero_image_url]);
+  // Prioritize the high-quality hero_image_url synced from Google Places API (New)
+  // Fallback to legacy photo_reference or the first photo in the array
+  const initialPhotoUrl = gym.hero_image_url || getGooglePhotoUrl(gym.photo_reference || gym.photos?.[0]);
+  // We can show the initialPhotoUrl immediately if it's not the placeholder
+  const hasValidStoredPhoto = !!gym.hero_image_url || initialPhotoUrl !== "/placeholder-gym.jpg";
 
   const [resolvedPhotoUrl, setResolvedPhotoUrl] = useState<string | null>(
     hasValidStoredPhoto ? initialPhotoUrl : null
   );
-
-  // Sync resolvedPhotoUrl with initialPhotoUrl when it changes to avoid stale images
-  useEffect(() => {
-    if (hasValidStoredPhoto) {
-      setResolvedPhotoUrl(initialPhotoUrl === "/placeholder-gym.jpg" ? null : initialPhotoUrl);
-    } else {
-      setResolvedPhotoUrl(null);
-    }
-  }, [gym.id, initialPhotoUrl, hasValidStoredPhoto]);
 
   useEffect(() => {
     // If we already have a direct hero_image_url, skip fetching fresh one
