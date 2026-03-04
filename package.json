@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "dev": "next dev",
+    "dev": "NODE_OPTIONS='--max-old-space-size=8192' next dev",
     "analyze": "swift /Users/joe/Desktop/ApiFinderApp/Sources/APIFinder/Utils/AutoAnalyzer.swift",
     "lint": "eslint .",
     "start": "next start"
@@ -57,6 +57,7 @@
     "firebase-admin": "^13.6.1",
     "framer-motion": "^12.33.0",
     "googlemaps": "^1.1.3",
+    "html-to-image": "^1.11.13",
     "input-otp": "1.4.1",
     "lucide-react": "^0.454.0",
     "next": "16.0.10",

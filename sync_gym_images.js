@@ -124,17 +124,16 @@ async function syncGymImages() {
                 }
 
                 if (imageUrls.length > 0) {
-                    const heroImage = imageUrls[0];
-                    const galleryImages = imageUrls.slice(1);
-
+                    // IMPORTANT: Do NOT store the temporary Google photo URI in hero_image_url
+                    // The frontend will fetch it dynamically. hero_image_url should only
+                    // be for permanent fallbacks.
                     await db.collection("gyms").doc(gym.id).update({
-                        hero_image_url: heroImage,
-                        gallery_image_urls: galleryImages,
+                        gallery_image_urls: galleryImages, // Still good for session, though will expire
                         photo_attributions: attributions,
                         images_last_synced_at: admin.firestore.FieldValue.serverTimestamp()
                     });
 
-                    console.log(`[${i + 1}/${gyms.length}] Updated ${gym.data.name} with ${imageUrls.length} photos (Hero: ${heroImage.substring(0, 30)}...)`);
+                    console.log(`[${i + 1}/${gyms.length}] Updated ${gym.data.name} with ${imageUrls.length} photos metadata.`);
                     updatedCount++;
                 } else {
                     console.log(`[${i + 1}/${gyms.length}] No valid photo URIs found for ${gym.data.name}`);
