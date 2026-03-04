@@ -33,7 +33,9 @@ function GymCardComponent({ gym, isSelected, isSaved, isCompared, onSelect, onTo
     (!!gym.photo_reference || (gym.photos && gym.photos.length > 0)) ||
     (!!gym.gallery_image_urls && gym.gallery_image_urls.length > 0), [gym.id, gym.hero_image_url]);
 
-  const [resolvedPhotoUrl, setResolvedPhotoUrl] = useState<string | null>(null);
+  const [resolvedPhotoUrl, setResolvedPhotoUrl] = useState<string | null>(
+    hasValidStoredPhoto ? initialPhotoUrl : null
+  );
 
   // Sync resolvedPhotoUrl with initialPhotoUrl when it changes to avoid stale images
   useEffect(() => {
@@ -176,7 +178,7 @@ function GymCardComponent({ gym, isSelected, isSaved, isCompared, onSelect, onTo
 
       {/* Gym Image - Left Side / Top on Mobile */}
       <div
-        className="w-full h-48 sm:h-full sm:w-64 shrink-0 relative bg-slate-900 sm:rounded-l-2xl rounded-t-2xl sm:rounded-tr-none border-b sm:border-r sm:border-b-0 border-white/10 cursor-zoom-in"
+        className="w-full h-48 sm:h-full sm:w-64 shrink-0 relative bg-slate-900 sm:rounded-l-2xl rounded-t-2xl sm:rounded-tr-none border-b sm:border-r sm:border-b-0 border-white/10 cursor-zoom-in overflow-hidden z-20"
         onClick={handleGalleryClick}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
