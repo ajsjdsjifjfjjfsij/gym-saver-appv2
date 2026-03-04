@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, memo, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Star, MapPin, Bookmark, BookmarkCheck } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -20,22 +20,34 @@ interface GymCardProps {
   onOpenGallery?: () => void
 }
 
-export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onToggleSave, onToggleCompare, onAuthRequired, onOpenGallery }: GymCardProps) {
+function GymCardComponent({ gym, isSelected, isSaved, isCompared, onSelect, onToggleSave, onToggleCompare, onAuthRequired, onOpenGallery }: GymCardProps) {
   const { user } = useAuth()
   const router = useRouter()
 
-  // Prioritize the high-quality hero_image_url synced from Google Places API (New)
-  // Fallback to legacy photo_reference or the first photo in the array
-  const initialPhotoUrl = gym.hero_image_url || getGooglePhotoUrl(gym.photo_reference || gym.photos?.[0]);
-  // We can show the initialPhotoUrl immediately if it's not the placeholder
-  const hasValidStoredPhoto = !!gym.hero_image_url || initialPhotoUrl !== "/placeholder-gym.jpg";
+  // Use useMemo for stable derived values to avoid unnecessary re-calculations
+  const initialPhotoUrl = useMemo(() => gym.hero_image_url ||
+    getGooglePhotoUrl(gym.photo_reference || gym.photos?.[0]) ||
+    (gym.gallery_image_urls && gym.gallery_image_urls.length > 0 ? gym.gallery_image_urls[0] : "/placeholder-gym.jpg"), [gym.id, gym.hero_image_url]);
 
-  const [resolvedPhotoUrl, setResolvedPhotoUrl] = useState<string | null>(
-    hasValidStoredPhoto ? initialPhotoUrl : null
-  );
+  const hasValidStoredPhoto = useMemo(() => !!gym.hero_image_url ||
+    (!!gym.photo_reference || (gym.photos && gym.photos.length > 0)) ||
+    (!!gym.gallery_image_urls && gym.gallery_image_urls.length > 0), [gym.id, gym.hero_image_url]);
+
+  const [resolvedPhotoUrl, setResolvedPhotoUrl] = useState<string | null>(null);
+
+  // Sync resolvedPhotoUrl with initialPhotoUrl when it changes to avoid stale images
+  useEffect(() => {
+    if (hasValidStoredPhoto) {
+      setResolvedPhotoUrl(initialPhotoUrl === "/placeholder-gym.jpg" ? null : initialPhotoUrl);
+    } else {
+      setResolvedPhotoUrl(null);
+    }
+  }, [gym.id, initialPhotoUrl, hasValidStoredPhoto]);
 
   useEffect(() => {
-    // If we already have a direct hero_image_url, skip fetching
+    // If we already have a direct hero_image_url, skip fetching fresh one
+    // But IF we only have a photo_reference or gallery URL, it's worth trying 
+    // to get a fresh, high-quality media URL from the API.
     if (gym.hero_image_url) return;
 
     const placeId = gym.id; // id is the place_id in Firestore
@@ -164,7 +176,7 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
 
       {/* Gym Image - Left Side / Top on Mobile */}
       <div
-        className="w-full h-48 sm:h-full sm:w-64 shrink-0 relative bg-slate-900 overflow-hidden sm:border-r border-b sm:border-b-0 border-white/10 cursor-zoom-in"
+        className="w-full h-48 sm:h-full sm:w-64 shrink-0 relative bg-slate-900 sm:rounded-l-2xl rounded-t-2xl sm:rounded-tr-none border-b sm:border-r sm:border-b-0 border-white/10 cursor-zoom-in"
         onClick={handleGalleryClick}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -181,7 +193,7 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
           loading="lazy"
           decoding="async"
           onLoad={() => setImageLoaded(true)}
-          className={`absolute inset-0 w-full h-full object-cover block transition-all duration-700 group-hover:scale-110 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+          className={`absolute inset-0 w-full h-full object-cover block sm:rounded-l-2xl rounded-t-2xl sm:rounded-tr-none transition-all duration-700 group-hover:scale-110 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
           onError={(e) => {
             setImageLoaded(true); // Don't leave pulsing loader forever
             const target = e.target as HTMLImageElement;
@@ -195,7 +207,7 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
         {/* Floating Badges */}
         <div className="absolute top-3 left-3 z-10 flex flex-col items-start gap-2">
           {isCurrentlyFeatured && (
-            <span className="text-[10px] font-bold text-black bg-gradient-to-r from-yellow-400 to-yellow-600 px-3 py-1 rounded-full shadow-[0_0_15px_rgba(234,179,8,0.6)] border border-yellow-300 uppercase tracking-widest flex items-center gap-1 animate-pulse" style={{ animationDuration: '3s' }}>
+            <span className="text-[10px] font-bold text-black bg-gradient-to-r from-yellow-400 to-yellow-600 px-3 py-1 rounded-full shadow-[0_0_15px_rgba(234,179,8,0.6)] border border-yellow-300 uppercase tracking-widest flex items-center gap-1">
               <Star className="w-3 h-3 fill-black" /> Featured
             </span>
           )}
@@ -206,16 +218,11 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
           )}
         </div>
 
-        {/* Gallery Hint Overlay (Desktop Hover) */}
-        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-          <span className="text-white text-xs font-bold border border-white/50 px-3 py-1 rounded-full backdrop-blur-md">
-            View Photos
-          </span>
-        </div>
+        {/* Gallery hint overlay removed to prevent flashing during scroll */}
       </div>
 
       {/* Main Info - Right Side */}
-      <div className="flex-1 min-w-0 p-4 flex flex-col justify-between">
+      <div className="flex-1 min-w-0 p-4 flex flex-col justify-between bg-black/95 sm:rounded-r-2xl rounded-b-2xl sm:rounded-bl-none relative z-10 border-l border-white/5">
         <div className="flex items-start justify-between gap-3">
           <div className="flex flex-col gap-1 min-w-0 flex-1">
             <h3
@@ -233,7 +240,7 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
             )}
             {gym.latestOffer && typeof gym.latestOffer === "string" && !gym.latestOffer.toLowerCase().includes("coming soon") && (
               <div className="mt-1 flex items-center">
-                <span className="text-[10px] font-bold text-black bg-[#6BD85E] px-2 py-0.5 rounded-full shadow-sm blink-soft">
+                <span className="text-[10px] font-bold text-black bg-[#6BD85E] px-2 py-0.5 rounded-full shadow-sm">
                   {gym.latestOffer}
                 </span>
               </div>
@@ -376,3 +383,17 @@ export function GymCard({ gym, isSelected, isSaved, isCompared, onSelect, onTogg
     </div >
   )
 }
+
+// Custom comparator to prevent unnecessary re-renders during scrolling or map panning
+export const GymCard = memo(GymCardComponent, (prev, next) => {
+  return (
+    prev.gym.id === next.gym.id &&
+    prev.isSelected === next.isSelected &&
+    prev.isSaved === next.isSaved &&
+    prev.isCompared === next.isCompared &&
+    // Check key data inside gym that might change without ID changing
+    prev.gym.hero_image_url === next.gym.hero_image_url &&
+    prev.gym.distance === next.gym.distance &&
+    prev.gym.rating === next.gym.rating
+  );
+});

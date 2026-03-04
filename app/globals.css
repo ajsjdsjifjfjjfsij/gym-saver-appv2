@@ -109,7 +109,8 @@
   /* PREMIUM GLASS - Responsive, heavy blur for headers/tabs */
   .glass-premium {
     @apply bg-white dark:bg-black/60 backdrop-blur-xl border-b border-black/5 dark:border-white/10 shadow-lg;
-    box-shadow: 0 4px 20px rgba(107, 216, 94, 0.15); /* Light neon green glow */
+    box-shadow: 0 4px 20px rgba(107, 216, 94, 0.15);
+    /* Light neon green glow */
   }
 
   /* GLOSSY TAB - Liquid appearance */
@@ -139,12 +140,14 @@
 
   /* MOBILE OPTIMIZATIONS */
   .h-dvh {
-    height: 100vh; /* Fallback */
+    height: 100vh;
+    /* Fallback */
     height: 100dvh;
   }
 
   .min-h-dvh {
-    min-height: 100vh; /* Fallback */
+    min-height: 100vh;
+    /* Fallback */
     min-height: 100dvh;
   }
 
@@ -259,4 +262,10 @@
   .blink-soft {
     animation: blink-soft 2s infinite ease-in-out;
   }
+}
+
+/* CUSTOM UI FIXES - FORCED INCLUSION */
+.search-icon-overlay {
+  pointer-events: none !important;
+  z-index: 20 !important;
 }
