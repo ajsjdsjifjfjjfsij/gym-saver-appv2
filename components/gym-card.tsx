@@ -183,9 +183,9 @@ function GymCardComponent({ gym, isSelected, isSaved, isCompared, onSelect, onTo
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        {/* Shimmer Placeholder while loading */}
+        {/* Shimmer Placeholder behind image */}
         {!imageLoaded && (
-          <div className="absolute inset-0 w-full h-full bg-slate-800/80 animate-pulse flex items-center justify-center z-10">
+          <div className="absolute inset-0 w-full h-full bg-slate-800/80 animate-pulse flex items-center justify-center -z-10">
             <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin opacity-50"></div>
           </div>
         )}
@@ -195,7 +195,7 @@ function GymCardComponent({ gym, isSelected, isSaved, isCompared, onSelect, onTo
           loading="lazy"
           decoding="async"
           onLoad={() => setImageLoaded(true)}
-          className={`absolute inset-0 w-full h-full object-cover block sm:rounded-l-2xl rounded-t-2xl sm:rounded-tr-none transition-all duration-700 group-hover:scale-110 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+          className="absolute inset-0 w-full h-full object-cover block sm:rounded-l-2xl rounded-t-2xl sm:rounded-tr-none transition-all duration-700 group-hover:scale-110"
           onError={(e) => {
             setImageLoaded(true); // Don't leave pulsing loader forever
             const target = e.target as HTMLImageElement;
