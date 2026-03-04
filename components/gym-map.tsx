@@ -24,7 +24,7 @@ export function GymMap(props: GymMapProps) {
   const [map, setMap] = useState<google.maps.Map | null>(null)
   const [heatmap, setHeatmap] = useState<google.maps.visualization.HeatmapLayer | null>(null)
   const { theme } = useTheme()
-  const markersRef = useRef<google.maps.Marker[]>([])
+  const markersRef = useRef<Map<string, google.maps.Marker>>(new Map())
   const { toast } = useToast()
 
   // Ref to prevent excessive idle calls
@@ -373,21 +373,28 @@ export function GymMap(props: GymMapProps) {
   useEffect(() => {
     if (!map) return
 
-    markersRef.current.forEach(marker => marker.setMap(null))
-    markersRef.current = []
-
     const zoomLevel = propsZoom || map.getZoom() || 12;
     if (zoomLevel <= 10) {
-      console.log('GymMap: National Mode - Hiding markers');
-      markersRef.current.forEach(marker => marker.setMap(null));
-      markersRef.current = [];
+      if (markersRef.current.size > 0) {
+        console.log('GymMap: National Mode - Hiding markers');
+        markersRef.current.forEach(marker => marker.setMap(null));
+        markersRef.current.clear();
+      }
       return;
     }
 
-    const createMarkers = async () => {
-      const displayGyms = gyms; // Filter or optimize here if needed
+    const currentGymIds = new Set(gyms.map(g => g.id));
 
-      displayGyms.forEach((gym) => {
+    // Remove markers that are no longer in the list
+    markersRef.current.forEach((marker, id) => {
+      if (!currentGymIds.has(id)) {
+        marker.setMap(null);
+        markersRef.current.delete(id);
+      }
+    });
+
+    const createOrUpdateMarkers = async () => {
+      gyms.forEach((gym) => {
         try {
           const isSelected = selectedGym?.id === gym.id;
           const priceData = getGymPrice(gym);
@@ -412,30 +419,48 @@ export function GymMap(props: GymMapProps) {
             return;
           }
 
-          const marker = new google.maps.Marker({
-            map,
-            position: { lat: Number(gym.lat), lng: Number(gym.lng) },
-            title: gym.name,
-            icon: {
+          let marker = markersRef.current.get(gym.id);
+
+          // Optimization: Skip expensive SVG recreation if selection state hasn't changed
+          if (marker && (marker as any).isCurrentlySelected === isSelected) {
+            return;
+          }
+
+          if (marker) {
+            marker.setIcon({
               url: svgUrl,
               scaledSize: new google.maps.Size(60 * scale, 30 * scale),
               anchor: new google.maps.Point(30 * scale, 15 * scale),
-            },
-            zIndex: isSelected ? 999 : 1,
-          })
+            });
+            marker.setZIndex(isSelected ? 999 : 1);
+            (marker as any).isCurrentlySelected = isSelected;
+          } else {
+            marker = new google.maps.Marker({
+              map,
+              position: { lat: Number(gym.lat), lng: Number(gym.lng) },
+              title: gym.name,
+              icon: {
+                url: svgUrl,
+                scaledSize: new google.maps.Size(60 * scale, 30 * scale),
+                anchor: new google.maps.Point(30 * scale, 15 * scale),
+              },
+              zIndex: isSelected ? 999 : 1,
+            });
 
-          marker.addListener("click", () => {
-            onGymSelect(gym)
-          })
+            marker.addListener("click", () => {
+              onGymSelect(gym)
+            });
 
-          markersRef.current.push(marker as any)
+            (marker as any).isCurrentlySelected = isSelected;
+            markersRef.current.set(gym.id, marker as any);
+          }
         } catch (e) {
           console.error('Error creating marker for gym:', gym?.name, e);
         }
       })
     }
 
-    createMarkers()
+    createOrUpdateMarkers()
   }, [map, gyms, selectedGym?.id, propsZoom])
 
   // Heatmap Layer Logic
@@ -594,7 +619,7 @@ export function GymMap(props: GymMapProps) {
       const newHeatmap = new google.maps.visualization.HeatmapLayer(heatmapOptions);
       setHeatmap(newHeatmap);
     }
-  }, [map, allGyms, gyms, propsZoom]);
+  }, [map, allGyms, propsZoom]);
 
   return (
     <div className="relative h-full w-full bg-[#0e1114] overflow-hidden gym-map-container">

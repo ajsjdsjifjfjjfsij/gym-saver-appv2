@@ -86,6 +86,21 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
   const [selectedGym, setSelectedGym] = useState<Gym | null>(null)
   const [showSavedOnly, setShowSavedOnly] = useState(false)
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(initialBotLocation || null)
+  const [stableUserLocation, setStableUserLocation] = useState<{ lat: number; lng: number } | null>(initialBotLocation || null);
+
+  useEffect(() => {
+    if (!userLocation) return;
+    if (!stableUserLocation) {
+      setStableUserLocation(userLocation);
+      return;
+    }
+
+    const dist = calculateDistance(userLocation.lat, userLocation.lng, stableUserLocation.lat, stableUserLocation.lng);
+    // Only update stable location if moved more than 30 meters (approx 0.02 miles)
+    if (dist > 0.02) {
+      setStableUserLocation(userLocation);
+    }
+  }, [userLocation, stableUserLocation]);
   const [originalUserLocation, setOriginalUserLocation] = useState<{ lat: number; lng: number } | null>(initialBotLocation || null)
   const [isLocating, setIsLocating] = useState(false)
   const [isGeocoding, setIsGeocoding] = useState(false)
@@ -97,81 +112,25 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
 
   // Diagnostic Logging
   useEffect(() => {
-    console.log("🔍 Search Page Mounted", { authLoading, user: user?.uid || "guest" })
+    if (process.env.NODE_ENV === 'development') {
+      console.log("🔍 Search Page Mounted", { authLoading, user: user?.uid || "guest" })
+    }
   }, [authLoading, user])
 
-  const [gyms, setGyms] = useState<Gym[]>([])
-  const [allGyms, setAllGyms] = useState<Gym[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [currentZoom, setCurrentZoom] = useState<number>(12)
-
-  // Comparison State
-  const [comparedGyms, setComparedGyms] = useState<Gym[]>([])
-  const [showCompareTooltip, setShowCompareTooltip] = useState(false)
-
-  // Gallery State
-  const [galleryGym, setGalleryGym] = useState<Gym | null>(null)
-
-  // Check for first-time user tooltip
-  useEffect(() => {
-    let hasSeenTooltip = false;
-    try {
-      hasSeenTooltip = !!localStorage.getItem("hasSeenCompareTooltip");
-    } catch (e) {
-      console.warn("localStorage access denied:", e);
-    }
-
-    if (!hasSeenTooltip) {
-      // Delay slightly to let UI settle
-      const timeout = setTimeout(() => {
-        setShowCompareTooltip(true)
-      }, 0)
-      return () => clearTimeout(timeout)
-    }
-  }, [])
-
-  const handleTooltipDismiss = () => {
-    setShowCompareTooltip(false)
-    try {
-      localStorage.setItem("hasSeenCompareTooltip", "true")
-    } catch (e) {
-      console.warn("localStorage setItem failed:", e);
-    }
-  }
-
-  const toggleCompare = (gym: Gym) => {
-    setComparedGyms((prev) => {
-      const exists = prev.find((g) => g.id === gym.id);
-      if (exists) {
-        return prev.filter((g) => g.id !== gym.id); // Remove
-      } else {
-        // Check if user is authenticated
-        const maxComparisons = user ? 3 : 1;
-
-        if (prev.length >= maxComparisons) {
-          // Guest trying to compare more than 1 gym - show auth modal
-          if (!user) {
-            setShowAuthModal(true);
-            return prev;
-          }
-          // Authenticated user at limit (3 gyms)
-          return prev;
-        }
-
-        // If this is the user's first interaction, dismiss the tooltip permanently
-        if (showCompareTooltip) {
-          handleTooltipDismiss()
-        }
-
-        return [...prev, gym]; // Add
-      }
-    });
-  };
-
-  const clearComparison = () => {
-    setComparedGyms([]);
-  };
+  // Helper to detect if a query is primarily searching for a gym brand
+  const isBrandQuery = useCallback((query: string) => {
+    const normalized = query.toLowerCase().replace(/\s/g, "");
+    return (
+      normalized.includes("puregym") ||
+      normalized.includes("jdgym") ||
+      normalized.includes("thegym") ||
+      normalized.includes("nuffield") ||
+      normalized.includes("bannatyne") ||
+      normalized.includes("anytimefitness") ||
+      normalized.includes("villagegym") ||
+      normalized.includes("davidlloyd")
+    );
+  }, []);
 
   // Fetch gyms from Firestore ONLY
   const fetchGyms = async (lat: number, lng: number, query?: string, type?: string, radius?: number, forceSkipFilter?: boolean) => {
@@ -197,13 +156,12 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
 
       console.log(`[Diagnostic] Firestore returned ${firestoreGymsData.length} total documents.`);
 
-      if (firestoreGymsData.length > 0) {
+      if (firestoreGymsData.length > 0 && process.env.NODE_ENV === 'development') {
         try {
           const jdCheck = firestoreGymsData.filter((g: any) => g && (g.name || "").toLowerCase().includes("jd"));
           console.log(`[Diagnostic] JD Gyms in RAW firestore response: ${jdCheck.length}`);
-
         } catch (e) {
-          console.warn("Log failed:", e);
+          // ignore
         }
       }
 
@@ -219,7 +177,9 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
         if (docLng === undefined || docLng === 0) return true; // Show it if we don't know, don't hide it
         return docLng >= (lng - lngDelta) && docLng <= (lng + lngDelta);
       });
-      console.log(`[Diagnostic] After longitude filter (delta ${lngDelta.toFixed(2)}): ${filteredData.length} documents.`);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[Diagnostic] After longitude filter (delta ${lngDelta.toFixed(2)}): ${filteredData.length} documents.`);
+      }
 
       // Determine effective query based on type if no explicit query
       // REMOVED: Auto-setting query for types (e.g. "24 hour gym") causes strict string matching
@@ -236,7 +196,12 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
         // Detect brand-intent
         const isBrand = normalizedQuery.includes("puregym") ||
           normalizedQuery.includes("jdgym") ||
-          normalizedQuery.includes("thegym");
+          normalizedQuery.includes("thegym") ||
+          normalizedQuery.includes("nuffield") ||
+          normalizedQuery.includes("bannatyne") ||
+          normalizedQuery.includes("anytimefitness") ||
+          normalizedQuery.includes("villagegym") ||
+          normalizedQuery.includes("davidlloyd");
 
         // If the query is exactly what we just geocoded (a location search), 
         // don't strictly filter the results by name/city text UNLESS it's a brand search.
@@ -254,9 +219,15 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
             const cityMatch = city.includes(lowerQuery) || lowerQuery.includes(city);
             const nameMatch = name.includes(lowerQuery) || lowerQuery.includes(name) || normalizedName.includes(normalizedQuery);
             const addressMatch = address.includes(lowerQuery);
-            const brandMatch = (normalizedQuery.includes("puregym") && (website.includes("puregym") || normalizedName.includes("puregym"))) ||
+            const brandMatch =
+              (normalizedQuery.includes("puregym") && (website.includes("puregym") || normalizedName.includes("puregym"))) ||
               (normalizedQuery.includes("jdgym") && (website.includes("jdgym") || normalizedName.includes("jdgym"))) ||
-              (normalizedQuery.includes("thegym") && (website.includes("thegymgroup") || normalizedName.includes("thegym")));
+              (normalizedQuery.includes("thegym") && (website.includes("thegymgroup") || normalizedName.includes("thegym"))) ||
+              (normalizedQuery.includes("nuffield") && (website.includes("nuffield") || normalizedName.includes("nuffield"))) ||
+              (normalizedQuery.includes("bannatyne") && (website.includes("bannatyne") || normalizedName.includes("bannatyne"))) ||
+              (normalizedQuery.includes("anytimefitness") && (website.includes("anytimefitness") || normalizedName.includes("anytime"))) ||
+              (normalizedQuery.includes("villagegym") && (website.includes("village") || normalizedName.includes("village"))) ||
+              (normalizedQuery.includes("davidlloyd") && (website.includes("davidlloyd") || normalizedName.includes("davidlloyd")));
 
             // If it's a brand search, it overrides other strict filters
             if (isBrand && brandMatch) return true;
@@ -265,18 +236,6 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
           });
         }
       }
-      // 2b. Implicit City Filter - REMOVED
-      // We want to show all gyms within the radius, sorted by distance.
-      // The previous logic restricted results to the "closest city", hiding nearby gyms in other towns.
-      /*
-      else if (!query && lat && lng) {
-        // ... (removed restrictive logic)
-      }
-      */
-
-      // 2c. Price Filter: We now want to show ALL gyms, even if they don't have known prices yet.
-      // (They will display 'Prices coming soon')
-      // (Skipping aggressive filtering here)
 
       // 2d. Provider Exclusion: Hide "Better" (GLL) gyms completely
       // Also exclude strict blacklist terms for non-gym venues
@@ -419,12 +378,13 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
         };
       });
 
-      console.log(`Setting heatmap data: ${mappedFirestoreGyms.length} gyms.`);
       setAllGyms(mappedFirestoreGyms);
 
       // 5. Limit cards list to top 50
       const listGyms = mappedFirestoreGyms.slice(0, 50);
-      console.log(`Loaded ${listGyms.length} gyms into result list.`);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`Loaded ${listGyms.length} gyms into result list.`);
+      }
       setGyms(listGyms);
 
     } catch (err) {
@@ -438,16 +398,171 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
     }
   }
 
-  // REMOVED Redundant useEffect (Merged into the one below at line 626)
+  const handleGeocodeSearch = useCallback(async (e?: React.KeyboardEvent<HTMLInputElement> | React.FormEvent, silent = false) => {
+    if (e) {
+      e.preventDefault();
+    }
+
+    // If the input is empty, return to the original user location
+    if (!searchQuery.trim()) {
+      if (originalUserLocation) {
+        setUserLocation(originalUserLocation);
+        fetchGyms(originalUserLocation.lat, originalUserLocation.lng, "", "all", 8000);
+      }
+      return;
+    }
+
+
+
+
+
+    // BRAND SEARCH BYPASS: If someone searches "Pure Gym" and we already have a location,
+    // just search near them instead of geocoding "Pure Gym" which might fail or go to HEAD OFFICE.
+    if (isBrandQuery(searchQuery) && userLocation) {
+      console.log(`[Brand Search] Bypassing geocode for "${searchQuery}" - searching near current map location.`);
+      fetchGyms(userLocation.lat, userLocation.lng, searchQuery, "all", 15000, true);
+      return;
+    }
+
+    setIsGeocoding(true);
+    try {
+      const secret = getDynamicSecret();
+      const ts = Date.now();
+      const response = await fetch(`/api/geocode?address=${encodeURIComponent(searchQuery)}&_ts=${ts}`, {
+        headers: {
+          "x-gymsaver-app-secret": secret
+        }
+      });
+      const data = await response.json();
+
+      if (response.ok && data.lat && data.lng) {
+        setUserLocation({
+          lat: data.lat,
+          lng: data.lng
+        });
+        setRecenterToken(t => t + 1);
+        lastFetchRef.current = { lat: data.lat, lng: data.lng, radius: 15000 }
+
+        // Trigger explicit fetch for the geocoded location
+        // We use a larger radius (15km) for explicit searches to ensure brand coverage
+        fetchGyms(data.lat, data.lng, searchQuery, "all", 15000, true);
+
+        setLastGeocodedQuery(searchQuery);
+        console.log(`Geocoded to: ${data.formattedAddress}`);
+      } else {
+        if (!silent) {
+          alert(data.error || "Could not find that location. Please try a different search.");
+        }
+      }
+    } catch (err) {
+      console.error("Geocoding failed:", err);
+      if (!silent) {
+        alert("An error occurred while searching for that location. Please try again.");
+      }
+    } finally {
+      setIsGeocoding(false);
+    }
+  }, [searchQuery, originalUserLocation, userLocation, isBrandQuery])
+
+  // Debounced auto-search
+  useEffect(() => {
+    // Don't auto-search if query is empty, too short, or matches the last successful search
+    if (!searchQuery.trim() || searchQuery.length < 3 || searchQuery === lastGeocodedQuery) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      console.log(`[Auto-Search] Triggering for "${searchQuery}"`);
+      handleGeocodeSearch(undefined, true); // true = silent mode
+    }, 1000); // 1-second delay to ensure they've finished typing
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, handleGeocodeSearch, lastGeocodedQuery]);
+
+  const [gyms, setGyms] = useState<Gym[]>([])
+  const [allGyms, setAllGyms] = useState<Gym[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [currentZoom, setCurrentZoom] = useState<number>(12)
+
+  // Comparison State
+  const [comparedGyms, setComparedGyms] = useState<Gym[]>([])
+  const [showCompareTooltip, setShowCompareTooltip] = useState(false)
+
+  // Gallery State
+  const [galleryGym, setGalleryGym] = useState<Gym | null>(null)
+
+  // Check for first-time user tooltip
+  useEffect(() => {
+    let hasSeenTooltip = false;
+    try {
+      hasSeenTooltip = !!localStorage.getItem("hasSeenCompareTooltip");
+    } catch (e) {
+      console.warn("localStorage access denied:", e);
+    }
+
+    if (!hasSeenTooltip) {
+      // Delay slightly to let UI settle
+      const timeout = setTimeout(() => {
+        setShowCompareTooltip(true)
+      }, 0)
+      return () => clearTimeout(timeout)
+    }
+  }, [])
+
+  const handleTooltipDismiss = () => {
+    setShowCompareTooltip(false)
+    try {
+      localStorage.setItem("hasSeenCompareTooltip", "true")
+    } catch (e) {
+      console.warn("localStorage setItem failed:", e);
+    }
+  }
+
+  const toggleCompare = (gym: Gym) => {
+    setComparedGyms((prev) => {
+      const exists = prev.find((g) => g.id === gym.id);
+      if (exists) {
+        return prev.filter((g) => g.id !== gym.id); // Remove
+      } else {
+        // Check if user is authenticated
+        const maxComparisons = user ? 3 : 1;
+
+        if (prev.length >= maxComparisons) {
+          // Guest trying to compare more than 1 gym - show auth modal
+          if (!user) {
+            setShowAuthModal(true);
+            return prev;
+          }
+          // Authenticated user at limit (3 gyms)
+          return prev;
+        }
+
+        // If this is the user's first interaction, dismiss the tooltip permanently
+        if (showCompareTooltip) {
+          handleTooltipDismiss()
+        }
+
+        return [...prev, gym]; // Add
+      }
+    });
+  };
+
+  const clearComparison = () => {
+    setComparedGyms([]);
+  };
+
+  // Fetch gyms from Firestore ONLY
+
 
   // Calculate distances
   const gymsWithDistance = useMemo(() => {
-    if (!userLocation) return gyms
+    if (!stableUserLocation) return gyms
     return gyms.map((gym) => ({
       ...gym,
-      distance: calculateDistance(userLocation.lat, userLocation.lng, gym.lat, gym.lng),
+      distance: calculateDistance(stableUserLocation.lat, stableUserLocation.lng, gym.lat, gym.lng),
     }))
-  }, [userLocation, gyms])
+  }, [stableUserLocation, gyms])
 
   // Filter gyms based on all criteria
   const filteredGyms = useMemo(() => {
@@ -593,7 +708,7 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
           return 0;
       }
     })
-  }, [gymsWithDistance, searchQuery, filters, savedGyms, showSavedOnly, userLocation])
+  }, [gymsWithDistance, searchQuery, filters, savedGyms, showSavedOnly, stableUserLocation])
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }))
@@ -698,74 +813,10 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
     }
   };
 
-  // Debounced Auto-Geocode Effect
-  useEffect(() => {
-    // Only trigger auto-geocode if there's actually a substantial change 
-    // and it's not empty (empty is handled by the regular onChange cleanup)
-    // We also require at least 3 characters for auto-geocode to prevent noise while typing
-    if (!searchQuery.trim() || searchQuery === lastGeocodedQuery || searchQuery.trim().length < 3) {
-      return;
-    }
 
-    const timer = setTimeout(() => {
-      handleGeocodeSearch(undefined, true); // Silent mode enabled for auto-search
-    }, 700); // 700ms provides a comfortable delay for typing before triggering a heavy API call
 
-    return () => clearTimeout(timer);
-  }, [searchQuery, lastGeocodedQuery]);
 
-  const handleGeocodeSearch = useCallback(async (e?: React.KeyboardEvent<HTMLInputElement> | React.FormEvent, silent = false) => {
-    if (e) {
-      e.preventDefault();
-    }
 
-    // If the input is empty, return to the original user location
-    if (!searchQuery.trim()) {
-      if (originalUserLocation) {
-        setUserLocation(originalUserLocation);
-        fetchGyms(originalUserLocation.lat, originalUserLocation.lng, "", "all", 8000);
-      }
-      return;
-    }
-
-    setIsGeocoding(true);
-    try {
-      const secret = getDynamicSecret();
-      const response = await fetch(`/api/geocode?address=${encodeURIComponent(searchQuery)}`, {
-        headers: {
-          "x-gymsaver-app-secret": secret
-        }
-      });
-      const data = await response.json();
-
-      if (response.ok && data.lat && data.lng) {
-        setUserLocation({
-          lat: data.lat,
-          lng: data.lng
-        });
-        setRecenterToken(t => t + 1);
-        lastFetchRef.current = { lat: data.lat, lng: data.lng, radius: 15000 }
-
-        // Trigger explicit fetch for the geocoded location
-        // We use a larger radius (15km) for explicit searches to ensure brand coverage
-        fetchGyms(data.lat, data.lng, searchQuery, "all", 15000, true);
-
-        setLastGeocodedQuery(searchQuery);
-        console.log(`Geocoded to: ${data.formattedAddress}`);
-      } else {
-        if (!silent) {
-          alert(data.error || "Could not find that location. Please try a different search.");
-        }
-      }
-    } catch (err) {
-      console.error("Geocoding failed:", err);
-      if (!silent) {
-        alert("An error occurred while searching for that location. Please try again.");
-      }
-    } finally {
-      setIsGeocoding(false);
-    }
-  }, [searchQuery, originalUserLocation])
 
   // Initial fetch using default location or user location if available
   useEffect(() => {
@@ -877,87 +928,103 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
 
         {/* Search & Filters Header (Sticky) */}
         <div className="sticky top-0 z-30 glass-premium p-4 md:p-6 space-y-4 w-full border-b dark:border-white/10">
-          <div className="max-w-7xl mx-auto relative w-full">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <form onSubmit={handleGeocodeSearch} className="w-full relative">
-              <Input
-                type="search"
-                placeholder="Search by name, or type a city and press Enter..."
-                value={searchQuery}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleGeocodeSearch(e);
-                  }
-                }}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setSearchQuery(value);
-                  if (value.trim() === '' && originalUserLocation) {
-                    setUserLocation(originalUserLocation);
-                    fetchGyms(originalUserLocation.lat, originalUserLocation.lng, "", "all", 8000);
-                  }
-                }}
-                className="pl-12 h-14 text-lg bg-slate-50 dark:bg-black/40 border-slate-200 dark:border-white/10 text-foreground dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-2xl focus:bg-white dark:focus:bg-black/60 focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all w-full tracking-tight shadow-sm"
-              />
-              {isGeocoding && (
-                <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                  <Loader2 className="h-4 w-4 text-muted-foreground animate-spin" />
-                </div>
-              )}
-            </form>
-          </div>
-
-          <div className="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
-            <GymFilters filters={filters} onFilterChange={handleFilterChange} />
-            <div className="flex flex-col gap-0.5 min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                {showSavedOnly && (
-                  <h2 className="text-lg font-bold tracking-tight text-foreground flex items-center gap-2">
-                    <BookmarkCheck className="h-5 w-5 text-primary" />
-                    Saved
-                  </h2>
-                )}
-                <span className="text-xs font-medium text-muted-foreground bg-secondary px-2 py-0.5 rounded-full whitespace-nowrap">
-                  {filteredGyms.length} results
-                </span>
-              </div>
-              {userLocation && (
-                <div className="flex items-center gap-1 text-[8px] sm:text-[10px] font-bold text-primary uppercase tracking-wider animate-pulse whitespace-nowrap">
-                  <div className="w-1 h-1 rounded-full bg-primary" />
-                  Sorting by Distance
-                </div>
-              )}
-            </div>
-
-            <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-3">
-              <div className="flex bg-secondary/50 rounded-xl p-1 border border-white/10 min-w-[180px]">
-                <button
-                  onClick={() => setActiveView("list")}
-                  className={`flex-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${activeView === "list" ? "bg-[#6BD85E] text-black shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-white/5"}`}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" /></svg>
-                  Gyms
-                </button>
-                <button
-                  onClick={() => {
-                    if (!user) {
-                      handleAuthRequired();
-                      return;
+          <div className="max-w-7xl mx-auto space-y-4">
+            {/* Row 1: Search Input */}
+            <div className="w-full">
+              <form onSubmit={handleGeocodeSearch} className="w-full relative group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground search-icon-overlay z-10" />
+                <Input
+                  type="search"
+                  placeholder="Search by name, or type a city and press Enter..."
+                  value={searchQuery}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleGeocodeSearch(e);
                     }
-                    setActiveView("map");
                   }}
-                  className={`flex-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${activeView === "map" ? "bg-[#6BD85E] text-black shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-white/5"}`}
-                >
-                  <MapPin className="w-3.5 h-3.5" />
-                  Map
-                </button>
-              </div>
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setSearchQuery(value);
+                    if (value.trim() === '' && originalUserLocation) {
+                      setUserLocation(originalUserLocation);
+                      fetchGyms(originalUserLocation.lat, originalUserLocation.lng, "", "all", 8000);
+                    }
+                  }}
+                  className="pl-12 h-14 text-lg bg-slate-50 dark:bg-black/40 border-slate-200 dark:border-white/10 text-foreground dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-2xl focus:bg-white dark:focus:bg-black/60 focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all w-full tracking-tight shadow-sm relative z-0"
+                />
+                {isGeocoding && (
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 z-10">
+                    <Loader2 className="h-4 w-4 text-muted-foreground animate-spin" />
+                  </div>
+                )}
+              </form>
             </div>
 
-            <div className="flex items-center gap-1">
-              <button onClick={handleRecenter} className="text-muted-foreground hover:text-white transition-colors bg-white/5 p-1.5 rounded-full" title="Recenter to my location">
-                <MapPin className="w-3.5 h-3.5" />
-              </button>
+            {/* Row 2: Filters */}
+            <div className="w-full overflow-hidden">
+              <GymFilters filters={filters} onFilterChange={handleFilterChange} />
+            </div>
+
+            {/* Row 3: Action Bar (Count, Toggle, Buttons) */}
+            <div className="flex items-center justify-between gap-4 relative py-1 px-1">
+              {/* Left: Results Count */}
+              <div className="flex flex-col gap-0.5 min-w-0">
+                <div className="flex items-center gap-2">
+                  {showSavedOnly && (
+                    <h2 className="text-lg font-bold tracking-tight text-foreground flex items-center gap-2">
+                      <BookmarkCheck className="h-5 w-5 text-primary" />
+                      Saved
+                    </h2>
+                  )}
+                  <span className="text-[10px] sm:text-xs font-bold text-muted-foreground bg-secondary/80 dark:bg-white/5 border border-white/5 px-2 py-1 rounded-lg whitespace-nowrap flex items-center gap-1.5">
+                    {filteredGyms.length} results
+                    {(loading || isGeocoding) && <Loader2 className="h-3 w-3 animate-spin opacity-50" />}
+                  </span>
+                </div>
+                {userLocation && (
+                  <div className="flex items-center gap-1 text-[8px] sm:text-[10px] font-bold text-primary uppercase tracking-wider animate-pulse whitespace-nowrap">
+                    <div className="w-1 h-1 rounded-full bg-primary" />
+                    Sorting by Distance
+                  </div>
+                )}
+              </div>
+
+              {/* Center: View Toggle */}
+              <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-3">
+                <div className="flex bg-secondary/50 dark:bg-black/40 rounded-xl p-1 border border-white/10 min-w-[140px] sm:min-w-[180px] shadow-inner backdrop-blur-md">
+                  <button
+                    onClick={() => setActiveView("list")}
+                    className={`flex-1 px-2 sm:px-3 py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 ${activeView === "list" ? "bg-[#6BD85E] text-black shadow-[0_2px_10px_rgba(107,216,94,0.3)]" : "text-muted-foreground hover:text-foreground hover:bg-white/5"}`}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" /></svg>
+                    Gyms
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (!user) {
+                        handleAuthRequired();
+                        return;
+                      }
+                      setActiveView("map");
+                    }}
+                    className={`flex-1 px-2 sm:px-3 py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 ${activeView === "map" ? "bg-[#6BD85E] text-black shadow-[0_2px_10px_rgba(107,216,94,0.3)]" : "text-muted-foreground hover:text-foreground hover:bg-white/5"}`}
+                  >
+                    <MapPin className="w-3.5 h-3.5" />
+                    Map
+                  </button>
+                </div>
+              </div>
+
+              {/* Right: Recenter Tool */}
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={handleRecenter}
+                  className="text-muted-foreground hover:text-primary transition-all bg-secondary/50 dark:bg-white/5 p-2 rounded-xl border border-white/5 shadow-sm active:scale-95"
+                  title="Recenter to my location"
+                >
+                  <MapPin className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -1024,7 +1091,7 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
                           </Button>
                         </div>
                       </div>
-                    ) : loading ? (
+                    ) : (loading || isGeocoding) && filteredGyms.length === 0 ? (
                       <div className="flex flex-col items-center justify-center py-20">
                         <Loader2 className="h-10 w-10 text-[#6BD85E] animate-spin mb-4" />
                         <p className="text-slate-400 animate-pulse">Finding the best gyms near you...</p>
@@ -1178,7 +1245,7 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
           isOpen={!!galleryGym}
           onClose={() => setGalleryGym(null)}
         />
-      </div>
-    </TooltipProvider>
+      </div >
+    </TooltipProvider >
   )
 }

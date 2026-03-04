@@ -18,16 +18,13 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: "place_id or photo_name is required" }, { status: 400 });
     }
 
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-    if (!apiKey) {
-        return NextResponse.json({ photoUrl: null }, { status: 200 });
-    }
+    // FALLBACK: Use the hardcoded key if environment variable is missing on Vercel
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "AIzaSyDJjgQu4D-kt1ON8RwaWnpXqvmeRxwf6do";
+
+    // RESTORE REFERER: Hardcoded fallback ensures compatibility with restricted keys on Vercel
+    const referer = "https://www.gymsaverapp.com";
 
     try {
-        const referer = process.env.VERCEL_URL
-            ? `https://${process.env.VERCEL_URL}`
-            : "https://www.gymsaverapp.com";
-
         let finalPhotoName = photoName;
 
         if (!finalPhotoName && placeId) {
@@ -64,7 +61,6 @@ export async function GET(request: Request) {
         }
 
         // Now fetch the actual Media URI (lh3.googleusercontent.com)
-        // This URI has no Referer restrictions, so the client can load it directly.
         const mediaRes = await fetch(
             `https://places.googleapis.com/v1/${finalPhotoName}/media?key=${apiKey}&maxHeightPx=400&maxWidthPx=400&skipHttpRedirect=true`,
             {

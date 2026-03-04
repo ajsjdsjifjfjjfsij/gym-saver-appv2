@@ -35,8 +35,7 @@ export async function GET(request: Request) {
             method: "POST",
             headers,
             body: JSON.stringify({
-                textQuery: address,
-                includedType: "locality"
+                textQuery: address
             })
         });
 

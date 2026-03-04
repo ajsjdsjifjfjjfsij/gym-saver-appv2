@@ -78,6 +78,16 @@ export default function LandingPage() {
                         One search. Every price. Zero overpaying.
                     </p>
 
+                    <div className="mb-10 flex justify-center animate-fade-in-up delay-100">
+                        <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-[#6BD85E]/10 border border-[#6BD85E]/20 backdrop-blur-sm shadow-[0_0_20px_rgba(107,216,94,0.1)]">
+                            <Zap className="h-4 w-4 text-[#6BD85E]" />
+                            <span className="text-sm font-semibold tracking-wide">
+                                <span className="text-[#6BD85E] text-base mr-1">1,864</span>
+                                GYMS CURRENTLY LISTED
+                            </span>
+                        </div>
+                    </div>
+
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                         <Button
                             size="lg"
