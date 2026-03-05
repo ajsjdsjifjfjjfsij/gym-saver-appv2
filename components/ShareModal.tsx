@@ -25,6 +25,7 @@ export function ShareModal({ isOpen, onOpenChange, gym }: ShareModalProps) {
     const [isImageReady, setIsImageReady] = useState(false)
     const [isFetchingPhotoUrl, setIsFetchingPhotoUrl] = useState(true)
     const [hasFailed, setHasFailed] = useState(false)
+    const [selectedFormat, setSelectedFormat] = useState<"story" | "post" | "square">("story")
 
     // Fetch the high res photo when modal opens
     useEffect(() => {
@@ -110,16 +111,19 @@ export function ShareModal({ isOpen, onOpenChange, gym }: ShareModalProps) {
         }
     }
 
-    // Auto-generate preview when data is ready
+    // Auto-generate preview when data is ready or format changes
     useEffect(() => {
-        if (isOpen && cardRef.current && isImageReady && !generatedImage && !isGenerating && !isFetchingPhotoUrl) {
-            // Small delay to ensure the DOM is fully painted with the new base64 image
+        if (isOpen && cardRef.current && isImageReady && !isGenerating && !isFetchingPhotoUrl) {
+            // If we already have the image for this exact render cycle, don't loop
+            // but if we just changed formats, we DO want to generate
+            setGeneratedImage(null); // Clear the old image instantly so the loader shows
+            // Small delay to ensure the DOM is fully painted with the new base64 image and updated dimensions
             const timer = setTimeout(() => {
                 generateImage();
-            }, 100);
+            }, 150);
             return () => clearTimeout(timer);
         }
-    }, [isOpen, isImageReady, generatedImage, isGenerating, isFetchingPhotoUrl]);
+    }, [isOpen, isImageReady, isFetchingPhotoUrl, selectedFormat]); // Re-run when format changes
 
 
     const handleDownload = async () => {
@@ -208,7 +212,6 @@ export function ShareModal({ isOpen, onOpenChange, gym }: ShareModalProps) {
                     style={{ marginTop: '-24px' }}
                 >
                     {/* The Hidden Template */}
-                    {/* html-to-image requires fixed positioning off-screen to calculate bounds correctly */}
                     <div style={{ position: "fixed", left: "-9999px", top: "-9999px", opacity: 0 }}>
                         <ShareableGymCard
                             ref={cardRef}
@@ -216,11 +219,34 @@ export function ShareModal({ isOpen, onOpenChange, gym }: ShareModalProps) {
                             resolvedPhotoUrl={resolvedPhotoUrl}
                             isFetchingPhotoUrl={isFetchingPhotoUrl}
                             onImageLoaded={() => setIsImageReady(true)}
+                            format={selectedFormat}
                         />
                     </div>
 
-                    {/* The Visual Preview - Square */}
-                    <div className="w-full max-w-[320px] sm:max-w-[400px] aspect-square bg-zinc-900 rounded-3xl border border-[#6BD85E]/50 overflow-hidden relative shadow-[0_0_100px_rgba(107,216,94,0.4)] flex flex-col items-center justify-center p-4 text-center ring-4 ring-black z-20">
+                    {/* Format Toggles */}
+                    <div className="flex bg-white/10 p-1 rounded-full w-full max-w-[320px] mb-4 z-20 overflow-hidden text-xs font-bold text-slate-300">
+                        <button
+                            onClick={() => setSelectedFormat("story")}
+                            className={`flex-1 py-1.5 rounded-full transition-all ${selectedFormat === "story" ? "bg-[#6BD85E] text-black shadow-lg" : "hover:text-white"}`}
+                        >
+                            Story
+                        </button>
+                        <button
+                            onClick={() => setSelectedFormat("post")}
+                            className={`flex-1 py-1.5 rounded-full transition-all ${selectedFormat === "post" ? "bg-[#6BD85E] text-black shadow-lg" : "hover:text-white"}`}
+                        >
+                            Post
+                        </button>
+                        <button
+                            onClick={() => setSelectedFormat("square")}
+                            className={`flex-1 py-1.5 rounded-full transition-all ${selectedFormat === "square" ? "bg-[#6BD85E] text-black shadow-lg" : "hover:text-white"}`}
+                        >
+                            Square
+                        </button>
+                    </div>
+
+                    {/* The Visual Preview */}
+                    <div className={`w-full max-w-[280px] sm:max-w-[340px] ${selectedFormat === 'story' ? 'aspect-[9/16]' : selectedFormat === 'post' ? 'aspect-[4/5]' : 'aspect-square'} bg-zinc-900 rounded-3xl border border-[#6BD85E]/50 overflow-hidden relative shadow-[0_0_100px_rgba(107,216,94,0.4)] flex flex-col items-center justify-center p-4 text-center ring-4 ring-black z-20 transition-all duration-300`}>
                         {hasFailed ? (
                             <div className="flex flex-col items-center gap-4">
                                 <span className="text-sm text-red-500 font-bold uppercase tracking-widest">Generation Failed</span>
