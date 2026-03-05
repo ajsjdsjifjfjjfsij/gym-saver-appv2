@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: LocationPageProps): Promise<M
         description: `Find the best and cheapest gym deals in ${cityName}. Compare prices for PureGym, The Gym Group, JD Gyms, and local fitness centers near you.`,
         keywords: [`gyms in ${cityName}`, `cheap gyms ${cityName}`, `compare gym prices ${cityName}`, `${cityName} fitness memberships`, `24 hour gyms ${cityName}`, `24hr gym near me`, `cheap gyms near me`],
         alternates: {
-            canonical: `https://gymsaverapp.com/location/${city}`,
+            canonical: `/location/${city}`,
         },
         openGraph: {
             title: `Best Gym Deals in ${cityName} | GymSaver`,

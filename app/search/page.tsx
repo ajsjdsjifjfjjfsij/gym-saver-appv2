@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     description: 'Find gyms near you, compare membership prices, and discover exclusive deals. Filter by 24-hour access, swimming pools, day passes, and more.',
     keywords: ['find a gym', 'gyms near me', 'compare gym memberships', 'gym database', 'fitness clubs UK', 'local gym deals', '24hr gym near me', 'cheap gyms near me'],
     alternates: {
-        canonical: 'https://www.gymsaverapp.com/search',
+        canonical: '/search',
     },
 };
 
