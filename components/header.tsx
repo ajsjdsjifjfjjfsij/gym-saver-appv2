@@ -34,7 +34,7 @@ export function Header({
   onAuthRequired,
   variant = "default",
 }: HeaderProps) {
-  const { user, loading, logout } = useAuth();
+  const { user, loading, isAnonymous, logout } = useAuth();
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -186,7 +186,7 @@ export function Header({
             <div className="flex items-center gap-2 border-r pr-4 border-white/10 mr-2 h-8">
               {loading ? (
                 <div className="w-10 h-10 rounded-full bg-secondary animate-pulse" />
-              ) : user ? (
+              ) : (user && !isAnonymous) ? (
                 <>
                   <Button variant="ghost" size="icon" onClick={() => router.push("/profile")} title="Profile" className="h-8 w-8">
                     <span className="sr-only">Profile</span>

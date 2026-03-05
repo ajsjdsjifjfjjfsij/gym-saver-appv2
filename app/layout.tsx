@@ -19,10 +19,13 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://www.gymsaverapp.com'),
+  metadataBase: new URL('https://gymsaverapp.com'),
   title: {
     default: 'GymSaver | Compare Gym Prices, Find Deals & Save Money in the UK',
     template: '%s | GymSaver'
+  },
+  alternates: {
+    canonical: '/',
   },
   description: 'Compare gym prices and memberships across the UK. One search to find the best gym deals, 24-hour fitness centers, and cheap gym offers near you. Stop overpaying for your gym membership with GymSaver.',
   keywords: ['gym prices', 'compare gyms', 'gym deals', 'uk gyms', 'fitness memberships', 'cheap gyms', 'gym saver', 'find a gym', 'gym locator'],
@@ -75,6 +78,8 @@ import { JsonLd } from '@/components/JsonLd'
 import { InAppBrowserPrompt } from '@/components/InAppBrowserPrompt'
 import { headers } from 'next/headers'
 
+import { Footer } from '@/components/Footer'
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -103,7 +108,12 @@ export default async function RootLayout({
     >
       <JsonLd />
       <AnalysisChecker />
-      {children}
+      <div className="relative min-h-screen flex flex-col">
+        <main className="flex-grow">
+          {children}
+        </main>
+        <Footer />
+      </div>
       {/* <Analytics /> */}
     </ThemeProvider>
   )

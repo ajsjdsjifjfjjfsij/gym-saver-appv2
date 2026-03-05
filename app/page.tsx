@@ -6,7 +6,7 @@ export const metadata: Metadata = {
     description: "Search, compare, and save on gym memberships across the UK. Discover cheap gyms, 24-hour fitness centers, and exclusive deals near you.",
     keywords: ["24hr gym near me", "cheap gyms near me", "gym prices", "compare gyms", "fitness deals", "uk gyms"],
     alternates: {
-        canonical: "https://www.gymsaverapp.com",
+        canonical: "https://gymsaverapp.com",
     },
 };
 

@@ -13,7 +13,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Loader2 } from "lucide-react";
 
 export default function SubmissionForm() {
-    const { user } = useAuth();
+    const { user, isAnonymous } = useAuth();
     const [gymName, setGymName] = useState("");
     const [gymLocation, setGymLocation] = useState("");
     const [price, setPrice] = useState("");
@@ -32,15 +32,15 @@ export default function SubmissionForm() {
             let imageUrl = "";
 
             if (image) {
-                const uid = user ? user.uid : "guest";
+                const uid = (user && !isAnonymous) ? user.uid : "guest";
                 const storageRef = ref(storage, `submission-images/${uid}/${Date.now()}_${image.name}`);
                 await uploadBytes(storageRef, image);
                 imageUrl = await getDownloadURL(storageRef);
             }
 
             await addDoc(collection(db, "submissions"), {
-                userId: user ? user.uid : `guest_${Date.now()}`,
-                userEmail: user ? user.email : "guest@gymsaverapp.com",
+                userId: (user && !isAnonymous) ? user.uid : `guest_${Date.now()}`,
+                userEmail: (user && !isAnonymous) ? user.email : "guest@gymsaverapp.com",
                 gymName,
                 gymLocation,
                 price: parseFloat(price) || 0,

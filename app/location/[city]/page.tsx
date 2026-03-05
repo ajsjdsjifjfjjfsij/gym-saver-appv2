@@ -7,14 +7,7 @@ import SearchClient from '@/app/search/SearchClient';
 export async function generateStaticParams() {
     // Top ~100 UK towns and cities for search volume coverage
     const cities = [
-        'london', 'manchester', 'birmingham', 'leeds', 'glasgow', 'sheffield', 'liverpool', 'edinburgh', 'bristol', 'cardiff',
-        'leicester', 'coventry', 'nottingham', 'bradford', 'newcastle', 'belfast', 'brighton', 'hull', 'plymouth', 'wolverhampton',
-        'derby', 'swansea', 'southampton', 'salford', 'aberdeen', 'portsmouth', 'york', 'sunderland', 'dundee', 'bournemouth',
-        'reading', 'middlesbrough', 'bolton', 'blackpool', 'milton-keynes', 'peterborough', 'swindon', 'slough', 'oxford', 'cambridge',
-        'gloucester', 'newport', 'preston', 'exeter', 'rotherham', 'cheltenham', 'basingstoke', 'maidstone', 'worcester', 'chelmsford',
-        'cheltenham', 'stockport', 'watford', 'woking', 'guildford', 'harrogate', 'farnham', 'west-bridgford', 'gillingham', 'hornchurch',
-        'shrewsbury', 'stratford-upon-avon', 'hartlepool', 'northampton', 'scunthorpe', 'gateshead', 'bedford', 'basildon', 'warrington', 'canterbury',
-        'stevenage', 'dartford', 'solihull', 'st-albans', 'chester', 'halifax', 'blackburn', 'weymouth', 'taunton', 'hereford', 'bath', 'stafford'
+        'aberdeen', 'acton', 'balham', 'barking', 'barnet', 'basildon', 'basingstoke', 'bath', 'battersea', 'bedford', 'belfast', 'bexley', 'birmingham', 'blackburn', 'blackpool', 'bolton', 'bournemouth', 'bow', 'bradford', 'brent', 'brentford', 'brighton', 'bristol', 'brixton', 'bromley', 'cambridge', 'camden', 'camden-town', 'canary-wharf', 'canterbury', 'cardiff', 'catford', 'cheam', 'chelmsford', 'chelsea', 'cheltenham', 'chester', 'chiswick', 'clapham', 'coulsdon', 'covent-garden', 'coventry', 'croydon', 'crystal-palace', 'dalston', 'dartford', 'derby', 'dulwich', 'dundee', 'ealing', 'edgware', 'edinburgh', 'edmonton', 'eltham', 'enfield', 'exeter', 'farnham', 'feltham', 'finchley', 'fulham', 'gateshead', 'gillingham', 'glasgow', 'gloucester', 'golders-green', 'greenwich', 'guildford', 'hackney', 'hackney-wick', 'halifax', 'hammersmith', 'hampstead', 'hampton', 'hanwell', 'haringey', 'harrogate', 'harrow', 'hartlepool', 'havering', 'hayes', 'hendon', 'hereford', 'highgate', 'hillingdon', 'hornsey', 'hounslow', 'hull', 'isleworth', 'islington', 'kensington', 'kingston', 'kingston-upon-thames', 'lambeth', 'leeds', 'leicester', 'lewisham', 'liverpool', 'london', 'luton', 'maidstone', 'manchester', 'mayfair', 'merton', 'mill-hill', 'milton-keynes', 'mitcham', 'morden', 'new-malden', 'newcastle', 'newham', 'newport', 'northampton', 'norwood', 'notting-hill', 'nottingham', 'oxford', 'palmers-green', 'peckham', 'peterborough', 'pinner', 'plymouth', 'poplar', 'portsmouth', 'preston', 'purley', 'putney', 'raynes-park', 'reading', 'redbridge', 'richmond', 'rotherham', 'ruislip', 'scunthorpe', 'sheffield', 'shoreditch', 'shrewsbury', 'slough', 'soho', 'solihull', 'southall', 'southampton', 'southgate', 'southwark', 'st-albans', 'stafford', 'stanmore', 'stevenage', 'stockport', 'stoke-newington', 'stoke-on-trent', 'stratford', 'stratford-upon-avon', 'streatham', 'sunderland', 'surbiton', 'sutton', 'swansea', 'swindon', 'sydenham', 'taunton', 'teddington', 'tooting', 'tottenham', 'twickenham', 'uxbridge', 'waltham-forest', 'walthamstow', 'wandsworth', 'warrington', 'watford', 'weymouth', 'whitechapel', 'wimbledon', 'woking', 'wolverhampton', 'wood-green', 'woolwich', 'worcester', 'york'
     ];
     return cities.map(city => ({ city }));
 }
@@ -45,7 +38,7 @@ export async function generateMetadata({ params }: LocationPageProps): Promise<M
         description: `Find the best and cheapest gym deals in ${cityName}. Compare prices for PureGym, The Gym Group, JD Gyms, and local fitness centers near you.`,
         keywords: [`gyms in ${cityName}`, `cheap gyms ${cityName}`, `compare gym prices ${cityName}`, `${cityName} fitness memberships`, `24 hour gyms ${cityName}`, `24hr gym near me`, `cheap gyms near me`],
         alternates: {
-            canonical: `https://www.gymsaverapp.com/location/${city}`,
+            canonical: `https://gymsaverapp.com/location/${city}`,
         },
         openGraph: {
             title: `Best Gym Deals in ${cityName} | GymSaver`,
@@ -87,6 +80,22 @@ export default async function LocationPage({ params }: LocationPageProps) {
                 to modify SearchClient slightly to accept an initial query.
                 For now, we just drop in SearchClient and we will add a small patch to it. */}
             <SearchClient initialSearchQuery={cityName} />
+
+            {/* SEO Content Block - Visually hidden but fully indexable by search engines */}
+            <div className="sr-only">
+                <h2>Gyms and Fitness Centers in {cityName}</h2>
+                <p>
+                    Looking for a gym in {cityName}? GymSaver helps you compare the best gym memberships,
+                    day passes, and 24-hour fitness centers near you. Don't overpay for fitness—search
+                    and compare prices for PureGym, The Gym Group, JD Gyms, David Lloyd, and independent
+                    local gyms in {cityName} to find the cheapest and best-rated facilities for your workout goals.
+                </p>
+                <p>
+                    Whether you are a student looking for a cheap membership, a professional needing a 24-hour gym
+                    near central {cityName}, or searching for no-contract pay-as-you-go gym passes, use the map
+                    above to instantly locate deals.
+                </p>
+            </div>
         </div>
     );
 }

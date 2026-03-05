@@ -16,19 +16,19 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 async function run() {
-  const q = query(collection(db, 'gyms'), limit(5));
-  const snapshot = await getDocs(q);
-  snapshot.forEach(doc => {
-    const data = doc.data();
-    console.log(doc.id, '=>', {
-      name: data.name,
-      rating: data.rating,
-      user_ratings_total: data.user_ratings_total,
-      reviewsCount: data.reviewsCount,
-      userRatingCount: data.userRatingCount,
-      reviews: data.reviews ? data.reviews.length : 0
+    const q = query(collection(db, 'gyms'), limit(5));
+    const snapshot = await getDocs(q);
+    snapshot.forEach(doc => {
+        const data = doc.data();
+        console.log(doc.id, '=>', {
+            name: data.name,
+            rating: data.rating,
+            user_ratings_total: data.user_ratings_total,
+            reviewsCount: data.reviewsCount,
+            userRatingCount: data.userRatingCount,
+            reviews: data.reviews ? data.reviews.length : 0
+        });
     });
-  });
-  process.exit(0);
+    process.exit(0);
 }
 run().catch(console.error);

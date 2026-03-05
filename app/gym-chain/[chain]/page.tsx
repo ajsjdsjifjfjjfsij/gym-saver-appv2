@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: ChainPageProps): Promise<Meta
         description: `Find ${chainName} locations near you. Compare their membership prices, day passes, and facilities with other local gyms to make sure you get the best deal.`,
         keywords: [`${chainName} prices`, `${chainName} near me`, `${chainName} memberships`, `compare ${chainName}`, `cheap ${chainName} deals`, `24hr gym near me`, `cheap gyms near me`],
         alternates: {
-            canonical: `https://www.gymsaverapp.com/gym-chain/${chain}`,
+            canonical: `https://gymsaverapp.com/gym-chain/${chain}`,
         },
         openGraph: {
             title: `${chainName} Prices & Locations | GymSaver`,
@@ -83,6 +83,39 @@ export default async function ChainPage({ params }: ChainPageProps) {
             {/* We pass the formatted chain name down to SearchClient to auto-populate
                 the search query when real users land on the page */}
             <SearchClient initialSearchQuery={chainName} />
+
+            {/* Structured Data for Gym Chains */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "HealthAndBeautyBusiness",
+                        "name": chainName,
+                        "description": `Compare ${chainName} gym membership prices, day passes, and locations.`,
+                        "url": `https://www.gymsaverapp.com/gym-chain/${chain}`,
+                        "provider": {
+                            "@type": "Organization",
+                            "name": "GymSaver"
+                        }
+                    })
+                }}
+            />
+
+            {/* SEO Content Block */}
+            <div className="sr-only">
+                <h2>{chainName} Membership Prices and Locations</h2>
+                <p>
+                    Are you considering joining {chainName}? Before you sign a contract, use GymSaver to compare
+                    their membership fees, day passes, and joining costs against other local gyms. We help you
+                    find the closest {chainName} locations and show you if there are cheaper or better-rated
+                    alternatives nearby.
+                </p>
+                <p>
+                    {chainName} offers various facilities, but prices can vary by location. Enter your postcode
+                    above to instantly see the exact prices for your local {chainName} branch.
+                </p>
+            </div>
         </div>
     );
 }

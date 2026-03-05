@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef, memo, useMemo } from "react"
 import { Button } from "@/components/ui/button"
-import { Star, MapPin, Bookmark, BookmarkCheck } from "lucide-react"
+import { Star, MapPin, Bookmark, BookmarkCheck, Share2 } from "lucide-react"
+import { ShareModal } from "./ShareModal"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/components/auth/AuthContext"
 import { getGymPrice, getGooglePhotoUrl, Gym } from "@/lib/gym-utils"
@@ -21,8 +22,9 @@ interface GymCardProps {
 }
 
 function GymCardComponent({ gym, isSelected, isSaved, isCompared, onSelect, onToggleSave, onToggleCompare, onAuthRequired, onOpenGallery }: GymCardProps) {
-  const { user } = useAuth()
+  const { user, isAnonymous } = useAuth()
   const router = useRouter()
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false)
 
   // Prioritize the high-quality hero_image_url synced from Google Places API (New)
   // Fallback to legacy photo_reference or the first photo in the array
@@ -75,7 +77,7 @@ function GymCardComponent({ gym, isSelected, isSaved, isCompared, onSelect, onTo
 
   const handleSaveClick = (e: React.MouseEvent) => {
     e.stopPropagation()
-    if (!user) {
+    if (!user || isAnonymous) {
       if (onAuthRequired) {
         onAuthRequired()
       } else {
@@ -93,6 +95,11 @@ function GymCardComponent({ gym, isSelected, isSaved, isCompared, onSelect, onTo
     }
   }
 
+  const handleShareClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setIsShareModalOpen(true)
+  }
+
   const handleSignUpClick = (e: React.MouseEvent) => {
     e.stopPropagation()
 
@@ -103,7 +110,7 @@ function GymCardComponent({ gym, isSelected, isSaved, isCompared, onSelect, onTo
     }
 
     // Fallback: If no direct website, require signup/login to see more/book
-    if (!user) {
+    if (!user || isAnonymous) {
       if (onAuthRequired) {
         onAuthRequired()
       } else {
@@ -276,13 +283,13 @@ function GymCardComponent({ gym, isSelected, isSaved, isCompared, onSelect, onTo
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-secondary border border-white/5">
-            <Star className="h-3 w-3 fill-[#6BD85E] text-[#6BD85E]" />
-            <span className="text-[11px] font-bold text-white">{gym.rating.toFixed(1)}</span>
-            {gym.user_ratings_total !== undefined && (
+          {gym.user_ratings_total !== undefined && gym.user_ratings_total > 0 && (
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-secondary border border-white/5">
+              <Star className="h-3 w-3 fill-[#6BD85E] text-[#6BD85E]" />
+              <span className="text-[11px] font-bold text-white">{gym.rating.toFixed(1)}</span>
               <span className="text-[9px] text-slate-500 font-medium">({gym.user_ratings_total})</span>
-            )}
-          </div>
+            </div>
+          )}
           <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded">
             {gym.type}
           </span>
@@ -359,6 +366,15 @@ function GymCardComponent({ gym, isSelected, isSaved, isCompared, onSelect, onTo
               </Button>
 
               <Button
+                variant="outline"
+                size="sm"
+                className="bg-black hover:bg-zinc-900 text-[#6BD85E] border border-[#6BD85E]/30 h-8 px-4 rounded-xl shadow-[0_0_15px_rgba(107,216,94,0.1)] hover:shadow-[0_0_20px_rgba(107,216,94,0.2)] transition-all uppercase text-[11px] tracking-tight gap-1.5"
+                onClick={handleShareClick}
+              >
+                <Share2 className="h-3 w-3" />
+                Share
+              </Button>
+              <Button
                 variant="default"
                 size="sm"
                 className="bg-[#6BD85E] hover:bg-[#5bc250] text-black font-black h-8 px-4 rounded-xl shadow-[0_0_15px_rgba(107,216,94,0.3)] hover:shadow-[0_0_20px_rgba(107,216,94,0.5)] transition-all uppercase text-[11px] tracking-tight"
@@ -370,6 +386,11 @@ function GymCardComponent({ gym, isSelected, isSaved, isCompared, onSelect, onTo
           </div>
         </div>
       </div>
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onOpenChange={setIsShareModalOpen}
+        gym={gym}
+      />
     </div >
   )
 }

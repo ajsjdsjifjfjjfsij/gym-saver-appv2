@@ -15,6 +15,11 @@ export const JsonLd = () => {
             "@type": "ContactPoint",
             "contactType": "customer support",
             "url": "https://www.gymsaverapp.com/contact"
+        },
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "reviewCount": "1250"
         }
     }
 
@@ -22,6 +27,7 @@ export const JsonLd = () => {
         "@context": "https://schema.org",
         "@type": "WebSite",
         "url": "https://www.gymsaverapp.com",
+        "name": "GymSaver",
         "potentialAction": {
             "@type": "SearchAction",
             "target": "https://www.gymsaverapp.com/search?query={search_term_string}",

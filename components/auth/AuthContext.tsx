@@ -7,6 +7,7 @@ import { auth } from "@/lib/firebase";
 interface AuthContextType {
     user: User | null;
     loading: boolean;
+    isAnonymous: boolean;
     logout: () => Promise<void>;
     sendResetEmail: (email: string) => Promise<void>;
 }
@@ -14,6 +15,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
     user: null,
     loading: true,
+    isAnonymous: false,
     logout: async () => { },
     sendResetEmail: async () => { },
 });
@@ -61,7 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, logout, sendResetEmail }}>
+        <AuthContext.Provider value={{ user, loading, isAnonymous: !!user?.isAnonymous, logout, sendResetEmail }}>
             {children}
         </AuthContext.Provider>
     );
