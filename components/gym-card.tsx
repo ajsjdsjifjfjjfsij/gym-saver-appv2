@@ -341,12 +341,12 @@ function GymCardComponent({ gym, isSelected, isSaved, isCompared, onSelect, onTo
               })()}
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex gap-1.5">
               {/* Compare Button - Mobile Only */}
               <Button
                 variant="ghost"
                 size="sm"
-                className={`flex sm:hidden h-8 px-3 rounded-full border border-white/5 transition-all text-xs font-bold tracking-tight gap-1.5
+                className={`flex sm:hidden h-8 px-2.5 rounded-full border border-white/5 transition-all text-[10px] font-bold tracking-tight gap-1.5
                   ${isCompared
                     ? "bg-blue-600 text-white hover:bg-blue-500 shadow-[0_0_15px_rgba(37,99,235,0.4)]"
                     : "bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
@@ -368,7 +368,7 @@ function GymCardComponent({ gym, isSelected, isSaved, isCompared, onSelect, onTo
               <Button
                 variant="outline"
                 size="sm"
-                className="bg-black hover:bg-zinc-900 text-[#6BD85E] border border-[#6BD85E]/30 h-8 px-4 rounded-xl shadow-[0_0_15px_rgba(107,216,94,0.1)] hover:shadow-[0_0_20px_rgba(107,216,94,0.2)] transition-all uppercase text-[11px] tracking-tight gap-1.5"
+                className="bg-black hover:bg-zinc-900 text-[#6BD85E] border border-[#6BD85E]/30 h-8 px-2.5 rounded-xl shadow-[0_0_15px_rgba(107,216,94,0.1)] hover:shadow-[0_0_20px_rgba(107,216,94,0.2)] transition-all uppercase text-[11px] tracking-tight gap-1.5"
                 onClick={handleShareClick}
               >
                 <Share2 className="h-3 w-3" />
@@ -377,7 +377,7 @@ function GymCardComponent({ gym, isSelected, isSaved, isCompared, onSelect, onTo
               <Button
                 variant="default"
                 size="sm"
-                className="bg-[#6BD85E] hover:bg-[#5bc250] text-black font-black h-8 px-4 rounded-xl shadow-[0_0_15px_rgba(107,216,94,0.3)] hover:shadow-[0_0_20px_rgba(107,216,94,0.5)] transition-all uppercase text-[11px] tracking-tight"
+                className="bg-[#6BD85E] hover:bg-[#5bc250] text-black font-black h-8 px-3 rounded-xl shadow-[0_0_15px_rgba(107,216,94,0.3)] hover:shadow-[0_0_20px_rgba(107,216,94,0.5)] transition-all uppercase text-[11px] tracking-tight"
                 onClick={handleSignUpClick}
               >
                 Join Gym
