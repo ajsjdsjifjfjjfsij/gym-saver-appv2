@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
+import { usePathname } from "next/navigation"
 
 const TOP_CITIES = [
     'London', 'Manchester', 'Birmingham', 'Leeds', 'Glasgow', 'Sheffield', 'Liverpool', 'Edinburgh', 'Bristol', 'Cardiff',
@@ -17,6 +18,13 @@ const GYM_CHAINS = [
 ];
 
 export function Footer() {
+    const pathname = usePathname();
+    const isSearchPage = pathname === '/search' || pathname?.startsWith('/location/') || pathname?.startsWith('/gym-chain/');
+
+    if (isSearchPage) {
+        return null; // Return nothing so the 100vh fixed layout CSS can own the viewport
+    }
+
     return (
         <footer className="w-full border-t border-white/5 bg-black py-12 text-gray-400">
             <div className="mx-auto max-w-7xl px-6">
@@ -93,6 +101,6 @@ export function Footer() {
                     </div>
                 </div>
             </div>
-        </footer >
-    )
+        </footer>
+    );
 }
