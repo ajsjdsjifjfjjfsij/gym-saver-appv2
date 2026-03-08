@@ -932,7 +932,7 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
             {/* Row 1: Search Input */}
             <div className="w-full">
               <form onSubmit={handleGeocodeSearch} className="w-full relative group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground search-icon-overlay z-10" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground search-icon-overlay z-10 pointer-events-none" />
                 <Input
                   type="search"
                   placeholder="Search by name, or type a city and press Enter..."
