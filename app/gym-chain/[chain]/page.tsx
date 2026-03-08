@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: ChainPageProps): Promise<Meta
         description: `Find ${chainName} locations near you. Compare their membership prices, day passes, and facilities with other local gyms to make sure you get the best deal.`,
         keywords: [`${chainName} prices`, `${chainName} near me`, `${chainName} memberships`, `compare ${chainName}`, `cheap ${chainName} deals`, `24hr gym near me`, `cheap gyms near me`],
         alternates: {
-            canonical: `/gym-chain/${chain}`,
+            canonical: `/gym-chain/${chain.toLowerCase()}`,
         },
         openGraph: {
             title: `${chainName} Prices & Locations | GymSaver`,
