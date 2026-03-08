@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next'
+import { UK_CITIES } from '@/lib/uk-cities'
 
 export const dynamic = 'force-static'
 
@@ -22,10 +23,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
         priority: route === '' ? 1 : 0.8,
     }));
 
-    // Top ~100 UK towns and cities for search volume coverage
-    const cities = [
-        'aberdeen', 'acton', 'balham', 'barking', 'barnet', 'basildon', 'basingstoke', 'bath', 'battersea', 'bedford', 'belfast', 'bexley', 'birmingham', 'blackburn', 'blackpool', 'bolton', 'bournemouth', 'bow', 'bradford', 'brent', 'brentford', 'brighton', 'bristol', 'brixton', 'bromley', 'cambridge', 'camden', 'camden-town', 'canary-wharf', 'canterbury', 'cardiff', 'catford', 'cheam', 'chelmsford', 'chelsea', 'cheltenham', 'chester', 'chiswick', 'clapham', 'coulsdon', 'covent-garden', 'coventry', 'croydon', 'crystal-palace', 'dalston', 'dartford', 'derby', 'dulwich', 'dundee', 'ealing', 'edgware', 'edinburgh', 'edmonton', 'eltham', 'enfield', 'exeter', 'farnham', 'feltham', 'finchley', 'fulham', 'gateshead', 'gillingham', 'glasgow', 'gloucester', 'golders-green', 'greenwich', 'guildford', 'hackney', 'hackney-wick', 'halifax', 'hammersmith', 'hampstead', 'hampton', 'hanwell', 'haringey', 'harrogate', 'harrow', 'hartlepool', 'havering', 'hayes', 'hendon', 'hereford', 'highgate', 'hillingdon', 'hornsey', 'hounslow', 'hull', 'isleworth', 'islington', 'kensington', 'kingston', 'kingston-upon-thames', 'lambeth', 'leeds', 'leicester', 'lewisham', 'liverpool', 'london', 'luton', 'maidstone', 'manchester', 'mayfair', 'merton', 'mill-hill', 'milton-keynes', 'mitcham', 'morden', 'new-malden', 'newcastle', 'newham', 'newport', 'northampton', 'norwood', 'notting-hill', 'nottingham', 'oxford', 'palmers-green', 'peckham', 'peterborough', 'pinner', 'plymouth', 'poplar', 'portsmouth', 'preston', 'purley', 'putney', 'raynes-park', 'reading', 'redbridge', 'richmond', 'rotherham', 'ruislip', 'scunthorpe', 'sheffield', 'shoreditch', 'shrewsbury', 'slough', 'soho', 'solihull', 'southall', 'southampton', 'southgate', 'southwark', 'st-albans', 'stafford', 'stanmore', 'stevenage', 'stockport', 'stoke-newington', 'stoke-on-trent', 'stratford', 'stratford-upon-avon', 'streatham', 'sunderland', 'surbiton', 'sutton', 'swansea', 'swindon', 'sydenham', 'taunton', 'teddington', 'tooting', 'tottenham', 'twickenham', 'uxbridge', 'waltham-forest', 'walthamstow', 'wandsworth', 'warrington', 'watford', 'weymouth', 'whitechapel', 'wimbledon', 'woking', 'wolverhampton', 'wood-green', 'woolwich', 'worcester', 'york'
-    ];
+    // Import our expanded 200+ top UK towns and cities for mass programmatic SEO coverage
+    const cities = Array.from(new Set(UK_CITIES)); // Ensure uniqueness
     const locationRoutes = cities.map((city) => ({
         url: `${baseUrl}/location/${city}`,
         lastModified: new Date(),

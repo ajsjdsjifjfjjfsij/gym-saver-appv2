@@ -53,6 +53,7 @@ interface GymListing {
     partner_status?: string;
     partner_updatedAt?: any;
     created_at: any;
+    join_link?: string;
     status: "pending" | "matched" | "approved" | "rejected";
     media?: { gymImageUrl?: string; priceImageUrl?: string };
 }
@@ -182,13 +183,20 @@ export default function AdminDashboard() {
         }
 
         try {
+            const cleanPlaceId = listing.place_id.split('\n')[0].trim();
+
             // Merge partner data into the main gyms collection
-            const gymRef = doc(db, "gyms", listing.place_id);
+            const gymRef = doc(db, "gyms", cleanPlaceId);
             await setDoc(gymRef, {
                 partner_status: listing.partner_status || "Free",
                 partner_updatedAt: listing.partner_updatedAt || new Date(),
                 submission_id: listing.submission_id || null,
                 submission_source: listing.submission_source || null,
+                location: {
+                    lat: listing.lat || 0,
+                    lng: listing.lng || 0,
+                    address: listing.address || ""
+                },
                 memberships: {
                     [listing.gym_name]: {
                         price: listing.price_monthly,
@@ -197,24 +205,40 @@ export default function AdminDashboard() {
                 }
             }, { merge: true });
 
-            // Mark pending listing as approved
-            await updateDoc(doc(db, "pending_gym_listings", listing.id), { status: "approved" });
+            // Mark pending listing as approved, and save the clean ID just in case it was dirty
+            await updateDoc(doc(db, "pending_gym_listings", listing.id), {
+                place_id: cleanPlaceId,
+                status: "approved"
+            });
             alert("Gym Listing successfully merged and approved!");
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error approving listing:", error);
-            alert("Failed to approve listing.");
+            alert(`Failed to approve listing: ${error.message || 'Unknown error'}`);
         }
     };
 
     const handleMatchListing = async (id: string, currentId?: string) => {
         let newId = currentId;
         if (!newId) {
-            newId = prompt("No Place ID found. Enter Google Place ID to match this gym:", "");
-            if (!newId) return; // Cancelled
+            const promptResult = prompt("No Place ID found. Enter Google Place ID to match this gym:", "");
+            if (!promptResult) return; // Cancelled
+            newId = promptResult;
         }
 
         try {
-            await updateDoc(doc(db, "pending_gym_listings", id), { place_id: newId, status: "matched" });
+            const safeId = newId.split('\n')[0].trim();
+            // Fetch coordinates automatically
+            const res = await fetch(`/api/admin/place-details?placeId=${safeId}`);
+            const data = await res.json();
+
+            const updates: any = { place_id: safeId, status: "matched" };
+            if (data.lat && data.lng) {
+                updates.lat = data.lat;
+                updates.lng = data.lng;
+            }
+
+            await updateDoc(doc(db, "pending_gym_listings", id), updates);
+            if (!data.lat) alert("Matched Place ID, but could not fetch coordinates. Please check the Place ID.");
         } catch (error) {
             console.error("Error matching listing:", error);
             alert("Failed to match listing.");
@@ -235,7 +259,20 @@ export default function AdminDashboard() {
         const newId = prompt("Enter Google Place ID for this gym:", currentId || "");
         if (newId === null || newId === currentId) return; // cancelled or unchanged
         try {
-            await updateDoc(doc(db, "pending_gym_listings", id), { place_id: newId });
+            const safeId = newId.split('\n')[0].trim();
+
+            // Fetch coordinates automatically
+            const res = await fetch(`/api/admin/place-details?placeId=${safeId}`);
+            const data = await res.json();
+
+            const updates: any = { place_id: safeId };
+            if (data.lat && data.lng) {
+                updates.lat = data.lat;
+                updates.lng = data.lng;
+            }
+
+            await updateDoc(doc(db, "pending_gym_listings", id), updates);
+            if (!data.lat) alert("Updated Place ID, but could not fetch coordinates.");
         } catch (error) {
             console.error("Error updating Place ID:", error);
             alert("Failed to update Place ID.");
@@ -526,7 +563,7 @@ export default function AdminDashboard() {
                                         </TableHeader>
                                         <TableBody>
                                             {gymListings.map((listing) => {
-                                                if (!listing.featured_request || listing.status !== 'pending') return null;
+                                                if (!listing.featured_request || (listing.status !== 'pending' && listing.status !== 'matched' && listing.status !== 'approved')) return null;
                                                 return (
                                                     <TableRow key={listing.id} className="border-white/10 hover:bg-white/5">
                                                         <TableCell>
@@ -564,7 +601,7 @@ export default function AdminDashboard() {
                                                                     className={`h-8 px-2 text-xs font-bold border ${listing.status === 'matched' ? 'text-blue-400 border-blue-400 hover:bg-blue-400 hover:text-black' : 'text-slate-400 border-slate-600 hover:bg-slate-800'}`}
                                                                     onClick={() => handleMatchListing(listing.id, listing.place_id)}
                                                                 >
-                                                                    {listing.status === 'matched' ? 'MATCHED' : 'MATCH'}
+                                                                    {listing.status === ('matched' as GymListing['status']) ? 'MATCHED' : 'MATCH'}
                                                                 </Button>
                                                                 <Button
                                                                     size="sm"
@@ -581,7 +618,7 @@ export default function AdminDashboard() {
                                                     </TableRow>
                                                 )
                                             })}
-                                            {gymListings.filter(l => l.featured_request && (l.status === 'pending' || l.status === 'matched')).length === 0 && (
+                                            {gymListings.filter(l => l.featured_request && (l.status === 'pending' || l.status === ('matched' as GymListing['status']))).length === 0 && (
                                                 <TableRow>
                                                     <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
                                                         No pending featured listings.
@@ -615,7 +652,7 @@ export default function AdminDashboard() {
                                         </TableHeader>
                                         <TableBody>
                                             {gymListings.map((listing) => {
-                                                if (listing.featured_request || listing.status !== 'pending') return null;
+                                                if (listing.featured_request || (listing.status !== 'pending' && listing.status !== 'matched' && listing.status !== 'approved')) return null;
                                                 return (
                                                     <TableRow key={listing.id} className="border-white/10 hover:bg-white/5">
                                                         <TableCell>
@@ -650,10 +687,10 @@ export default function AdminDashboard() {
                                                                 <Button
                                                                     size="sm"
                                                                     variant="ghost"
-                                                                    className={`h-8 px-2 text-xs font-bold border ${listing.status === 'matched' ? 'text-blue-400 border-blue-400 hover:bg-blue-400 hover:text-black' : 'text-slate-400 border-slate-600 hover:bg-slate-800'}`}
+                                                                    className={`h-8 px-2 text-xs font-bold border ${listing.status === 'matched' ? 'text-blue-400 border-blue-400 hover:bg-blue-400 hover:text-black' : listing.status === 'approved' ? 'text-green-400 border-green-400 hover:bg-green-400 hover:text-black' : 'text-slate-400 border-slate-600 hover:bg-slate-800'}`}
                                                                     onClick={() => handleMatchListing(listing.id, listing.place_id)}
                                                                 >
-                                                                    {listing.status === 'matched' ? 'MATCHED' : 'MATCH'}
+                                                                    {listing.status === ('matched' as GymListing['status']) ? 'MATCHED' : listing.status === 'approved' ? 'APPROVED' : 'MATCH'}
                                                                 </Button>
                                                                 <Button
                                                                     size="sm"
@@ -661,7 +698,7 @@ export default function AdminDashboard() {
                                                                     className="h-8 w-8 p-0 text-green-400 hover:text-green-300 hover:bg-green-900/20 disabled:opacity-30 disabled:hover:bg-transparent"
                                                                     title="Approve & Merge"
                                                                     onClick={() => handleApproveListing(listing)}
-                                                                    disabled={!listing.place_id || listing.status !== 'matched'}
+                                                                    disabled={!listing.place_id || (listing.status !== 'matched' && listing.status !== 'approved')}
                                                                 >
                                                                     <Check className="h-4 w-4" />
                                                                 </Button>
@@ -670,7 +707,7 @@ export default function AdminDashboard() {
                                                     </TableRow>
                                                 )
                                             })}
-                                            {gymListings.filter(l => !l.featured_request && (l.status === 'pending' || l.status === 'matched')).length === 0 && (
+                                            {gymListings.filter(l => !l.featured_request && (l.status === 'pending' || l.status === 'matched' || l.status === 'approved')).length === 0 && (
                                                 <TableRow>
                                                     <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
                                                         No pending free listings.

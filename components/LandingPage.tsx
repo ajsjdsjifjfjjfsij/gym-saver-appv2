@@ -7,6 +7,7 @@ import { ArrowRight, Check, MapPin, Search, Star, Smartphone, ShieldCheck, Zap, 
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthContext";
 import { useEffect } from "react";
+import { SeoFooter } from "@/components/seo-footer";
 
 export default function LandingPage() {
     const { user } = useAuth();
@@ -179,6 +180,9 @@ export default function LandingPage() {
                     </Button>
                 </div>
             </section>
+
+            {/* SEO Internal Linking Grid */}
+            <SeoFooter />
 
             {/* Footer */}
             <footer className="border-t border-white/5 py-12 bg-black">

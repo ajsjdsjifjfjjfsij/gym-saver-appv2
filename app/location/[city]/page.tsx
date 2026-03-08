@@ -2,13 +2,12 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Header } from '@/components/header';
 import SearchClient from '@/app/search/SearchClient';
+import { UK_CITIES } from '@/lib/uk-cities';
 
 // Dynamic SSG generation for top UK cities
 export async function generateStaticParams() {
-    // Top ~100 UK towns and cities for search volume coverage
-    const cities = [
-        'aberdeen', 'acton', 'balham', 'barking', 'barnet', 'basildon', 'basingstoke', 'bath', 'battersea', 'bedford', 'belfast', 'bexley', 'birmingham', 'blackburn', 'blackpool', 'bolton', 'bournemouth', 'bow', 'bradford', 'brent', 'brentford', 'brighton', 'bristol', 'brixton', 'bromley', 'cambridge', 'camden', 'camden-town', 'canary-wharf', 'canterbury', 'cardiff', 'catford', 'cheam', 'chelmsford', 'chelsea', 'cheltenham', 'chester', 'chiswick', 'clapham', 'coulsdon', 'covent-garden', 'coventry', 'croydon', 'crystal-palace', 'dalston', 'dartford', 'derby', 'dulwich', 'dundee', 'ealing', 'edgware', 'edinburgh', 'edmonton', 'eltham', 'enfield', 'exeter', 'farnham', 'feltham', 'finchley', 'fulham', 'gateshead', 'gillingham', 'glasgow', 'gloucester', 'golders-green', 'greenwich', 'guildford', 'hackney', 'hackney-wick', 'halifax', 'hammersmith', 'hampstead', 'hampton', 'hanwell', 'haringey', 'harrogate', 'harrow', 'hartlepool', 'havering', 'hayes', 'hendon', 'hereford', 'highgate', 'hillingdon', 'hornsey', 'hounslow', 'hull', 'isleworth', 'islington', 'kensington', 'kingston', 'kingston-upon-thames', 'lambeth', 'leeds', 'leicester', 'lewisham', 'liverpool', 'london', 'luton', 'maidstone', 'manchester', 'mayfair', 'merton', 'mill-hill', 'milton-keynes', 'mitcham', 'morden', 'new-malden', 'newcastle', 'newham', 'newport', 'northampton', 'norwood', 'notting-hill', 'nottingham', 'oxford', 'palmers-green', 'peckham', 'peterborough', 'pinner', 'plymouth', 'poplar', 'portsmouth', 'preston', 'purley', 'putney', 'raynes-park', 'reading', 'redbridge', 'richmond', 'rotherham', 'ruislip', 'scunthorpe', 'sheffield', 'shoreditch', 'shrewsbury', 'slough', 'soho', 'solihull', 'southall', 'southampton', 'southgate', 'southwark', 'st-albans', 'stafford', 'stanmore', 'stevenage', 'stockport', 'stoke-newington', 'stoke-on-trent', 'stratford', 'stratford-upon-avon', 'streatham', 'sunderland', 'surbiton', 'sutton', 'swansea', 'swindon', 'sydenham', 'taunton', 'teddington', 'tooting', 'tottenham', 'twickenham', 'uxbridge', 'waltham-forest', 'walthamstow', 'wandsworth', 'warrington', 'watford', 'weymouth', 'whitechapel', 'wimbledon', 'woking', 'wolverhampton', 'wood-green', 'woolwich', 'worcester', 'york'
-    ];
+    // Top 200+ UK towns and cities for search volume coverage
+    const cities = Array.from(new Set(UK_CITIES)); // Ensure uniqueness
     return cities.map(city => ({ city }));
 }
 
@@ -67,8 +66,31 @@ export default async function LocationPage({ params }: LocationPageProps) {
     // We will rely on the SearchClient's internal auto-geocoding for the visual map,
     // but we can server-render a strong H1 tag for the SEO bots.
 
+    const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "name": `Best Gyms and Fitness Deals in ${cityName}`,
+        "description": `Compare the cheapest gyms, 24-hour fitness centers, and day passes available in ${cityName}.`,
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "item": {
+                    "@type": "LocalBusiness",
+                    "name": `Gyms in ${cityName}`,
+                    "url": `https://www.gymsaverapp.com/location/${city.toLowerCase()}`
+                }
+            }
+        ]
+    };
+
     return (
         <div className="flex flex-col min-h-screen bg-background relative z-0">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+
             {/* SEO Hidden H1 - Read by bots, hidden from users visually because 
                 SearchClient takes over the whole screen */}
             <h1 className="sr-only">

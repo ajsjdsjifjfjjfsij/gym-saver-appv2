@@ -328,6 +328,10 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
         const gymLat = g.location?.lat !== undefined ? g.location.lat : g.lat;
         const gymLng = g.location?.lng !== undefined ? g.location.lng : g.lng;
 
+        // Clean potentially malformed Place IDs (e.g. trailing newlines/addresses)
+        const rawId = g.place_id || g.id || "";
+        const safeId = typeof rawId === 'string' ? rawId.split('\n')[0].trim() : String(rawId);
+
         // Standardize Name
         let gymName = g.name || "Unknown Gym";
         if (gymName === "Swindon Stratton") gymName = "PureGym Swindon Stratton";
@@ -352,7 +356,7 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
         else if (g.location?.address && g.location.address !== "Unknown") gymAddress = g.location.address;
 
         return {
-          id: g.place_id || g.id,
+          id: safeId,
           name: gymName,
           address: gymAddress,
           rating: g.rating || 0,

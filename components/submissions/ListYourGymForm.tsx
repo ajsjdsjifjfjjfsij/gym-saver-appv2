@@ -28,7 +28,7 @@ export default function ListYourGymForm() {
     const [gymAddress, setGymAddress] = useState("");
     const [townCity, setTownCity] = useState("");
     const [postCode, setPostCode] = useState("");
-    const [googleMapsLink, setGoogleMapsLink] = useState("");
+    const [placeId, setPlaceId] = useState("");
 
     // Section 2: CONTACT DETAILS
     const [contactName, setContactName] = useState("");
@@ -93,21 +93,16 @@ export default function ListYourGymForm() {
         setError("");
 
         try {
-            // Internal validation beyond browser defaults
-            if (!gymImage) {
-                setError("Please upload at least one gym image.");
-                setLoading(false);
-                return;
-            }
-
             let gymImageUrl = "";
             let priceImageUrl = "";
 
             // Upload Gym Image
-            const storagePath = `gym-listings/${Date.now()}_img_${gymImage.name}`;
-            const storageRef = ref(storage, storagePath);
-            await uploadBytes(storageRef, gymImage);
-            gymImageUrl = await getDownloadURL(storageRef);
+            if (gymImage) {
+                const storagePath = `gym-listings/${Date.now()}_img_${gymImage.name}`;
+                const storageRef = ref(storage, storagePath);
+                await uploadBytes(storageRef, gymImage);
+                gymImageUrl = await getDownloadURL(storageRef);
+            }
 
             // Upload Price Image
             if (priceImage) {
@@ -153,7 +148,7 @@ export default function ListYourGymForm() {
                 partner_updatedAt: new Date(),
                 status: "pending",
                 created_at: new Date(),
-                place_id: "",
+                place_id: placeId.split('\n')[0].trim(),
                 media: {
                     gymImageUrl,
                     priceImageUrl,
@@ -324,9 +319,16 @@ export default function ListYourGymForm() {
                                 <Label htmlFor="postCode" className="text-white">Post Code <span className="text-red-500">*</span></Label>
                                 <Input id="postCode" value={postCode} onChange={(e) => { setPostCode(e.target.value); setError(""); }} required className="bg-zinc-900 border-white/10 text-white focus-visible:ring-[#6BD85E]" />
                             </div>
+
                             <div className="space-y-2 md:col-span-2">
-                                <Label htmlFor="googleMapsLink" className="text-white">Google Maps Link (Optional)</Label>
-                                <Input id="googleMapsLink" type="url" value={googleMapsLink} onChange={(e) => setGoogleMapsLink(e.target.value)} placeholder="https://maps.google.com/..." className="bg-zinc-900 border-white/10 text-white focus-visible:ring-[#6BD85E]" />
+                                <Label htmlFor="placeId" className="text-white">Google Place ID (Optional)</Label>
+                                <Input id="placeId" type="text" value={placeId} onChange={(e) => setPlaceId(e.target.value)} placeholder="ChIJN1t_tDeuEmsRUsoyG83frY4" className="bg-zinc-900 border-white/10 text-white focus-visible:ring-[#6BD85E]" />
+                                <p className="text-xs text-muted-foreground mt-1">
+                                    Don't know your ID? Use this free tool and copy and paste: <br />
+                                    <a href="https://developers.google.com/maps/documentation/javascript/examples/places-placeid-finder" target="_blank" rel="noopener noreferrer" className="text-[#6BD85E] hover:underline break-all block mt-1">
+                                        https://developers.google.com/maps/documentation/javascript/examples/places-placeid-finder
+                                    </a>
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -456,8 +458,8 @@ export default function ListYourGymForm() {
                         <h3 className="text-lg font-bold text-[#6BD85E] border-b border-white/10 pb-2">Image / Media</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="gymImage" className="text-white">Upload Gym Images <span className="text-red-500">*</span></Label>
-                                <Input id="gymImage" type="file" accept="image/*" required onChange={(e) => { setGymImage(e.target.files?.[0] || null); setError(""); }} className="bg-zinc-900 border-white/10 text-white file:text-[#6BD85E] file:bg-zinc-800 file:border-0 file:mr-4 file:px-4 file:py-2 file:rounded-xl hover:file:bg-zinc-700" />
+                                <Label htmlFor="gymImage" className="text-white">Upload Gym Images (Optional)</Label>
+                                <Input id="gymImage" type="file" accept="image/*" onChange={(e) => { setGymImage(e.target.files?.[0] || null); setError(""); }} className="bg-zinc-900 border-white/10 text-white file:text-[#6BD85E] file:bg-zinc-800 file:border-0 file:mr-4 file:px-4 file:py-2 file:rounded-xl hover:file:bg-zinc-700" />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="priceImage" className="text-white">Upload Membership Price Image (Optional)</Label>

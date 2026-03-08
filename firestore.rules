@@ -17,8 +17,10 @@ service cloud.firestore {
     match /gyms/{gymId} {
       // Allow public reads - security is enforced at the API layer
       allow read: if true;
-      // Only the admin can write gym data (via Admin SDK/Service Account)
-      allow write: if false;
+      // Only the admin can write gym data 
+      allow write: if request.auth != null && 
+                   request.auth.token.email == 'josephbunton@live.co.uk' &&
+                   request.auth.token.email_verified == true;
     }
     
     // Pending Gym Listings rules

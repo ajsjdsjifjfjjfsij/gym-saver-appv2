@@ -164,20 +164,53 @@ export async function GET(request: Request) {
                 };
             });
 
+            // Create a set of existing place_ids from the main firestoreResults for de-duplication
+            const existingPlaceIds = new Set(firestoreResults.map(g => g.id));
+
+            const centerLat = parseFloat(lat);
+            const centerLng = parseFloat(lng);
+
+            // Helper to calculate distance in meters (simple equirectangular approximation for performance)
+            const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+                const R = 6371e3; // metres
+                const φ1 = lat1 * Math.PI / 180;
+                const φ2 = lat2 * Math.PI / 180;
+                const Δφ = (lat2 - lat1) * Math.PI / 180;
+                const Δλ = (lon2 - lon1) * Math.PI / 180;
+                const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+                    Math.cos(φ1) * Math.cos(φ2) *
+                    Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                return R * c;
+            };
+
             const approvedListingsResults = approvedSnap.docs.map(doc => {
                 const data = doc.data();
+                const gymLat = data.lat !== undefined ? parseFloat(data.lat) : undefined;
+                const gymLng = data.lng !== undefined ? parseFloat(data.lng) : undefined;
+                const gymPlaceId = data.place_id || doc.id;
+
+                // De-duplicate: If this gym is already in the main gyms database (via match), skip this result
+                if (existingPlaceIds.has(gymPlaceId)) return null;
+
+                // Visibility Bug Fix: If missing coordinates, DO NOT fall back to search center (it shows everywhere).
+                // Just skip it for search results until it's properly geocoded.
+                if (gymLat === undefined || gymLng === undefined || isNaN(gymLat) || isNaN(gymLng)) return null;
+
+                // Distance Filtering: Ensure the approved listing is actually within the search radius
+                const distance = getDistance(centerLat, centerLng, gymLat, gymLng);
+                if (distance > radiusInMeters) return null;
+
                 return {
-                    id: doc.id,
+                    id: gymPlaceId,
                     name: data.gym_name,
                     address: `${data.address}, ${data.city}, ${data.postcode}`,
                     rating: 5, // Default assumption or placeholder
                     user_ratings_total: 1,
                     type: "Gym",
                     priceLevel: "££",
-                    // For UI compatibility, map these out if possible. Pending full geocoding at submission time, might use hardcoded lat/lng or let client handle missing lat/lng?
-                    // Safe placeholder: Center on lat/lng or give it exact lat/lng if we geocode in the future
-                    lat: parseFloat(lat),
-                    lng: parseFloat(lng),
+                    lat: gymLat,
+                    lng: gymLng,
                     open_now: true,
                     // Map generic things over
                     lowest_price: data.price_monthly,
@@ -187,7 +220,7 @@ export async function GET(request: Request) {
                     photos: data.media?.gymImageUrl ? [data.media.gymImageUrl] : [],
                     website: data.website || data.join_link,
                 };
-            });
+            }).filter((g): g is any => g !== null); // Filter out skipped/null entries
 
             // Merge sets
             const combinedResults = [...firestoreResults, ...approvedListingsResults].filter(g => {
