@@ -8,6 +8,8 @@ export const JsonLd = () => {
         "url": "https://www.gymsaverapp.com",
         "logo": "https://www.gymsaverapp.com/images/gymsaver_logo_new.png",
         "description": "Compare gym prices across the UK. One search to find the best gym deals, membership prices, and fitness offers near you.",
+        "slogan": "Stop Overpaying for Fitness",
+        "foundingDate": "2024",
         "sameAs": [
             "https://twitter.com/gymsaverapp"
         ],
@@ -27,10 +29,14 @@ export const JsonLd = () => {
         "@context": "https://schema.org",
         "@type": "WebSite",
         "url": "https://www.gymsaverapp.com",
-        "name": "GymSaver",
+        "name": "GymSaver | UK Gym Price Comparison",
+        "description": "The UK's leading gym price comparison search engine.",
         "potentialAction": {
             "@type": "SearchAction",
-            "target": "https://www.gymsaverapp.com/search?query={search_term_string}",
+            "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "https://www.gymsaverapp.com/search?query={search_term_string}"
+            },
             "query-input": "required name=search_term_string"
         }
     }

@@ -186,7 +186,7 @@ function GymCardComponent({ gym, isSelected, isSaved, isCompared, onSelect, onTo
         )}
         <img
           src={imageSrc}
-          alt={gym.name}
+          alt={`Inside photo of ${gym.name} in ${gym.city || gym.address || 'the UK'}`}
           loading="lazy"
           decoding="async"
           onLoad={() => setImageLoaded(true)}
