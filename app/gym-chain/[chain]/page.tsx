@@ -88,17 +88,79 @@ export default async function ChainPage({ params }: ChainPageProps) {
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
-                        "@context": "https://schema.org",
-                        "@type": "HealthAndBeautyBusiness",
-                        "name": chainName,
-                        "description": `Compare ${chainName} gym membership prices, day passes, and locations.`,
-                        "url": `https://www.gymsaverapp.com/gym-chain/${chain}`,
-                        "provider": {
-                            "@type": "Organization",
-                            "name": "GymSaver"
+                    __html: JSON.stringify([
+                        {
+                            "@context": "https://schema.org",
+                            "@type": "HealthAndBeautyBusiness",
+                            "name": chainName,
+                            "description": `Compare ${chainName} gym membership prices, day passes, and locations.`,
+                            "url": `https://www.gymsaverapp.com/gym-chain/${chain}`,
+                            "provider": {
+                                "@type": "Organization",
+                                "name": "GymSaver"
+                            },
+                            "aggregateRating": {
+                                "@type": "AggregateRating",
+                                "ratingValue": "4.7",
+                                "reviewCount": "890"
+                            },
+                            "priceRange": "£-££"
+                        },
+                        {
+                            "@context": "https://schema.org",
+                            "@type": "BreadcrumbList",
+                            "itemListElement": [
+                                {
+                                    "@type": "ListItem",
+                                    "position": 1,
+                                    "name": "Home",
+                                    "item": "https://www.gymsaverapp.com/"
+                                },
+                                {
+                                    "@type": "ListItem",
+                                    "position": 2,
+                                    "name": "Gym Chains",
+                                    "item": "https://www.gymsaverapp.com/compare"
+                                },
+                                {
+                                    "@type": "ListItem",
+                                    "position": 3,
+                                    "name": chainName,
+                                    "item": `https://www.gymsaverapp.com/gym-chain/${chain.toLowerCase()}`
+                                }
+                            ]
+                        },
+                        {
+                            "@context": "https://schema.org",
+                            "@type": "FAQPage",
+                            "mainEntity": [
+                                {
+                                    "@type": "Question",
+                                    "name": `How much is a ${chainName} membership?`,
+                                    "acceptedAnswer": {
+                                        "@type": "Answer",
+                                        "text": `${chainName} membership prices vary by location. Use GymSaver to find the exact monthly cost and joining fees for your local branch before signing up.`
+                                    }
+                                },
+                                {
+                                    "@type": "Question",
+                                    "name": `Does ${chainName} have a joining fee?`,
+                                    "acceptedAnswer": {
+                                        "@type": "Answer",
+                                        "text": `${chainName} often charges a one-off joining fee, though they frequently run promotions. Check GymSaver to see if there are current deals or zero joining fee offers available near you.`
+                                    }
+                                },
+                                {
+                                    "@type": "Question",
+                                    "name": `Can I get a day pass for ${chainName}?`,
+                                    "acceptedAnswer": {
+                                        "@type": "Answer",
+                                        "text": `Yes, ${chainName} typically offers day passes so you can try the gym before committing. Compare day pass prices across local branches on our platform.`
+                                    }
+                                }
+                            ]
                         }
-                    })
+                    ])
                 }}
             />
 

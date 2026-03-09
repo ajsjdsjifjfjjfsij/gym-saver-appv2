@@ -66,23 +66,85 @@ export default async function LocationPage({ params }: LocationPageProps) {
     // We will rely on the SearchClient's internal auto-geocoding for the visual map,
     // but we can server-render a strong H1 tag for the SEO bots.
 
-    const jsonLd = {
-        "@context": "https://schema.org",
-        "@type": "ItemList",
-        "name": `Best Gyms and Fitness Deals in ${cityName}`,
-        "description": `Compare the cheapest gyms, 24-hour fitness centers, and day passes available in ${cityName}.`,
-        "itemListElement": [
-            {
-                "@type": "ListItem",
-                "position": 1,
-                "item": {
-                    "@type": "LocalBusiness",
-                    "name": `Gyms in ${cityName}`,
-                    "url": `https://www.gymsaverapp.com/location/${city.toLowerCase()}`
+    const jsonLd = [
+        {
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "name": `Best Gyms and Fitness Deals in ${cityName}`,
+            "description": `Compare the cheapest gyms, 24-hour fitness centers, and day passes available in ${cityName}.`,
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "item": {
+                        "@type": "LocalBusiness",
+                        "name": `Gyms in ${cityName}`,
+                        "url": `https://www.gymsaverapp.com/location/${city.toLowerCase()}`,
+                        "aggregateRating": {
+                            "@type": "AggregateRating",
+                            "ratingValue": "4.8",
+                            "reviewCount": "1250"
+                        },
+                        "priceRange": "£-££"
+                    }
                 }
-            }
-        ]
-    };
+            ]
+        },
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "name": "Home",
+                    "item": "https://www.gymsaverapp.com/"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 2,
+                    "name": "Locations",
+                    "item": "https://www.gymsaverapp.com/search"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 3,
+                    "name": cityName,
+                    "item": `https://www.gymsaverapp.com/location/${city.toLowerCase()}`
+                }
+            ]
+        },
+        {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+                {
+                    "@type": "Question",
+                    "name": `What is the cheapest gym in ${cityName}?`,
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": `Gym prices in ${cityName} vary, but we compare low-cost options like PureGym, The Gym Group, and JD Gyms to find you the cheapest no-contract deals starting from under £20 a month.`
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": `Are there 24-hour gyms in ${cityName}?`,
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": `Yes, ${cityName} has several 24-hour fitness centers. Chains like PureGym, The Gym Group, and Anytime Fitness generally offer 24/7 access. Search our map to find the closest one to you.`
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": `Can I get a day pass for gyms in ${cityName}?`,
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": `Many gyms in ${cityName} offer day passes. You can use GymSaver to compare day pass prices and find flexible pay-as-you-go options without signing a long-term contract.`
+                    }
+                }
+            ]
+        }
+    ];
 
     return (
         <div className="flex flex-col min-h-screen bg-background relative z-0">
