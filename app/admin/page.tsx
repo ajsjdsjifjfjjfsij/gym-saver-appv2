@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth/AuthContext";
 import { useRouter } from "next/navigation";
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc, getDoc, setDoc, where, getDocs } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc, getDoc, setDoc, where, getDocs, addDoc } from "firebase/firestore";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, Check, X, FileText, ImageIcon, DollarSign, Mail, AlertCircle, Star, Send } from "lucide-react";
+import { Loader2, Check, X, FileText, ImageIcon, DollarSign, Mail, AlertCircle, Star, Send, Zap } from "lucide-react";
 import { sendEmailVerification } from "firebase/auth";
 import Image from "next/image";
 import {
@@ -366,6 +366,27 @@ export default function AdminDashboard() {
         }
     };
 
+    // Mock Seeder Handlers
+    const handleSeedMocks = async () => {
+        try {
+            if (!confirm("Are you incredibly sure you want to wipe all active bounties to inject the 2 fresh mocks?")) return;
+            
+            const bountiesRef = collection(db, "bounties");
+            const snapshot = await getDocs(bountiesRef);
+            for (const document of snapshot.docs) {
+                await deleteDoc(doc(db, "bounties", document.id));
+            }
+            
+            await addDoc(bountiesRef, { userId: "mock1", username: "SarahFit99", gymType: "Boutique / Studio Fitness", budget: 45, location: "Manchester M1", timestamp: new Date(), status: "active", offersCount: 2, expiresInDays: 3 });
+            await addDoc(bountiesRef, { userId: "mock2", username: "James_Lifts", gymType: "24-Hour Access", budget: 25, location: "Didsbury M20", timestamp: new Date(Date.now() - 43200000), status: "active", offersCount: 0, expiresInDays: 6 });
+            
+            alert("Flawlessly deleted legacy bounties and injected 2 professional mocks. Check the Gym Bounties page now!");
+        } catch (error) {
+            console.error("Seeder Auth Error:", error);
+            alert("Error seeding bounties natively. Check permissions.");
+        }
+    };
+
     // Featured Gyms Handlers
     const handleSetFeatured = async () => {
         if (!featurePlaceId || !featureFrom || !featureUntil) {
@@ -436,6 +457,7 @@ export default function AdminDashboard() {
                         <div className="mx-auto w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center mb-4">
                             <Mail className="h-6 w-6 text-orange-500" />
                         </div>
+
                         <CardTitle className="text-xl">Email Verification Required</CardTitle>
                         <CardDescription>
                             Your email <strong>{user.email}</strong> is not verified.
@@ -474,7 +496,7 @@ export default function AdminDashboard() {
                         </div>
                         <CardTitle className="text-xl">Access Denied</CardTitle>
                         <CardDescription>
-                            {error}
+                            {typeof error === "string" ? error : "Access Denied"}
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="flex justify-center">
@@ -495,7 +517,15 @@ export default function AdminDashboard() {
                         <h1 className="text-3xl font-bold tracking-tight">Admin Console</h1>
                         <p className="text-muted-foreground">Manage gym price submissions and analytics.</p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap items-center justify-end gap-2">
+                        <Button 
+                            onClick={handleSeedMocks}
+                            variant="outline" 
+                            className="border-yellow-500/50 text-yellow-500 hover:bg-yellow-500/10 font-bold"
+                        >
+                            <Zap className="h-4 w-4 mr-2" />
+                            Seed Mock Bounties
+                        </Button>
                         <Button variant="secondary" onClick={() => router.push("/admin/analytics")}>Analytics</Button>
                         <Button variant="outline" onClick={() => router.push("/search")}>Back to App</Button>
                     </div>
