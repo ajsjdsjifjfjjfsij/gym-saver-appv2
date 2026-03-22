@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { useTheme } from "next-themes"
-import { Search, Bookmark, LogOut, PlusCircle, Sun, Moon, ChevronDown, Menu as MenuIcon } from "lucide-react"
+import { Search, Bookmark, LogOut, PlusCircle, Sun, Moon, ChevronDown, Menu as MenuIcon, Zap } from "lucide-react"
 import { useAuth } from "@/components/auth/AuthContext"
 import { useEffect, useState } from "react"
 import {
@@ -131,6 +131,16 @@ export function Header({
           <div className={`flex items-center gap-2 sm:gap-3 ${isAppMode ? "" : "absolute top-2 right-4 w-full justify-end"}`}>
 
             <div className="hidden lg:flex items-center gap-2 mr-4 border-r border-white/10 pr-4">
+              <Button
+                variant="ghost"
+                className="h-8 px-3 text-xs font-bold text-[#6BD85E] hover:bg-[#6BD85E]/10 border border-[#6BD85E]/30 rounded-xl mr-2 flex items-center gap-1.5 transition-all shadow-[0_0_15px_rgba(107,216,94,0.1)]"
+                asChild
+              >
+                <Link href="/gym-bounty">
+                  <Zap className="h-3.5 w-3.5" />
+                  Gym Bounties
+                </Link>
+              </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="default" size="sm" className="bg-[#6BD85E]/90 hover:bg-[#5bc250] text-black border-0 px-4 rounded-xl backdrop-blur-md shadow-[0_0_20px_rgba(107,216,94,0.2)] hover:shadow-[0_0_30px_rgba(107,216,94,0.3)] transition-all duration-300 font-bold gap-1">
@@ -207,6 +217,9 @@ export function Header({
                   
                   {/* Additional Mobile Links that are hidden on desktop */}
                   <div className="md:hidden border-t border-white/10 mt-2 pt-2">
+                    <DropdownMenuItem asChild className="flex cursor-pointer items-center rounded-lg px-3 py-2.5 text-sm font-bold hover:bg-[#6BD85E]/10 focus:bg-[#6BD85E]/10 text-[#6BD85E] transition-colors">
+                      <Link href="/gym-bounty" className="w-full flex items-center gap-2"><Zap className="h-4 w-4"/> Gym Bounties</Link>
+                    </DropdownMenuItem>
                     <DropdownMenuItem asChild className="flex cursor-pointer items-center rounded-lg px-3 py-2.5 text-sm font-bold hover:bg-white/10 focus:bg-white/10 transition-colors">
                       <Link href="/list-your-gym" className="w-full">List your gym</Link>
                     </DropdownMenuItem>
