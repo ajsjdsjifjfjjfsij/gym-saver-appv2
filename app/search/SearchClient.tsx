@@ -955,11 +955,13 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="default" asChild className="flex-1 bg-[#6BD85E]/90 hover:bg-[#5bc250] text-black font-bold h-10 px-1 sm:px-2 rounded-xl flex items-center justify-center gap-1 backdrop-blur-md shadow-[0_0_15px_rgba(107,216,94,0.2)] transition-all duration-300">
-            <Link href="/gym-bounty">
-              <Zap className="h-3.5 w-3.5 shrink-0" />
-              <span className="truncate text-[10px] sm:text-xs">Bounties</span>
-            </Link>
+          <Button 
+            variant="default" 
+            onClick={() => router.push("/gym-bounty")}
+            className="flex-1 bg-[#6BD85E]/90 hover:bg-[#5bc250] text-black font-bold h-10 px-1 sm:px-2 rounded-xl flex items-center justify-center gap-1 backdrop-blur-md shadow-[0_0_15px_rgba(107,216,94,0.2)] transition-all duration-300"
+          >
+            <Zap className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate text-[10px] sm:text-xs">Bounties</span>
           </Button>
         </div>
 
