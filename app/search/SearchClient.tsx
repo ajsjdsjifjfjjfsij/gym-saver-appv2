@@ -11,7 +11,7 @@ import { HoneypotGym } from "@/components/HoneypotGym"
 import { CompareBar } from "@/components/compare-bar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { MapPin, Loader2, BookmarkCheck, Search, Mail, ChevronDown } from "lucide-react"
+import { MapPin, Loader2, BookmarkCheck, Search, Mail, ChevronDown, Zap } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -918,12 +918,12 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
         />
 
         {/* Action Bar (Mobile Only - Replicating Desktop Header Nav) */}
-        <div className="md:hidden w-full px-4 py-2 flex justify-between gap-3 shrink-0 z-[40] relative">
+        <div className="md:hidden w-full px-4 py-2 flex justify-between gap-2 shrink-0 z-[40] relative">
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
-              <Button variant="default" className="w-1/2 bg-[#6BD85E]/90 hover:bg-[#5bc250] text-black font-bold h-10 px-2 sm:px-4 rounded-xl flex items-center justify-center gap-1 sm:gap-2 backdrop-blur-md shadow-[0_0_20px_rgba(107,216,94,0.2)] hover:shadow-[0_0_30px_rgba(107,216,94,0.3)] transition-all duration-300">
-                <span className="truncate text-xs sm:text-sm">Gym Owners</span>
-                <ChevronDown className="h-4 w-4 shrink-0" />
+              <Button variant="default" className="flex-1 bg-white/10 hover:bg-white/20 text-white font-bold h-10 px-1 sm:px-2 rounded-xl flex items-center justify-center gap-1 backdrop-blur-md transition-all duration-300">
+                <span className="truncate text-[10px] sm:text-xs">Owners</span>
+                <ChevronDown className="h-3 w-3 shrink-0" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-[calc(50vw-16px)] bg-black/95 border-white/10 backdrop-blur-xl rounded-xl p-2 text-white z-50">
@@ -938,9 +938,9 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
 
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
-              <Button variant="default" className="w-1/2 bg-[#6BD85E]/90 hover:bg-[#5bc250] text-black font-bold h-10 px-2 sm:px-4 rounded-xl flex items-center justify-center gap-1 sm:gap-2 backdrop-blur-md shadow-[0_0_20px_rgba(107,216,94,0.2)] hover:shadow-[0_0_30px_rgba(107,216,94,0.3)] transition-all duration-300">
-                <span className="truncate text-xs sm:text-sm">Gym Users</span>
-                <ChevronDown className="h-4 w-4 shrink-0" />
+              <Button variant="default" className="flex-1 bg-white/10 hover:bg-white/20 text-white font-bold h-10 px-1 sm:px-2 rounded-xl flex items-center justify-center gap-1 backdrop-blur-md transition-all duration-300">
+                <span className="truncate text-[10px] sm:text-xs">Users</span>
+                <ChevronDown className="h-3 w-3 shrink-0" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[calc(50vw-16px)] bg-black/95 border-white/10 backdrop-blur-xl rounded-xl p-2 text-white z-50">
@@ -955,6 +955,12 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          <Button variant="default" asChild className="flex-1 bg-[#6BD85E]/90 hover:bg-[#5bc250] text-black font-bold h-10 px-1 sm:px-2 rounded-xl flex items-center justify-center gap-1 backdrop-blur-md shadow-[0_0_15px_rgba(107,216,94,0.2)] transition-all duration-300">
+            <Link href="/gym-bounty">
+              <Zap className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate text-[10px] sm:text-xs">Bounties</span>
+            </Link>
+          </Button>
         </div>
 
         {/* Search & Filters Header (Sticky) */}
