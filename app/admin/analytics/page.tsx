@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth/AuthContext";
 import { useRouter } from "next/navigation";
+import { db } from "@/lib/firebase";
+import { collection, getCountFromServer } from "firebase/firestore";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, ArrowLeft, Download, Calendar, Mail, AlertCircle } from "lucide-react";
@@ -57,11 +59,24 @@ export default function AnalyticsPage() {
     const router = useRouter();
     const [timeRange, setTimeRange] = useState("30");
     const [data, setData] = useState<any[]>([]);
+    const [realTotalSignups, setRealTotalSignups] = useState<number | null>(null);
 
     useEffect(() => {
         // Simulate fetching data
         setData(generateData(parseInt(timeRange)));
     }, [timeRange]);
+
+    useEffect(() => {
+        const fetchRealCount = async () => {
+            try {
+                const snapshot = await getCountFromServer(collection(db, "users"));
+                setRealTotalSignups(snapshot.data().count);
+            } catch (err) {
+                console.error("Failed to fetch live total signups:", err);
+            }
+        };
+        fetchRealCount();
+    }, []);
 
     useEffect(() => {
         if (!loading) {
@@ -196,8 +211,8 @@ export default function AnalyticsPage() {
                             </svg>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">{totalSignups}</div>
-                            <p className="text-xs text-muted-foreground">+15% from last period</p>
+                            <div className="text-2xl font-bold text-[#6BD85E]">{realTotalSignups !== null ? realTotalSignups : totalSignups}</div>
+                            <p className="text-xs text-muted-foreground">{realTotalSignups !== null ? "Live Lifetime Database Sync" : "+15% from last period"}</p>
                         </CardContent>
                     </Card>
                     <Card className="bg-white/5 border-white/10 text-white">

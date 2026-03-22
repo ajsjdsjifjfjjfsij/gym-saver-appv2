@@ -387,6 +387,7 @@ export default function AdminDashboard() {
         }
     };
 
+
     // Featured Gyms Handlers
     const handleSetFeatured = async () => {
         if (!featurePlaceId || !featureFrom || !featureUntil) {
@@ -518,6 +519,7 @@ export default function AdminDashboard() {
                         <p className="text-muted-foreground">Manage gym price submissions and analytics.</p>
                     </div>
                     <div className="flex flex-wrap items-center justify-end gap-2">
+
                         <Button 
                             onClick={handleSeedMocks}
                             variant="outline" 
