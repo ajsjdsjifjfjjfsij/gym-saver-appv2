@@ -6,7 +6,6 @@ import { Header } from "@/components/header"
 import { GymMap } from "@/components/gym-map"
 import { GymFilters } from "@/components/gym-filters"
 import { GymCard } from "@/components/gym-card"
-import { SponsoredGymCard } from "@/components/SponsoredGymCard"
 import { HoneypotGym } from "@/components/HoneypotGym"
 import { CompareBar } from "@/components/compare-bar"
 import { Button } from "@/components/ui/button"
@@ -1175,9 +1174,6 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
                       </div>
                     ) : (
                       <div className="flex flex-col gap-4">
-                        {/* Mock Sponsored Card - First Item */}
-                        <SponsoredGymCard />
-
                         {filteredGyms.map((gym, index) => {
                           const isFirst = index === 0;
                           return (
