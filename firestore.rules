@@ -42,7 +42,7 @@ service cloud.firestore {
       allow read: if true;
       allow create: if request.auth != null;
       allow update: if request.auth != null; // Allows Gym Owners to increment offersCount
-      allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow delete: if request.auth != null && (request.auth.uid == resource.data.userId || request.auth.token.email == 'josephbunton@live.co.uk');
     }
     
     match /bountyOffers/{offerId} {

@@ -377,8 +377,8 @@ export default function AdminDashboard() {
                 await deleteDoc(doc(db, "bounties", document.id));
             }
             
-            await addDoc(bountiesRef, { userId: "mock1", username: "SarahFit99", gymType: "Boutique / Studio Fitness", budget: 45, location: "Manchester M1", timestamp: new Date(), status: "active", offersCount: 2, expiresInDays: 3 });
-            await addDoc(bountiesRef, { userId: "mock2", username: "James_Lifts", gymType: "24-Hour Access", budget: 25, location: "Didsbury M20", timestamp: new Date(Date.now() - 43200000), status: "active", offersCount: 0, expiresInDays: 6 });
+            await addDoc(bountiesRef, { userId: "mock1", username: "SarahFit99", gymType: "Boutique / Studio Fitness", budget: 45, location: "Manchester M1", timestamp: new Date(), status: "active", offersCount: 1, expiresInDays: 3 });
+            await addDoc(bountiesRef, { userId: "mock2", username: "James_Lifts", gymType: "24-Hour Access", budget: 25, location: "Didsbury M20", timestamp: new Date(Date.now() - 43200000), status: "active", offersCount: 3, expiresInDays: 6 });
             
             alert("Flawlessly deleted legacy bounties and injected 2 professional mocks. Check the Gym Bounties page now!");
         } catch (error) {
