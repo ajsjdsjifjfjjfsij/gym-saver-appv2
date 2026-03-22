@@ -9,12 +9,15 @@ import { useAuth } from "@/components/auth/AuthContext";
 import { useEffect, useState } from "react";
 import { SeoFooter } from "@/components/seo-footer";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { db } from "@/lib/firebase";
+import { collection, getCountFromServer } from "firebase/firestore";
 
 export default function LandingPage() {
     const { user } = useAuth();
     const router = useRouter();
 
     const [gymCount, setGymCount] = useState<number | null>(null);
+    const [userCount, setUserCount] = useState<number | null>(null);
 
     useEffect(() => {
         async function fetchGymCount() {
@@ -30,7 +33,18 @@ export default function LandingPage() {
                 console.error("Failed to fetch gym count:", error);
             }
         }
+
+        async function fetchUserCount() {
+            try {
+                const snapshot = await getCountFromServer(collection(db, "users"));
+                setUserCount(snapshot.data().count);
+            } catch (error) {
+                console.error("Failed to fetch user count:", error);
+            }
+        }
+
         fetchGymCount();
+        fetchUserCount();
     }, []);
 
     // Optional: Auto-redirect logged-in users to the app
@@ -129,12 +143,22 @@ export default function LandingPage() {
                     </p>
 
                     <div className="mb-10 flex justify-center animate-fade-in-up delay-100">
-                        <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-[#6BD85E]/10 border border-[#6BD85E]/20 backdrop-blur-sm shadow-[0_0_20px_rgba(107,216,94,0.1)]">
-                            <Zap className="h-4 w-4 text-[#6BD85E]" />
-                            <span className="text-sm font-semibold tracking-wide">
-                                <span className="text-[#6BD85E] text-base mr-1">{gymCount ? gymCount.toLocaleString() : "1,800+"}</span>
-                                GYMS CURRENTLY LISTED
-                            </span>
+                        <div className="inline-flex flex-wrap items-center justify-center gap-x-6 gap-y-3 px-6 py-2.5 rounded-2xl bg-[#6BD85E]/10 border border-[#6BD85E]/20 backdrop-blur-sm shadow-[0_0_20px_rgba(107,216,94,0.1)]">
+                            <div className="flex items-center gap-2">
+                                <Zap className="h-4 w-4 text-[#6BD85E]" />
+                                <span className="text-sm font-semibold tracking-wide">
+                                    <span className="text-[#6BD85E] text-base mr-1">{gymCount ? gymCount.toLocaleString() : "1,875"}</span>
+                                    GYMS LISTED
+                                </span>
+                            </div>
+                            <div className="h-4 w-px bg-white/10 hidden sm:block" />
+                            <div className="flex items-center gap-2">
+                                <Check className="h-4 w-4 text-[#6BD85E]" />
+                                <span className="text-sm font-semibold tracking-wide uppercase">
+                                    <span className="text-[#6BD85E] text-base mr-1">{userCount ? userCount.toLocaleString() : "854"}</span>
+                                    Signed Up Users
+                                </span>
+                            </div>
                         </div>
                     </div>
 
