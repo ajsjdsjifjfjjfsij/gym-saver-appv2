@@ -27,7 +27,12 @@ export default function LoginForm() {
             await signInWithEmailAndPassword(auth, email, password);
             router.push("/search");
         } catch (err: any) {
-            setError(err.message);
+            let msg = err.message || "";
+            if (msg.includes("invalid-credential")) msg = "Error: Incorrect email or password.";
+            else if (msg.includes("user-not-found")) msg = "Error: No account found with this email.";
+            else if (msg.includes("wrong-password")) msg = "Error: Incorrect password.";
+            else msg = msg.replace("Firebase: Error ", "").replace(/\(auth\/[^)]+\)\.?/g, "").trim();
+            setError(msg);
         }
     };
 
@@ -42,7 +47,10 @@ export default function LoginForm() {
             await sendResetEmail(email);
             setResetSent(true);
         } catch (err: any) {
-            setError(err.message);
+            let msg = err.message || "";
+            if (msg.includes("user-not-found")) msg = "Error: No account found with this email.";
+            else msg = msg.replace("Firebase: Error ", "").replace(/\(auth\/[^)]+\)\.?/g, "").trim();
+            setError(msg);
         }
     };
 

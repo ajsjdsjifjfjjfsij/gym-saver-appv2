@@ -76,9 +76,9 @@ export function ImageGalleryModal({ gym, isOpen, onClose }: ImageGalleryModalPro
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent showCloseButton={false} className="max-w-6xl w-[95vw] bg-black/95 backdrop-blur-xl border-white/10 p-0 overflow-hidden rounded-3xl z-[100] h-[85vh] flex flex-col shadow-2xl">
+            <DialogContent showCloseButton={false} className="max-w-6xl w-[95vw] bg-black/95 backdrop-blur-xl border-white/10 p-0 overflow-hidden rounded-3xl z-[10000] h-[85vh] flex flex-col shadow-2xl">
                 {/* Custom Header Overlay */}
-                <div className="absolute top-0 left-0 right-0 z-[110] p-6 bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
+                <div className="absolute top-0 left-0 right-0 z-[10010] p-6 bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
                     <div className="flex flex-col gap-1 items-start">
                         <DialogTitle className="text-2xl font-bold text-white drop-shadow-md">{gym.name}</DialogTitle>
                         <p className="text-sm text-white/60 flex items-center gap-1 drop-shadow-sm">
@@ -92,7 +92,7 @@ export function ImageGalleryModal({ gym, isOpen, onClose }: ImageGalleryModalPro
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="absolute top-6 right-6 z-[130] rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-md border border-white/10 h-10 w-10 transition-all hover:scale-110 active:scale-95"
+                    className="absolute top-6 right-6 z-[10020] rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-md border border-white/10 h-10 w-10 transition-all hover:scale-110 active:scale-95"
                     onClick={(e) => {
                         e.stopPropagation();
                         onClose();

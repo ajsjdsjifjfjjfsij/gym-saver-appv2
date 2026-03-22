@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Loader2, ArrowLeft, Trash2, AlertTriangle, Shield, FileText } from "lucide-react";
+import { Loader2, ArrowLeft, Trash2, AlertTriangle, Shield, FileText, Zap } from "lucide-react";
 import { deleteUser } from "firebase/auth";
+import { db } from "@/lib/firebase";
+import { collection, query, where, onSnapshot } from "firebase/firestore";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -23,6 +25,32 @@ export default function ProfilePage() {
     const { user, loading, logout } = useAuth();
     const router = useRouter();
     const [isDeleting, setIsDeleting] = useState(false);
+    const [myBounties, setMyBounties] = useState<any[]>([]);
+    const [myOffers, setMyOffers] = useState<any[]>([]);
+
+    useEffect(() => {
+        if (!user || !db) return;
+        const qBounties = query(collection(db, "bounties"), where("userId", "==", user.uid));
+        const unsubscribeBounties = onSnapshot(qBounties, (snapshot) => {
+            const fetched: any[] = [];
+            snapshot.forEach(doc => fetched.push({ id: doc.id, ...doc.data() }));
+            // Most recent first
+            fetched.sort((a,b) => b.timestamp - a.timestamp);
+            setMyBounties(fetched);
+        });
+
+        const qOffers = query(collection(db, "bountyOffers"), where("targetUserId", "==", user.uid));
+        const unsubscribeOffers = onSnapshot(qOffers, (snapshot) => {
+            const fetched: any[] = [];
+            snapshot.forEach(doc => fetched.push({ id: doc.id, ...doc.data() }));
+            setMyOffers(fetched);
+        });
+
+        return () => {
+            unsubscribeBounties();
+            unsubscribeOffers();
+        };
+    }, [user]);
 
     useEffect(() => {
         if (!loading && !user) {
@@ -93,6 +121,63 @@ export default function ProfilePage() {
                             Log Out
                         </Button>
                     </CardFooter>
+                </Card>
+
+                {/* My Gym Bounties Section */}
+                <Card className="bg-white/5 border-[#6BD85E]/30 text-white shadow-[0_0_15px_rgba(107,216,94,0.05)]">
+                    <CardHeader>
+                        <CardTitle className="text-[#6BD85E] flex items-center gap-2">
+                            <Zap className="h-5 w-5" fill="currentColor" /> My Gym Bounties
+                        </CardTitle>
+                        <CardDescription>View your active budget requests and incoming gym offers.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        {myBounties.length === 0 ? (
+                            <div className="text-center py-6 text-gray-400">
+                                <Zap className="h-10 w-10 text-gray-600 mx-auto mb-3" />
+                                <p>You have no active gym bounties.</p>
+                                <Button variant="outline" className="mt-4 border-[#6BD85E]/20 hover:bg-[#6BD85E]/10 text-[#6BD85E]" onClick={() => router.push('/gym-bounty')}>
+                                    Post a Bounty
+                                </Button>
+                            </div>
+                        ) : (
+                            <div className="space-y-6">
+                                {myBounties.map((bounty) => {
+                                    const relatedOffers = myOffers.filter(o => o.bountyId === bounty.id);
+                                    return (
+                                        <div key={bounty.id} className="border border-white/10 p-5 rounded-xl bg-black/40">
+                                            <div className="flex justify-between items-center mb-4 pb-4 border-b border-white/5">
+                                                <div>
+                                                    <div className="font-bold text-lg mb-1">Looking for: {bounty.gymType}</div>
+                                                    <div className="text-sm text-gray-400">Budget: <span className="text-[#6BD85E] font-bold">£{bounty.budget}/mo</span> • {bounty.location}</div>
+                                                </div>
+                                                <div className="text-right">
+                                                    <span className="bg-[#6BD85E]/10 text-[#6BD85E] px-3 py-1.5 rounded text-xs font-bold uppercase border border-[#6BD85E]/20">{bounty.status}</span>
+                                                </div>
+                                            </div>
+
+                                            {relatedOffers.length === 0 ? (
+                                                <div className="text-sm text-gray-500 italic p-2 bg-white/5 rounded-lg border border-white/5 text-center">No offers received yet. Check back soon!</div>
+                                            ) : (
+                                                <div className="space-y-3">
+                                                    <div className="text-xs font-bold text-[#6BD85E] tracking-wider mb-2">OFFERS RECEIVED ({relatedOffers.length})</div>
+                                                    {relatedOffers.map(offer => (
+                                                        <div key={offer.id} className="bg-white/5 p-4 rounded-xl border border-white/10">
+                                                            <div className="flex justify-between mb-2">
+                                                                <span className="font-bold text-white">{offer.gymEmail}</span>
+                                                                <span className="text-[#6BD85E] font-extrabold bg-[#6BD85E]/10 px-2 py-0.5 rounded">£{offer.offerAmount}/mo</span>
+                                                            </div>
+                                                            <p className="text-sm text-gray-300 leading-relaxed italic border-l-2 border-white/10 pl-3">"{offer.offerMessage}"</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        )}
+                    </CardContent>
                 </Card>
 
                 <Card className="bg-white/5 border-white/10 text-white">

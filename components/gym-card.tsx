@@ -245,28 +245,14 @@ function GymCardComponent({ gym, isSelected, isSaved, isCompared, onSelect, onTo
           </div>
 
           <div className="flex gap-1">
-            {/* Compare Button - Desktop Only */}
+            {/* Share Button - Top Right */}
             <Button
               variant="ghost"
-              size="sm"
-              className={`hidden sm:flex h-8 px-3 rounded-full border border-white/5 transition-all text-xs font-bold tracking-tight gap-1.5
-                ${isCompared
-                  ? "bg-blue-600 text-white hover:bg-blue-500 shadow-[0_0_15px_rgba(37,99,235,0.4)]"
-                  : "bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
-                }`}
-              onClick={handleCompareClick}
+              size="icon"
+              className="flex h-8 w-8 shrink-0 rounded-full border border-white/5 bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
+              onClick={handleShareClick}
             >
-              {isCompared ? (
-                <>
-                  <BookmarkCheck className="h-3.5 w-3.5" />
-                  Added
-                </>
-              ) : (
-                <>
-                  <div className="text-[9px] font-black border border-current rounded px-0.5 leading-none">VS</div>
-                  Compare
-                </>
-              )}
+              <Share2 className="h-4 w-4" />
             </Button>
 
             {/* Save Button */}
@@ -342,14 +328,15 @@ function GymCardComponent({ gym, isSelected, isSaved, isCompared, onSelect, onTo
             </div>
 
             <div className="flex gap-1.5">
-              {/* Compare Button - Mobile Only */}
+
+              {/* Compare Button - Unified Bottom (Green Outline Style) */}
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
-                className={`flex sm:hidden h-8 px-2.5 rounded-full border border-white/5 transition-all text-[10px] font-bold tracking-tight gap-1.5
+                className={`flex h-8 px-2.5 rounded-xl border transition-all text-[11px] font-bold tracking-tight gap-1.5 shadow-[0_0_15px_rgba(107,216,94,0.1)] hover:shadow-[0_0_20px_rgba(107,216,94,0.2)]
                   ${isCompared
-                    ? "bg-blue-600 text-white hover:bg-blue-500 shadow-[0_0_15px_rgba(37,99,235,0.4)]"
-                    : "bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
+                    ? "bg-[#6BD85E] text-black border-[#6BD85E] hover:bg-[#5bc250] shadow-[0_0_15px_rgba(107,216,94,0.4)]"
+                    : "bg-black hover:bg-zinc-900 text-[#6BD85E] border-[#6BD85E]/30"
                   }`}
                 onClick={handleCompareClick}
               >
@@ -360,20 +347,12 @@ function GymCardComponent({ gym, isSelected, isSaved, isCompared, onSelect, onTo
                   </>
                 ) : (
                   <>
+                    <div className="text-[9px] font-black border border-current rounded px-0.5 leading-none">VS</div>
                     Compare
                   </>
                 )}
               </Button>
 
-              <Button
-                variant="outline"
-                size="sm"
-                className="bg-black hover:bg-zinc-900 text-[#6BD85E] border border-[#6BD85E]/30 h-8 px-2.5 rounded-xl shadow-[0_0_15px_rgba(107,216,94,0.1)] hover:shadow-[0_0_20px_rgba(107,216,94,0.2)] transition-all uppercase text-[11px] tracking-tight gap-1.5"
-                onClick={handleShareClick}
-              >
-                <Share2 className="h-3 w-3" />
-                Share
-              </Button>
               <Button
                 variant="default"
                 size="sm"

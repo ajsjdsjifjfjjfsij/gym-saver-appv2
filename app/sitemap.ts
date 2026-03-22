@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next'
-import { UK_CITIES } from '@/lib/uk-cities'
+import { CITIES_WITH_GYMS } from '@/lib/cities-with-gyms'
 
 export const dynamic = 'force-static'
 
@@ -11,11 +11,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/search',
         '/compare',
         '/list-your-gym',
+        '/advertise',
         '/contact',
         '/affiliate',
         '/download',
         '/legal/privacy',
         '/legal/terms',
+        '/press'
     ].map((route) => ({
         url: `${baseUrl}${route}`,
         lastModified: new Date(),
@@ -23,9 +25,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
         priority: route === '' ? 1 : 0.8,
     }));
 
-    // Import our expanded 200+ top UK towns and cities for mass programmatic SEO coverage
-    const cities = Array.from(new Set(UK_CITIES)); // Ensure uniqueness
-    const locationRoutes = cities.map((city) => ({
+    // Use our filtered list of cities that actually have gyms to avoid soft 404s
+    const locationRoutes = CITIES_WITH_GYMS.map((city) => ({
         url: `${baseUrl}/location/${city}`,
         lastModified: new Date(),
         changeFrequency: 'weekly' as any,

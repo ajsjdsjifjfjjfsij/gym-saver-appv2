@@ -3,12 +3,15 @@ import { notFound } from 'next/navigation';
 import { Header } from '@/components/header';
 import SearchClient from '@/app/search/SearchClient';
 import { UK_CITIES } from '@/lib/uk-cities';
+import { CITIES_WITH_GYMS } from '@/lib/cities-with-gyms';
+
+// Prevent Next.js from attempting to render any slugs not included in generateStaticParams
+export const dynamicParams = false;
 
 // Dynamic SSG generation for top UK cities
 export async function generateStaticParams() {
-    // Top 200+ UK towns and cities for search volume coverage
-    const cities = Array.from(new Set(UK_CITIES)); // Ensure uniqueness
-    return cities.map(city => ({ city }));
+    // Only pre-render cities that we HAVE gyms for to avoid soft 404s
+    return CITIES_WITH_GYMS.map(city => ({ city }));
 }
 
 interface LocationPageProps {
@@ -171,7 +174,7 @@ export default async function LocationPage({ params }: LocationPageProps) {
                 <p>
                     Looking for a gym in {cityName}? GymSaver helps you compare the best gym memberships,
                     day passes, and 24-hour fitness centers near you. Don't overpay for fitness—search
-                    and compare prices for PureGym, The Gym Group, JD Gyms, David Lloyd, and independent
+                    and compare prices for PureGym, The Gym Group, JD Gyms, and independent
                     local gyms in {cityName} to find the cheapest and best-rated facilities for your workout goals.
                 </p>
                 <p>

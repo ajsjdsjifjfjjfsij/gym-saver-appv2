@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { useTheme } from "next-themes"
-import { Search, Bookmark, LogOut, PlusCircle, Sun, Moon, ChevronDown } from "lucide-react"
+import { Search, Bookmark, LogOut, PlusCircle, Sun, Moon, ChevronDown, Menu as MenuIcon } from "lucide-react"
 import { useAuth } from "@/components/auth/AuthContext"
 import { useEffect, useState } from "react"
 import {
@@ -85,21 +85,21 @@ export function Header({
       <header className={`${isAppMode ? "w-full glass-premium sticky top-0 z-50 text-foreground" : "glass px-4 py-4 sticky top-0 z-50 border-b-0 rounded-b-2xl mx-2 mt-2"}`}>
         <div className={`mx-auto flex items-center justify-between gap-4 ${isAppMode ? "max-w-7xl w-full px-6 py-2" : "max-w-7xl flex-col"}`}>
 
-          {/* Logo Section */}
-          <Link href="/search" className={`${isAppMode ? "flex items-center shrink-0 hover:opacity-80 transition-opacity" : "w-full flex justify-center mt-0 mb-2"}`}>
+            {/* Logo Section */}
+          <Link href="/" className={`${isAppMode ? "flex items-center shrink hover:opacity-80 transition-opacity" : "w-full flex justify-center mt-0 mb-2"}`}>
             {isAppMode ? (
               <div
                 className="relative flex items-center justify-start overflow-visible transition-all duration-300"
                 style={{
-                  width: `${logoSize}px`,
+                  width: mounted && window.innerWidth < 640 ? '160px' : `${logoSize}px`,
                   height: '40px'
                 }}
               >
                 <div
                   className="absolute left-0 top-1/2 flex items-center justify-center transition-all duration-300"
                   style={{
-                    width: `${logoSize}px`,
-                    transform: `translate(${logoX}px, calc(-50% + ${logoY}px))`
+                    width: mounted && window.innerWidth < 640 ? '160px' : `${logoSize}px`,
+                    transform: `translate(${mounted && window.innerWidth < 640 ? '0' : logoX}px, calc(-50% + ${logoY}px))`
                   }}
                 >
                   <Image
@@ -113,7 +113,7 @@ export function Header({
                 </div>
               </div>
             ) : (
-              // Even larger centered logo for Default Mode
+                // Centered logo for Default Mode
               <div className="relative hover:scale-105 transition-transform duration-500">
                 <Image
                   src="/images/gymsaver_logo_new.png"
@@ -128,9 +128,9 @@ export function Header({
           </Link>
 
           {/* Utility Buttons (Right Side) */}
-          <div className={`flex items-center gap-3 ${isAppMode ? "" : "absolute top-2 right-4 w-full justify-end"}`}>
+          <div className={`flex items-center gap-2 sm:gap-3 ${isAppMode ? "" : "absolute top-2 right-4 w-full justify-end"}`}>
 
-            <div className="hidden md:flex items-center gap-2 mr-4 border-r border-white/10 pr-4">
+            <div className="hidden lg:flex items-center gap-2 mr-4 border-r border-white/10 pr-4">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="default" size="sm" className="bg-[#6BD85E]/90 hover:bg-[#5bc250] text-black border-0 px-4 rounded-xl backdrop-blur-md shadow-[0_0_20px_rgba(107,216,94,0.2)] hover:shadow-[0_0_30px_rgba(107,216,94,0.3)] transition-all duration-300 font-bold gap-1">
@@ -141,6 +141,9 @@ export function Header({
                 <DropdownMenuContent align="end" className="w-48 bg-black/90 border-white/10 backdrop-blur-xl rounded-xl p-2 text-white">
                   <DropdownMenuItem asChild className="flex cursor-pointer items-center rounded-lg px-3 py-2 text-sm font-medium hover:bg-white/10 focus:bg-white/10 transition-colors">
                     <Link href="/list-your-gym" className="w-full">List your gym</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="flex cursor-pointer items-center rounded-lg px-3 py-2 text-sm font-medium hover:bg-white/10 focus:bg-white/10 transition-colors">
+                    <Link href="/advertise" className="w-full">Advertise</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild className="flex cursor-pointer items-center rounded-lg px-3 py-2 text-sm font-medium hover:bg-white/10 focus:bg-white/10 transition-colors">
                     <Link href="/contact" className="w-full">Contact us</Link>
@@ -173,21 +176,51 @@ export function Header({
             {user?.email === "josephbunton@live.co.uk" && (
               <Button
                 variant="ghost"
-                className="h-8 px-3 text-xs font-bold bg-green-600 text-white hover:bg-green-700 hover:text-white rounded-xl border-0 shadow-sm"
+                className="h-8 px-2 sm:px-3 text-[10px] sm:text-xs font-bold bg-green-600 text-white hover:bg-green-700 hover:text-white rounded-xl border-0 shadow-sm"
                 asChild
               >
                 <Link href="/admin">
-                  Admin Console
+                  Admin
                 </Link>
               </Button>
             )}
 
-            {/* Auth Buttons */}
-            <div className="flex items-center gap-2 border-r pr-4 border-white/10 mr-2 h-8">
+            {/* Auth/Menu Section */}
+            <div className="flex items-center gap-1 sm:gap-2 border-r pr-2 sm:pr-4 border-white/10 mr-1 sm:mr-2 h-8">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground hover:bg-secondary/20 h-8 px-2 sm:px-3 text-xs gap-1.5 sm:gap-2 font-bold transition-all">
+                    <MenuIcon className="h-4 w-4" />
+                    <span className="hidden xs:inline">Menu</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 bg-black/95 border-white/10 backdrop-blur-xl rounded-xl p-2 text-white z-[10000]">
+                  <DropdownMenuItem asChild className="flex cursor-pointer items-center rounded-lg px-3 py-2.5 text-sm font-bold hover:bg-white/10 focus:bg-white/10 transition-colors">
+                    <Link href="/" className="w-full">Home</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="flex cursor-pointer items-center rounded-lg px-3 py-2.5 text-sm font-bold hover:bg-white/10 focus:bg-white/10 transition-colors">
+                    <Link href="/advertise" className="w-full">Advertise</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="flex cursor-pointer items-center rounded-lg px-3 py-2.5 text-sm font-bold hover:bg-white/10 focus:bg-white/10 transition-colors">
+                    <Link href="/contact" className="w-full">Contact us</Link>
+                  </DropdownMenuItem>
+                  
+                  {/* Additional Mobile Links that are hidden on desktop */}
+                  <div className="md:hidden border-t border-white/10 mt-2 pt-2">
+                    <DropdownMenuItem asChild className="flex cursor-pointer items-center rounded-lg px-3 py-2.5 text-sm font-bold hover:bg-white/10 focus:bg-white/10 transition-colors">
+                      <Link href="/list-your-gym" className="w-full">List your gym</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild className="flex cursor-pointer items-center rounded-lg px-3 py-2.5 text-sm font-bold hover:bg-white/10 focus:bg-white/10 transition-colors">
+                      <Link href="/submit" className="w-full">Gym price update</Link>
+                    </DropdownMenuItem>
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               {loading ? (
-                <div className="w-10 h-10 rounded-full bg-secondary animate-pulse" />
+                <div className="w-8 h-8 rounded-full bg-secondary animate-pulse" />
               ) : (user && !isAnonymous) ? (
-                <>
+                <div className="flex items-center gap-1 sm:gap-2">
                   <Button variant="ghost" size="icon" onClick={() => router.push("/profile")} title="Profile" className="h-8 w-8">
                     <span className="sr-only">Profile</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user h-4 w-4 text-muted-foreground hover:text-white"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
@@ -195,13 +228,13 @@ export function Header({
                   <Button variant="ghost" size="icon" onClick={() => logout()} title="Logout" className="h-8 w-8">
                     <LogOut className="h-4 w-4 text-muted-foreground hover:text-destructive" />
                   </Button>
-                </>
+                </div>
               ) : (
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm" asChild className="text-muted-foreground hover:text-foreground hover:bg-secondary/20 h-8 px-3 text-xs">
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <Button variant="ghost" size="sm" asChild className="text-muted-foreground hover:text-foreground hover:bg-secondary/20 h-8 px-2 sm:px-3 text-[10px] sm:text-xs font-bold transition-all">
                     <Link href="/login">Log in</Link>
                   </Button>
-                  <Button size="sm" asChild className="bg-primary hover:bg-primary/90 text-primary-foreground border-0 h-8 px-4 text-xs font-bold">
+                  <Button size="sm" asChild className="bg-primary hover:bg-primary/90 text-primary-foreground border-0 h-8 px-2 sm:px-4 text-[10px] sm:text-xs font-bold whitespace-nowrap">
                     <Link href="/signup">Sign Up</Link>
                   </Button>
                 </div>

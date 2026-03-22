@@ -3,15 +3,35 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Check, MapPin, Search, Star, Smartphone, ShieldCheck, Zap, Bell } from "lucide-react";
+import { ArrowRight, Check, MapPin, Search, Star, Smartphone, ShieldCheck, Zap, Bell, Menu } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthContext";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { SeoFooter } from "@/components/seo-footer";
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 export default function LandingPage() {
     const { user } = useAuth();
     const router = useRouter();
+
+    const [gymCount, setGymCount] = useState<number | null>(null);
+
+    useEffect(() => {
+        async function fetchGymCount() {
+            try {
+                const res = await fetch("/api/gyms/count");
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.count) {
+                        setGymCount(data.count);
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to fetch gym count:", error);
+            }
+        }
+        fetchGymCount();
+    }, []);
 
     // Optional: Auto-redirect logged-in users to the app
     // useEffect(() => {
@@ -21,10 +41,26 @@ export default function LandingPage() {
     // }, [user, router]);
 
     return (
-        <div className="min-h-screen bg-black text-white selection:bg-green-500/30">
+        <div className="min-h-screen bg-black text-white selection:bg-green-500/30 font-sans">
+
+            {/* Top Announcement Banner */}
+            <div className="w-full bg-gradient-to-r from-[#6BD85E]/20 via-[#6BD85E]/10 to-transparent border-b border-[#6BD85E]/20 relative z-[60]">
+                <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-center text-xs sm:text-sm">
+                    <span className="flex items-center gap-2">
+                        <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                        </span>
+                        <span className="text-gray-300">Are you a local business?</span>
+                        <Link href="/advertise" className="text-[#6BD85E] font-bold hover:underline ml-1">
+                            Advertise to gym-goers in your area →
+                        </Link>
+                    </span>
+                </div>
+            </div>
 
             {/* Navigation */}
-            <nav className="fixed top-0 w-full z-50 border-b border-white/5 bg-black/50 backdrop-blur-xl">
+            <nav className="sticky top-0 w-full z-50 border-b border-white/5 bg-black/50 backdrop-blur-xl">
                 <div className="max-w-7xl mx-auto px-6 h-48 flex items-center justify-between relative">
                     <div className="relative h-10 w-[280px] flex items-center justify-start overflow-visible">
                         <Image
@@ -37,29 +73,42 @@ export default function LandingPage() {
                     </div>
                     <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-6 text-sm font-medium text-gray-400">
                         <Link href="/list-your-gym" className="hover:text-white transition-colors">List Your Gym</Link>
+                        <Link href="/advertise" className="hover:text-white transition-colors">Advertise</Link>
+                        <Link href="/press" className="hover:text-white transition-colors">Press</Link>
                         <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
                     </div>
                     <div className="flex items-center gap-3">
-                        <Button variant="ghost" asChild className="text-gray-400 hover:text-white">
+                        <Button variant="ghost" asChild className="hidden sm:inline-flex text-gray-400 hover:text-white">
                             <Link href="/login">Log in</Link>
                         </Button>
-                        <Button
-                            className="bg-[#6BD85E] text-black hover:bg-[#5bc250] font-bold rounded-full px-6"
-                            onClick={() => router.push("/search")}
-                        >
-                            <span className="flex items-center justify-center w-full h-full">
-                                <span className="relative">
-                                    Launch App
-                                    <ArrowRight className="absolute left-full ml-[2px] top-1/2 -translate-y-1/2 h-4 w-4" />
-                                </span>
-                            </span>
-                        </Button>
+
+                        {/* Mobile Menu */}
+                        <Sheet>
+                            <SheetTrigger asChild>
+                                <Button variant="ghost" size="icon" className="md:hidden text-gray-400 hover:text-white">
+                                    <Menu className="h-6 w-6" />
+                                </Button>
+                            </SheetTrigger>
+                            <SheetContent side="right" className="bg-zinc-950 border-white/10 text-white w-[280px]">
+                                <SheetHeader>
+                                    <SheetTitle className="text-left text-white mb-4">Menu</SheetTitle>
+                                </SheetHeader>
+                                <div className="flex flex-col gap-6 text-lg font-medium text-gray-300 mt-4">
+                                    <Link href="/list-your-gym" className="hover:text-white transition-colors">List Your Gym</Link>
+                                    <Link href="/advertise" className="hover:text-white transition-colors">Advertise</Link>
+                                    <Link href="/press" className="hover:text-white transition-colors">Press</Link>
+                                    <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
+                                    <div className="h-px bg-white/10 my-2" />
+                                    <Link href="/login" className="hover:text-white transition-colors">Log in</Link>
+                                </div>
+                            </SheetContent>
+                        </Sheet>
                     </div>
                 </div>
             </nav>
 
             {/* Hero Section */}
-            <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
+            <section className="relative pt-16 pb-20 md:pt-24 md:pb-32 overflow-hidden">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-[#6BD85E]/20 blur-[120px] rounded-full opacity-30 pointer-events-none" />
 
                 <div className="container max-w-6xl mx-auto px-6 text-center relative z-10">
@@ -83,41 +132,64 @@ export default function LandingPage() {
                         <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-[#6BD85E]/10 border border-[#6BD85E]/20 backdrop-blur-sm shadow-[0_0_20px_rgba(107,216,94,0.1)]">
                             <Zap className="h-4 w-4 text-[#6BD85E]" />
                             <span className="text-sm font-semibold tracking-wide">
-                                <span className="text-[#6BD85E] text-base mr-1">1,864</span>
+                                <span className="text-[#6BD85E] text-base mr-1">{gymCount ? gymCount.toLocaleString() : "1,800+"}</span>
                                 GYMS CURRENTLY LISTED
                             </span>
                         </div>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <div className="flex flex-col items-center justify-center gap-4">
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
+                            <Button
+                                size="lg"
+                                className="h-14 px-8 min-w-[210px] text-lg font-bold bg-[#6BD85E] text-black hover:bg-[#5bc250] rounded-full w-full sm:w-auto shadow-[0_0_20px_rgba(107,216,94,0.3)] hover:shadow-[0_0_30px_rgba(107,216,94,0.5)] transition-all"
+                                onClick={() => router.push("/search")}
+                            >
+                                <span className="flex items-center justify-center">
+                                    <span className="relative">
+                                        <Search className="absolute right-full mr-1 top-1/2 -translate-y-1/2 h-5 w-5" />
+                                        Find Gyms
+                                    </span>
+                                </span>
+                            </Button>
+                            <Button size="lg" variant="outline" asChild className="h-14 px-8 min-w-[210px] text-lg font-medium border-white/10 bg-white/5 hover:bg-white/10 text-white rounded-full w-full sm:w-auto hidden">
+                                <Link href="/download" className="flex items-center justify-center">
+                                    Download App
+                                </Link>
+                            </Button>
+                        </div>
+                        
                         <Button
                             size="lg"
-                            className="h-14 px-8 min-w-[210px] text-lg font-bold bg-[#6BD85E] text-black hover:bg-[#5bc250] rounded-full w-full sm:w-auto shadow-[0_0_20px_rgba(107,216,94,0.3)] hover:shadow-[0_0_30px_rgba(107,216,94,0.5)] transition-all"
-                            onClick={() => router.push("/search")}
+                            variant="outline"
+                            className="h-14 px-8 min-w-[210px] text-lg font-bold border-[#6BD85E]/30 bg-[#6BD85E]/10 hover:bg-[#6BD85E]/20 text-[#6BD85E] rounded-full w-full sm:w-auto shadow-[0_0_15px_rgba(107,216,94,0.1)] transition-all hover:scale-105"
+                            onClick={() => router.push("/gym-bounty")}
                         >
-                            <span className="flex items-center justify-center">
-                                <span className="relative">
-                                    <Search className="absolute right-full mr-1 top-1/2 -translate-y-1/2 h-5 w-5" />
-                                    Find Gyms
-                                </span>
+                            <span className="flex items-center justify-center gap-2">
+                                <Zap className="h-5 w-5" />
+                                Post a Gym Bounty
                             </span>
-                        </Button>
-                        <Button size="lg" variant="outline" asChild className="h-14 px-8 min-w-[210px] text-lg font-medium border-white/10 bg-white/5 hover:bg-white/10 text-white rounded-full w-full sm:w-auto">
-                            <Link href="/download" className="flex items-center justify-center">
-                                Download App
-                            </Link>
                         </Button>
                     </div>
 
                     {/* Preview Image / Mockup */}
                     <div className="mt-20 relative mx-auto max-w-5xl rounded-2xl border border-white/10 bg-black/50 backdrop-blur-sm p-2 shadow-2xl">
                         <div className="absolute -inset-1 bg-gradient-to-b from-white/10 to-transparent rounded-2xl blur-sm -z-10" />
-                        <div className="aspect-[16/9] rounded-xl overflow-hidden bg-zinc-900 relative group selection:bg-none">
+                        <div className="aspect-[4/5] sm:aspect-[16/9] rounded-xl overflow-hidden bg-zinc-900 relative group selection:bg-none">
+                            {/* Mobile Image */}
+                            <Image
+                                src="/images/gymsaver_product_preview_mobile.png"
+                                alt="GymSaver - Find Cheap Gym Memberships & Local Fitness Deals"
+                                fill
+                                className="object-cover group-hover:scale-[1.02] transition-transform duration-700 block sm:hidden"
+                                priority
+                            />
+                            {/* Desktop Image */}
                             <Image
                                 src="/images/gymsaver_product_preview.png"
                                 alt="GymSaver - Find Cheap Gym Memberships & Local Fitness Deals"
                                 fill
-                                className="object-cover group-hover:scale-[1.02] transition-transform duration-700"
+                                className="object-cover group-hover:scale-[1.02] transition-transform duration-700 hidden sm:block"
                                 priority
                             />
                         </div>
@@ -204,13 +276,17 @@ export default function LandingPage() {
                             />
                         </div>
                     </div>
-                    <div className="flex gap-8 text-sm text-gray-500">
+                    <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-sm text-gray-500">
+                        <Link href="/advertise" className="hover:text-white">Advertise</Link>
+                        <Link href="/list-your-gym" className="hover:text-white">List Your Gym</Link>
+                        <Link href="/press" className="hover:text-white">Press</Link>
                         <Link href="/legal/privacy" className="hover:text-white">Privacy</Link>
                         <Link href="/legal/terms" className="hover:text-white">Terms</Link>
                         <Link href="/contact" className="hover:text-white">Contact</Link>
                     </div>
-                    <div className="text-sm text-gray-600">
+                    <div className="flex items-center gap-4 text-sm text-gray-600">
                         © {new Date().getFullYear()} GymSaver. All rights reserved.
+                        <Link href="https://instagram.com/GymsaverHQ" target="_blank" className="hover:text-white transition-colors ml-4">Instagram</Link>
                     </div>
                 </div>
             </footer>

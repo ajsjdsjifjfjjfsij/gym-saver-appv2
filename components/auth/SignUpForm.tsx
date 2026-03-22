@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,10 +21,29 @@ export default function SignUpForm() {
         e.preventDefault();
         setError("");
         try {
-            await createUserWithEmailAndPassword(auth, email, password);
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            try {
+                // Ensure generic users are tracked seamlessly in Firestore so global Broadcast can hit them
+                await setDoc(doc(db, "users", user.uid), {
+                    email: user.email,
+                    role: "user",
+                    createdAt: serverTimestamp()
+                });
+            } catch (e) {
+                console.error("Failed to store global user registry:", e);
+            }
+
             router.push("/search");
         } catch (err: any) {
-            setError(err.message);
+            let msg = err.message || "";
+            if (msg.includes("email-already-in-use")) msg = "Error: This email address is already in use.";
+            else if (msg.includes("invalid-credential")) msg = "Error: Incorrect email or password.";
+            else if (msg.includes("weak-password")) msg = "Error: Password must be at least 6 characters.";
+            else if (msg.includes("invalid-email")) msg = "Error: Please provide a valid email address.";
+            else msg = msg.replace("Firebase: Error ", "").replace(/\(auth\/[^)]+\)\.?/g, "").trim();
+            setError(msg);
         }
     };
 

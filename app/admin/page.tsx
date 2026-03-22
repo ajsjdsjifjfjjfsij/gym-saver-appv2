@@ -3,13 +3,12 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth/AuthContext";
 import { useRouter } from "next/navigation";
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc, getDoc, setDoc, where } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc, getDoc, setDoc, where, getDocs } from "firebase/firestore";
+import { db, auth } from "@/lib/firebase";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, Check, X, FileText, ImageIcon, DollarSign, Mail, AlertCircle, Star } from "lucide-react";
+import { Loader2, Check, X, FileText, ImageIcon, DollarSign, Mail, AlertCircle, Star, Send } from "lucide-react";
 import { sendEmailVerification } from "firebase/auth";
-import { auth } from "@/lib/firebase";
 import Image from "next/image";
 import {
     Table,
@@ -21,7 +20,9 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 const ADMIN_EMAIL = "josephbunton@live.co.uk";
 
 interface Submission {
@@ -56,6 +57,8 @@ interface GymListing {
     join_link?: string;
     status: "pending" | "matched" | "approved" | "rejected";
     media?: { gymImageUrl?: string; priceImageUrl?: string };
+    lat?: number;
+    lng?: number;
 }
 
 export default function AdminDashboard() {
@@ -64,11 +67,17 @@ export default function AdminDashboard() {
     const [submissions, setSubmissions] = useState<Submission[]>([]);
     const [gymListings, setGymListings] = useState<GymListing[]>([]);
     const [featuredGyms, setFeaturedGyms] = useState<any[]>([]);
+    const [pendingPartners, setPendingPartners] = useState<any[]>([]);
     const [dataLoading, setDataLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [verifying, setVerifying] = useState(false);
 
-    // Featured Gym Management State
+    // Global Broadcast Broadcast State
+    const [broadcastSubject, setBroadcastSubject] = useState("");
+    const [broadcastMessage, setBroadcastMessage] = useState("");
+    const [isBroadcasting, setIsBroadcasting] = useState(false);
+
+    // Featured Gym Input States
     const [featurePlaceId, setFeaturePlaceId] = useState("");
     const [featureFrom, setFeatureFrom] = useState("");
     const [featureUntil, setFeatureUntil] = useState("");
@@ -124,6 +133,17 @@ export default function AdminDashboard() {
                 (err) => handleError(err)
             );
 
+            // Query Pending Partners
+            const qPartners = query(collection(db, "users"), where("role", "==", "pending_partner"));
+            const unsubPartners = onSnapshot(qPartners,
+                (snapshot) => {
+                    const partners: any[] = [];
+                    snapshot.forEach((doc) => partners.push({ id: doc.id, ...doc.data() }));
+                    setPendingPartners(partners);
+                },
+                (err) => handleError(err)
+            );
+
             const handleError = (err: any) => {
                 console.error("Firestore error in Admin Console:", err);
                 setError(err.message === "Missing or insufficient permissions."
@@ -136,6 +156,7 @@ export default function AdminDashboard() {
                 unsubSubs();
                 unsubListings();
                 unsubFeatured();
+                unsubPartners();
             };
         }
     }, [user]);
@@ -276,6 +297,72 @@ export default function AdminDashboard() {
         } catch (error) {
             console.error("Error updating Place ID:", error);
             alert("Failed to update Place ID.");
+        }
+    };
+
+    // Pending Partner Handlers
+    const handleApprovePartner = async (partnerId: string, email: string, gymName: string) => {
+        try {
+            await updateDoc(doc(db, "users", partnerId), { role: "gym_owner" });
+            
+            // Dispatch Resend Email
+            await fetch("/api/email/approve-partner", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ targetEmail: email, gymName })
+            });
+            
+            alert("Partner approved and email successfully sent!");
+        } catch (error) {
+            console.error("Error approving partner:", error);
+            alert("Failed to approve partner or send email.");
+        }
+    };
+
+    // Global Broadcast Matrix
+    const handleBroadcast = async () => {
+        if (!broadcastSubject || !broadcastMessage) {
+            alert("Both Subject and Message are strictly required.");
+            return;
+        }
+        setIsBroadcasting(true);
+        try {
+            // First, effortlessly pool EVERY user from the secure collection
+            const snapshot = await getDocs(collection(db, "users"));
+            const targetEmails: string[] = [];
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                if (data.email) {
+                    targetEmails.push(data.email);
+                }
+            });
+
+            if (targetEmails.length === 0) {
+                alert("No users found natively globally. Ensure users have properly registered under the new system.");
+                setIsBroadcasting(false);
+                return;
+            }
+
+            // Immediately hit the dedicated Resend bulk API
+            const res = await fetch("/api/email/broadcast", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ targetEmails, subject: broadcastSubject, messageHtml: broadcastMessage })
+            });
+            const data = await res.json();
+            
+            if (res.ok) {
+                alert(`Broadcast intelligently dispatched to ${data.count || targetEmails.length} global users!`);
+                setBroadcastSubject("");
+                setBroadcastMessage("");
+            } else {
+                alert("Failed to hit resend matrix: " + data.error);
+            }
+        } catch (error) {
+            console.error("Error running global matrix calculation:", error);
+            alert("Failed to dispatch global message universally.");
+        } finally {
+            setIsBroadcasting(false);
         }
     };
 
@@ -448,11 +535,102 @@ export default function AdminDashboard() {
 
                 {/* Tabs for Submissions vs Listings */}
                 <Tabs defaultValue="gym-listings" className="w-full">
-                    <TabsList className="grid w-full mb-6 grid-cols-3 bg-white/5 border border-white/10 rounded-xl p-1">
-                        <TabsTrigger value="gym-listings" className="rounded-lg data-[state=active]:bg-[#6BD85E] data-[state=active]:text-black text-white hover:bg-white/10 transition-colors py-2">Gym Listings</TabsTrigger>
-                        <TabsTrigger value="price-changes" className="rounded-lg data-[state=active]:bg-[#6BD85E] data-[state=active]:text-black text-white hover:bg-white/10 transition-colors py-2">Price Changes</TabsTrigger>
-                        <TabsTrigger value="featured" className="rounded-lg data-[state=active]:bg-yellow-500 data-[state=active]:text-black text-white hover:bg-white/10 transition-colors py-2">Featured Options</TabsTrigger>
+                    <TabsList className="grid w-full mb-6 grid-cols-5 bg-white/5 border border-white/10 rounded-xl p-1">
+                        <TabsTrigger value="gym-listings" className="rounded-lg data-[state=active]:bg-[#6BD85E] data-[state=active]:text-black text-white hover:bg-white/10 transition-colors py-2 text-xs sm:text-sm">Gym Listings</TabsTrigger>
+                        <TabsTrigger value="partner-approvals" className="rounded-lg data-[state=active]:bg-[#6BD85E] data-[state=active]:text-black text-white hover:bg-white/10 transition-colors py-2 text-xs sm:text-sm">Partner Approvals</TabsTrigger>
+                        <TabsTrigger value="price-changes" className="rounded-lg data-[state=active]:bg-[#6BD85E] data-[state=active]:text-black text-white hover:bg-white/10 transition-colors py-2 text-xs sm:text-sm">Price Changes</TabsTrigger>
+                        <TabsTrigger value="featured" className="rounded-lg data-[state=active]:bg-yellow-500 data-[state=active]:text-black text-white hover:bg-white/10 transition-colors py-2 text-xs sm:text-sm">Featured Options</TabsTrigger>
+                        <TabsTrigger value="broadcast" className="rounded-lg data-[state=active]:bg-blue-500 data-[state=active]:text-white text-white hover:bg-white/10 transition-colors py-2 text-xs sm:text-sm shadow-md">Global Broadcast</TabsTrigger>
                     </TabsList>
+
+                    <TabsContent value="broadcast" className="mt-0">
+                        <Card className="bg-white/5 border-white/10 text-white overflow-hidden shadow-[0_0_20px_rgba(59,130,246,0.15)] relative">
+                            {/* Blue Accent Glow */}
+                            <div className="absolute -top-32 -right-32 w-64 h-64 bg-blue-500/20 blur-[100px] rounded-full pointer-events-none" />
+                            <CardHeader>
+                                <CardTitle className="text-blue-400 text-2xl items-center flex gap-2">
+                                    <Send className="h-6 w-6" /> Mass Email Broadcast
+                                </CardTitle>
+                                <CardDescription>Send an announcement instantly to literally every registered GymSaver user via our secure Resend relay.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6 relative z-10">
+                                <div className="space-y-3">
+                                    <Label className="text-gray-300 font-bold">Subject Line</Label>
+                                    <Input 
+                                        type="text" 
+                                        placeholder="e.g. Huge GymSaver Update Just Dropped!" 
+                                        className="bg-black/50 border-white/20 text-white h-12 text-lg focus-visible:ring-blue-500"
+                                        value={broadcastSubject}
+                                        onChange={(e) => setBroadcastSubject(e.target.value)}
+                                    />
+                                </div>
+                                <div className="space-y-3">
+                                    <Label className="text-gray-300 font-bold">HTML Message Payload</Label>
+                                    <Textarea 
+                                        placeholder="<p>Hey everyone, massive news today...</p>" 
+                                        className="bg-black/50 border-white/20 text-white min-h-[250px] font-mono whitespace-pre focus-visible:ring-blue-500 text-sm"
+                                        value={broadcastMessage}
+                                        onChange={(e) => setBroadcastMessage(e.target.value)}
+                                    />
+                                    <p className="text-xs text-slate-500">You can safely use pure HTML structures (h1, p, br, a, div) inside this payload. Standard inline styles are permitted natively.</p>
+                                </div>
+                                <Button 
+                                    size="lg" 
+                                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold h-14 text-lg shadow-[0_0_15px_rgba(37,99,235,0.4)] disabled:opacity-50"
+                                    onClick={handleBroadcast}
+                                    disabled={isBroadcasting}
+                                >
+                                    {isBroadcasting ? "Executing Database Query & Hitting Bulk API..." : "Fire Broadcast Matrix Now"}
+                                </Button>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="partner-approvals" className="mt-0">
+                        <Card className="bg-white/5 border-white/10 text-white overflow-hidden shadow-[0_0_15px_rgba(107,216,94,0.1)]">
+                            <CardHeader>
+                                <CardTitle className="text-[#6BD85E]">Pending Gym Partners</CardTitle>
+                                <CardDescription>Gym managers waiting to be security-approved to access the Bounties Board.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="rounded-md border border-white/10 overflow-x-auto">
+                                    <Table>
+                                        <TableHeader className="bg-white/5 whitespace-nowrap">
+                                            <TableRow className="border-white/10 hover:bg-white/5">
+                                                <TableHead className="text-gray-400">Gym Name</TableHead>
+                                                <TableHead className="text-gray-400">Email Address</TableHead>
+                                                <TableHead className="text-gray-400">Sign Up Date</TableHead>
+                                                <TableHead className="text-right text-gray-400">Actions</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {pendingPartners.map((partner) => (
+                                                <TableRow key={partner.id} className="border-white/10 hover:bg-white/5">
+                                                    <TableCell className="font-bold">{partner.gymName}</TableCell>
+                                                    <TableCell className="text-gray-300 font-mono text-sm">{partner.email}</TableCell>
+                                                    <TableCell className="text-xs text-muted-foreground">
+                                                        {partner.createdAt ? new Date(partner.createdAt.seconds * 1000).toLocaleDateString() : 'N/A'}
+                                                    </TableCell>
+                                                    <TableCell className="text-right">
+                                                        <Button size="sm" variant="ghost" className="bg-[#6BD85E]/20 text-[#6BD85E] hover:bg-[#6BD85E]/40 font-bold border border-[#6BD85E]/30" onClick={() => handleApprovePartner(partner.id, partner.email, partner.gymName)}>
+                                                            <Check className="h-4 w-4 mr-1" /> Approve Partner
+                                                        </Button>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                            {pendingPartners.length === 0 && (
+                                                <TableRow>
+                                                    <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                                                        No pending gym partners at this moment.
+                                                    </TableCell>
+                                                </TableRow>
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
 
                     <TabsContent value="price-changes" className="mt-0">
                         {/* Submissions Table */}

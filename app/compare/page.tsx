@@ -38,15 +38,20 @@ export default function CompareGymsPage() {
     // Randomly assign facilities based on gym name/type for the comparison view
     // (Logic duplicated from saved/page.tsx for consistency)
     const gymsWithFacilities = useMemo(() => {
+        const prices = comparedGyms.map(gym => getGymPrice(gym).monthly || 0);
+        const maxPrice = Math.max(...prices, 0);
+
         return comparedGyms.slice(0, 3).map(gym => {
             const { monthly } = getGymPrice(gym);
+            const savingsVsMax = monthly && maxPrice > monthly ? maxPrice - monthly : 0;
 
             return {
                 ...gym,
                 facilities: getGymFacilities(gym),
                 detailedPricing: {
                     monthly: monthly,
-                    annual: monthly * 12,
+                    annual: (monthly || 0) * 12,
+                    savingsVsMax: savingsVsMax
                 }
             }
         })
@@ -121,7 +126,7 @@ export default function CompareGymsPage() {
                         <div className="grid gap-px bg-white/5 border border-white/5 rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden"
                             style={{ gridTemplateColumns: `repeat(${gymsWithFacilities.length}, minmax(0, 1fr))` }}>
                             {gymsWithFacilities.map((gym, idx) => (
-                                <div key={gym.id} className={`flex flex-col bg-black relative ${idx % 2 === 0 ? 'bg-zinc-950/40' : 'bg-black'}`}>
+                                <div key={gym.id} className={`flex flex-col bg-black relative min-h-full ${idx % 2 === 0 ? 'bg-zinc-950/40' : 'bg-black'}`}>
                                     {/* Sticky Gym Header with Pricing */}
                                     <div className="sticky top-[72px] z-30 p-2 md:p-5 bg-zinc-950/95 backdrop-blur-xl border-b border-white/5 shadow-2xl">
                                         <div className="relative group">
@@ -169,24 +174,34 @@ export default function CompareGymsPage() {
                                             {/* Integrated Price Summary */}
                                             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-1 md:gap-4 px-0.5">
                                                 <div className="flex flex-col">
-                                                    <span className="text-[7px] md:text-[9px] uppercase tracking-[0.1em] md:tracking-[0.2em] text-slate-500 font-black mb-0 md:mb-0.5 ml-0.5">Memb.</span>
+                                                    <span className="text-[8px] md:text-[10px] uppercase tracking-[0.1em] md:tracking-[0.2em] text-slate-500 font-black mb-0.5 md:mb-1 ml-0.5">Memb.</span>
                                                     <div className="flex items-baseline gap-0.5">
-                                                        <span className="text-sm md:text-3xl font-black text-[#6BD85E]">£{gym.detailedPricing.monthly}</span>
-                                                        <span className="text-[8px] md:text-[10px] text-slate-500 font-bold">/mo</span>
+                                                        <span className="text-xl md:text-5xl font-black text-[#6BD85E]">
+                                                            {gym.detailedPricing.monthly ? `£${gym.detailedPricing.monthly}` : "N/A"}
+                                                        </span>
+                                                        <span className="text-[10px] md:text-xs text-slate-500 font-bold">/mo</span>
                                                     </div>
                                                 </div>
                                                 <div className="flex flex-col items-start md:items-end">
-                                                    <div className="px-1 md:px-2 py-0.5 md:py-1 rounded-md md:rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[7px] md:text-[9px] font-black leading-none">
-                                                        SAVE £{(gym.detailedPricing.monthly * 12 - gym.detailedPricing.annual).toFixed(0)}
-                                                    </div>
-                                                    <span className="text-[6px] md:text-[8px] text-blue-500/50 font-bold mt-0.5 md:mt-1 uppercase tracking-tighter hidden md:block">Annually</span>
+                                                    {gym.detailedPricing.savingsVsMax > 0 ? (
+                                                        <div className="px-2 md:px-3 py-1 md:py-1.5 rounded-md md:rounded-xl bg-[#6BD85E] text-black text-[10px] md:text-lg font-black leading-none animate-bounce shadow-[0_0_20px_rgba(107,216,94,0.4)]">
+                                                            SAVE £{gym.detailedPricing.savingsVsMax.toFixed(0)}/mo
+                                                        </div>
+                                                    ) : (
+                                                        <div className="px-1.5 md:px-2 py-0.5 md:py-1 rounded-md md:rounded-lg bg-zinc-800 border border-white/5 text-slate-400 text-[8px] md:text-xs font-black leading-none uppercase">
+                                                            Premium
+                                                        </div>
+                                                    )}
+                                                    <span className="text-[7px] md:text-[10px] text-slate-500 font-bold mt-1 md:mt-2 uppercase tracking-tight hidden md:block">
+                                                        {gym.detailedPricing.savingsVsMax > 0 ? "Potential Savings" : "Highest Price"}
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* Facilities Section */}
-                                    <div className="p-2 md:p-6 pt-4 md:pt-8 space-y-3 md:space-y-6 relative">
+                                    <div className="p-2 md:p-6 pt-4 md:pt-8 space-y-3 md:space-y-6 relative flex-1 flex flex-col">
                                         <div className="absolute top-0 left-0 right-0 h-4 bg-gradient-to-b from-black/20 to-transparent pointer-events-none"></div>
                                         <span className="block text-center text-[7px] md:text-[10px] uppercase tracking-[0.1em] md:tracking-[0.2em] text-slate-500 font-bold mb-2 md:mb-4 truncate">Facilities</span>
                                         <div className="grid grid-cols-1 gap-1.5 md:gap-4">
@@ -222,14 +237,14 @@ export default function CompareGymsPage() {
                                         </div>
 
                                         {/* Mobile Action Buttons (Miniaturized) */}
-                                        <div className="mt-4 md:mt-auto pt-4 md:p-6">
+                                        <div className="mt-auto pt-4 md:p-6">
                                             <Button
                                                 className="w-full bg-[#6BD85E] hover:bg-[#5bc250] text-black font-black transition-all hover:scale-[1.02] active:scale-[0.98] group rounded-lg md:rounded-xl h-8 md:h-12 text-[8px] md:text-sm px-1 md:px-4"
                                                 asChild
                                             >
                                                 <a href={`${gym.website}${gym.website?.includes('?') ? '&' : '?'}ref=gymsaver`} target="_blank" rel="noopener noreferrer">
-                                                    Sign Up
-                                                    <ExternalLink className="ml-1 md:ml-2 h-2 w-2 md:h-4 md:w-4 opacity-50 type-opacity-100 transition-opacity" />
+                                                    Join Gym
+                                                    <ExternalLink className="ml-1 md:ml-2 h-2.5 w-2.5 md:h-4 md:w-4 opacity-50 group-hover:opacity-100 transition-opacity" />
                                                 </a>
                                             </Button>
                                         </div>

@@ -120,6 +120,17 @@ export async function GET(request: Request) {
     // 5. Data Fetching (Firestore or Places)
     // ---------------------------------------------------------
     try {
+        const normalizedQuery = (query || "").toLowerCase().replace(/\s/g, "");
+        const isBrandQuery = normalizedQuery.includes("puregym") ||
+            normalizedQuery.includes("jdgym") ||
+            normalizedQuery.includes("thegym") ||
+            normalizedQuery.includes("nuffield") ||
+            normalizedQuery.includes("bannatyne") ||
+            normalizedQuery.includes("anytimefitness") ||
+            normalizedQuery.includes("jetts") ||
+            normalizedQuery.includes("snapfitness") ||
+            normalizedQuery.includes("everlastgym");
+
         if (source === "firestore") {
             // Calculate bounding box based on radius
             // 1 degree lat ~= 111 km
@@ -131,17 +142,26 @@ export async function GET(request: Request) {
             const minLat = parseFloat(lat) - latDelta;
             const maxLat = parseFloat(lat) + latDelta;
 
-            const q = fsQuery(
-                collection(db, "gyms"),
-                where("location.lat", ">=", minLat),
-                where("location.lat", "<=", maxLat),
-                orderBy("location.lat"),
-                fsLimit(10000) // Firestore maximum query limit is 10000
-            );
+            let q;
+            if (isBrandQuery) {
+                // BRAND BYPASS: If searching for a chain, don't limit by coordinates
+                console.log(`[Backend] Brand query detected: "${query}". Bypassing geo-filter.`);
+                q = fsQuery(
+                    collection(db, "gyms"),
+                    orderBy("name"), // Use name ordering instead for brand queries
+                    fsLimit(500)
+                );
+            } else {
+                q = fsQuery(
+                    collection(db, "gyms"),
+                    where("location.lat", ">=", minLat),
+                    where("location.lat", "<=", maxLat),
+                    orderBy("location.lat"),
+                    fsLimit(10000) // Firestore maximum query limit is 10000
+                );
+            }
 
             // Fetch Approved Gym Listings from new flat structure
-            // Geo-filtering isn't strictly necessary on these if we want all of them to show or rely on client-side text-search for now.
-            // But we will pull them and combine down as long as they are near.
             const queryApprovedListings = fsQuery(
                 collection(db, "pending_gym_listings"),
                 where("status", "==", "approved")
@@ -198,8 +218,9 @@ export async function GET(request: Request) {
                 if (gymLat === undefined || gymLng === undefined || isNaN(gymLat) || isNaN(gymLng)) return null;
 
                 // Distance Filtering: Ensure the approved listing is actually within the search radius
+                // BRAND BYPASS: If searching for a chain, show all approved listings
                 const distance = getDistance(centerLat, centerLng, gymLat, gymLng);
-                if (distance > radiusInMeters) return null;
+                if (distance > radiusInMeters && !isBrandQuery) return null;
 
                 return {
                     id: gymPlaceId,
@@ -227,6 +248,9 @@ export async function GET(request: Request) {
                 const data = g as any;
                 const name = (data.name || "").toLowerCase();
                 const website = (data.website || "").toLowerCase();
+
+                // Filter out David Lloyd and Village Gym
+                if (name.includes("david lloyd") || name.includes("village gym")) return false;
 
                 // Filter out Better (GLL) by name prefix
                 if (name.startsWith("better ") || name.includes("better gym") || name.includes("better:")) return false;
@@ -325,7 +349,7 @@ export async function GET(request: Request) {
 
             if (!isAllowedType) return false;
 
-            const unwantedTerms = ["boxing", "kickboxing", "gymnastics", "training ground", "dance", "martial arts", "pizza", "restaurant", "pub", "bar", "cafe", "better gym", "better "];
+            const unwantedTerms = ["boxing", "kickboxing", "gymnastics", "training ground", "dance", "martial arts", "pizza", "restaurant", "pub", "bar", "cafe", "better gym", "better ", "david lloyd", "village gym"];
             return !unwantedTerms.some(term => name.includes(term) || type.includes(term));
         });
 

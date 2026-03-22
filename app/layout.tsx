@@ -24,11 +24,11 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   title: {
-    default: 'GymSaver | Compare Gym Prices, Find Deals & Save Money in the UK',
+    default: 'GymSaver | The Gym Saver App | Compare Gym Prices & Find Deals UK',
     template: '%s | GymSaver'
   },
-  description: 'Compare gym prices and memberships across the UK. One search to find the best gym deals, 24-hour fitness centers, and cheap gym offers near you. Stop overpaying for your gym membership with GymSaver.',
-  keywords: ['gym prices', 'compare gyms', 'gym deals', 'uk gyms', 'fitness memberships', 'cheap gyms', 'gym saver', 'find a gym', 'gym locator'],
+  description: 'Compare gym prices and memberships across the UK. One search to find the best gym deals, 24-hour fitness centers, and cheap gym offers near you. Stop overpaying for your gym membership with the Gym Saver App.',
+  keywords: ['gym prices', 'compare gyms', 'gym deals', 'uk gyms', 'fitness memberships', 'cheap gyms', 'gym saver', 'gym saver app', 'gymsaver app', 'find a gym', 'gym locator'],
   authors: [{ name: 'GymSaver Team' }],
   creator: 'GymSaver',
   publisher: 'GymSaver',
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     telephone: false,
   },
   openGraph: {
-    title: 'GymSaver | Compare Gym Prices & Save Money',
+    title: 'GymSaver | The Gym Saver App | Compare Prices & Save Money',
     description: 'Find the best gym deals and membership prices near you. Compare PureGym, The Gym Group, JD Gyms, and more in one place. Zero over-paying.',
     url: 'https://www.gymsaverapp.com',
     siteName: 'GymSaver',
@@ -55,8 +55,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'GymSaver | Compare Gym Prices & Save Money',
-    description: 'Find the best gym deals and membership prices near you in the UK. Stop overpaying with GymSaver.',
+    title: 'GymSaver | The Gym Saver App | Compare Prices & Save Money',
+    description: 'Find the best gym deals and membership prices near you in the UK. Stop overpaying with the Gym Saver App.',
     images: ['/opengraph-image.png'],
     creator: '@gymsaverapp',
   },
@@ -70,6 +70,13 @@ export const metadata: Metadata = {
       'max-image-preview': 'large',
       'max-snippet': -1,
     },
+  },
+  icons: {
+    icon: '/icon?v=2',
+    apple: '/apple-icon?v=2',
+  },
+  other: {
+    'fo-verify': '30bf3549-55ea-4fe5-879c-bce0e54f8c66',
   },
 }
 

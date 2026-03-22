@@ -46,7 +46,6 @@ export function SeoFooter() {
                     <Link href="/gym-chain/puregym" className="hover:text-white">PureGym</Link>
                     <Link href="/gym-chain/the-gym-group" className="hover:text-white">The Gym Group</Link>
                     <Link href="/gym-chain/jd-gyms" className="hover:text-white">JD Gyms</Link>
-                    <Link href="/gym-chain/david-lloyd" className="hover:text-white">David Lloyd</Link>
                     <Link href="/gym-chain/anytime-fitness" className="hover:text-white">Anytime Fitness</Link>
                 </div>
             </div>

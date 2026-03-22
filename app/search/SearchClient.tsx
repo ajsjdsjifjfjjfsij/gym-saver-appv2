@@ -6,6 +6,7 @@ import { Header } from "@/components/header"
 import { GymMap } from "@/components/gym-map"
 import { GymFilters } from "@/components/gym-filters"
 import { GymCard } from "@/components/gym-card"
+import { SponsoredGymCard } from "@/components/SponsoredGymCard"
 import { HoneypotGym } from "@/components/HoneypotGym"
 import { CompareBar } from "@/components/compare-bar"
 import { Button } from "@/components/ui/button"
@@ -127,8 +128,8 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
       normalized.includes("nuffield") ||
       normalized.includes("bannatyne") ||
       normalized.includes("anytimefitness") ||
-      normalized.includes("villagegym") ||
-      normalized.includes("davidlloyd")
+      normalized.includes("jetts") ||
+      normalized.includes("jettsgym")
     );
   }, []);
 
@@ -200,8 +201,7 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
           normalizedQuery.includes("nuffield") ||
           normalizedQuery.includes("bannatyne") ||
           normalizedQuery.includes("anytimefitness") ||
-          normalizedQuery.includes("villagegym") ||
-          normalizedQuery.includes("davidlloyd");
+          normalizedQuery.includes("jetts");
 
         // If the query is exactly what we just geocoded (a location search), 
         // don't strictly filter the results by name/city text UNLESS it's a brand search.
@@ -226,8 +226,7 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
               (normalizedQuery.includes("nuffield") && (website.includes("nuffield") || normalizedName.includes("nuffield"))) ||
               (normalizedQuery.includes("bannatyne") && (website.includes("bannatyne") || normalizedName.includes("bannatyne"))) ||
               (normalizedQuery.includes("anytimefitness") && (website.includes("anytimefitness") || normalizedName.includes("anytime"))) ||
-              (normalizedQuery.includes("villagegym") && (website.includes("village") || normalizedName.includes("village"))) ||
-              (normalizedQuery.includes("davidlloyd") && (website.includes("davidlloyd") || normalizedName.includes("davidlloyd")));
+              (normalizedQuery.includes("jetts") && (website.includes("jetts") || normalizedName.includes("jetts")));
 
             // If it's a brand search, it overrides other strict filters
             if (isBrand && brandMatch) return true;
@@ -241,6 +240,7 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
       // Also exclude strict blacklist terms for non-gym venues
       const unwantedTerms = [
         "better ", "better gym", // Provider: Better (GLL)
+        "david lloyd", "village gym", // Blacklisted providers
         "tennis", "hydro", "recreation", "online only", // Non-gym identifiers
         "school", "college", "university", // Educational institutions
         "croft sports", "haydon center" // Specific user-reported venues
@@ -266,7 +266,7 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
         // We will now ONLY filter it out if we are SURE it's a duplicate/unlinked entry.
         // For JD Gyms, Anytime Fitness, and The Gym Group, we are explicitly skipping this filter.
         const gymNameNormalized = gymNameLower.replace(/\s/g, "");
-        const majorBrandsNormalized = ["puregym", "thegym", "anytimefitness", "davidlloyd", "nuffieldhealth", "everlastgym", "jdgym", "snapfitness"];
+        const majorBrandsNormalized = ["puregym", "thegym", "anytimefitness", "everlastgym", "jdgym", "snapfitness"];
 
         const isMajorBrand = majorBrandsNormalized.some(brand => gymNameNormalized.includes(brand));
 
@@ -349,11 +349,25 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
           if (!gymName.includes("The Gym Group")) gymName = gymName.replace(/the\s?gym/i, "The Gym Group");
         } else if (websiteLower.includes("thegymgroup") && !gymName.toLowerCase().includes("the gym")) gymName = `The Gym Group ${gymName}`;
 
+        if (gymName.toLowerCase().includes("jetts")) {
+          if (!gymName.includes("Jetts Gym")) gymName = gymName.replace(/jetts\s?gym?/i, "Jetts Gym");
+        } else if (websiteLower.includes("jetts.co.uk") && !gymName.toLowerCase().includes("jetts")) gymName = `Jetts Gym ${gymName}`;
+
         // Address logic
         let gymAddress = "";
         if (g.address && g.address !== "Unknown" && g.address !== "undefined") gymAddress = g.address;
         else if (g.city && g.city !== "Unknown" && g.city !== "undefined") gymAddress = g.city;
         else if (g.location?.address && g.location.address !== "Unknown") gymAddress = g.location.address;
+
+        // Dynamic Price Level calculation
+        const gymStubForPrice = { name: gymName, lowest_price: g.lowest_price };
+        const priceInfo = getGymPrice(gymStubForPrice as any);
+        let calculatedPriceLevel = "££";
+        if (priceInfo.monthly) {
+          if (priceInfo.monthly < 30) calculatedPriceLevel = "£";
+          else if (priceInfo.monthly <= 60) calculatedPriceLevel = "££";
+          else calculatedPriceLevel = "£££";
+        }
 
         return {
           id: safeId,
@@ -361,7 +375,7 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
           address: gymAddress,
           rating: g.rating || 0,
           type: g.type || "Gym",
-          priceLevel: "££",
+          priceLevel: calculatedPriceLevel,
           lat: gymLat !== undefined ? gymLat : lat,
           lng: gymLng !== undefined ? gymLng : lng,
           distance: 0,
@@ -384,8 +398,10 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
 
       setAllGyms(mappedFirestoreGyms);
 
-      // 5. Limit cards list to top 50
-      const listGyms = mappedFirestoreGyms.slice(0, 50);
+      // 5. Limit cards list to top 50 (or up to 400 for brand searches to show all)
+      const isBrandFetch = effectiveQuery && isBrandQuery(effectiveQuery);
+      const listLimit = isBrandFetch ? 400 : 50;
+      const listGyms = mappedFirestoreGyms.slice(0, listLimit);
       if (process.env.NODE_ENV === 'development') {
         console.log(`Loaded ${listGyms.length} gyms into result list.`);
       }
@@ -420,11 +436,20 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
 
 
 
-    // BRAND SEARCH BYPASS: If someone searches "Pure Gym" and we already have a location,
-    // just search near them instead of geocoding "Pure Gym" which might fail or go to HEAD OFFICE.
-    if (isBrandQuery(searchQuery) && userLocation) {
-      console.log(`[Brand Search] Bypassing geocode for "${searchQuery}" - searching near current map location.`);
-      fetchGyms(userLocation.lat, userLocation.lng, searchQuery, "all", 15000, true);
+    // BRAND SEARCH BYPASS: If someone searches "Pure Gym" or "JD Gyms"
+    // Search nationwide instead of geocoding a specific city.
+    if (isBrandQuery(searchQuery)) {
+      console.log(`[Brand Search] Bypassing geocode for "${searchQuery}" - searching nationwide.`);
+      const center = userLocation || { lat: 54.5, lng: -2.5 }; // UK Center fallback
+      
+      if (!userLocation) {
+        setUserLocation(center);
+        setRecenterToken(t => t + 1);
+      }
+      
+      lastFetchRef.current = { lat: center.lat, lng: center.lng, radius: 800000 };
+      fetchGyms(center.lat, center.lng, searchQuery, "all", 800000, true);
+      setLastGeocodedQuery(searchQuery);
       return;
     }
 
@@ -586,7 +611,8 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
       // Detect brand-intent
       const isBrand = normalizedQuery.includes("puregym") ||
         normalizedQuery.includes("jdgym") ||
-        normalizedQuery.includes("thegym");
+        normalizedQuery.includes("thegym") ||
+        normalizedQuery.includes("jetts");
 
       // Don't filter if: 
       // 1. Query is too short (to prevent jumpy results while typing)
@@ -609,7 +635,8 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
         const addressMatch = address.includes(lowerSearchQuery);
         const brandMatch = (normalizedQuery.includes("puregym") && (website.includes("puregym") || normalizedName.includes("puregym"))) ||
           (normalizedQuery.includes("jdgym") && (website.includes("jdgym") || normalizedName.includes("jdgym"))) ||
-          (normalizedQuery.includes("thegym") && (website.includes("thegymgroup") || normalizedName.includes("thegym")));
+          (normalizedQuery.includes("thegym") && (website.includes("thegymgroup") || normalizedName.includes("thegym"))) ||
+          (normalizedQuery.includes("jetts") && (website.includes("jetts") || normalizedName.includes("jetts")));
 
         if (!nameMatch && !cityMatch && !addressMatch && !brandMatch) {
           return false;
@@ -891,7 +918,7 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
         />
 
         {/* Action Bar (Mobile Only - Replicating Desktop Header Nav) */}
-        <div className="md:hidden w-full px-4 py-2 flex justify-between gap-3 shrink-0 z-[9500] relative">
+        <div className="md:hidden w-full px-4 py-2 flex justify-between gap-3 shrink-0 z-[40] relative">
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <Button variant="default" className="w-1/2 bg-[#6BD85E]/90 hover:bg-[#5bc250] text-black font-bold h-10 px-2 sm:px-4 rounded-xl flex items-center justify-center gap-1 sm:gap-2 backdrop-blur-md shadow-[0_0_20px_rgba(107,216,94,0.2)] hover:shadow-[0_0_30px_rgba(107,216,94,0.3)] transition-all duration-300">
@@ -1140,6 +1167,9 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
                       </div>
                     ) : (
                       <div className="flex flex-col gap-4">
+                        {/* Mock Sponsored Card - First Item */}
+                        <SponsoredGymCard />
+
                         {filteredGyms.map((gym, index) => {
                           const isFirst = index === 0;
                           return (

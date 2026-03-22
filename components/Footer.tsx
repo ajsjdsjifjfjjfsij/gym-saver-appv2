@@ -84,6 +84,7 @@ export function Footer() {
                         <h4 className="text-white font-bold mb-6 text-sm uppercase tracking-wider">Company</h4>
                         <ul className="space-y-3 text-sm">
                             <li><Link href="/list-your-gym" className="hover:text-[#6BD85E] transition-colors">List Your Gym</Link></li>
+                            <li><Link href="/press" className="hover:text-[#6BD85E] transition-colors">Press</Link></li>
                             <li><Link href="/contact" className="hover:text-[#6BD85E] transition-colors">Contact Us</Link></li>
                             <li><Link href="/affiliate" className="hover:text-[#6BD85E] transition-colors">Partner Program</Link></li>
                             <li><Link href="/legal/privacy" className="hover:text-[#6BD85E] transition-colors">Privacy Policy</Link></li>
@@ -97,6 +98,7 @@ export function Footer() {
                     <p>© {new Date().getFullYear()} GymSaver. All rights reserved.</p>
                     <div className="flex items-center gap-6">
                         <Link href="https://twitter.com/gymsaverapp" target="_blank" className="hover:text-white transition-colors">Twitter</Link>
+                        <Link href="https://instagram.com/GymsaverHQ" target="_blank" className="hover:text-white transition-colors">Instagram</Link>
                         <p>Made for Fitness in the UK</p>
                     </div>
                 </div>

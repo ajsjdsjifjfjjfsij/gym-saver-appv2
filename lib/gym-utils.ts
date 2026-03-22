@@ -66,9 +66,6 @@ export function getGymPrice(gym: Gym) {
     if (name.includes("equinox")) {
         return { monthly: 240.00, joiningFee: 200, isEstimate: true };
     }
-    if (name.includes("david lloyd")) {
-        return { monthly: 94.50, joiningFee: 0, isEstimate: true };
-    }
     if (name.includes("virgin active")) {
         return { monthly: 99.00, joiningFee: 30, isEstimate: true };
     }
@@ -143,12 +140,12 @@ export function getGymFacilities(gym: Gym) {
     const type = (gym.type || "").toLowerCase();
 
     // Deterministic but realistic assignments based on brand/type
-    const isPremium = name.includes("third space") || name.includes("equinox") || name.includes("david lloyd") || name.includes("harbour club");
+    const isPremium = name.includes("third space") || name.includes("equinox") || name.includes("harbour club");
     const isBudget = name.includes("puregym") || name.includes("the gym") || name.includes("easygym") || name.includes("jd gyms");
     const isMidRange = name.includes("nuffield") || name.includes("bannatyne") || name.includes("virgin active");
 
     return {
-        pool: isPremium || name.includes("nuffield") || name.includes("bannatyne") || name.includes("virgin active") || name.includes("village"),
+        pool: isPremium || name.includes("nuffield") || name.includes("bannatyne") || name.includes("virgin active"),
         sauna: isPremium || isMidRange || name.includes("everlast"),
         "24hr": isBudget || name.includes("anytime") || name.includes("snap") || name.includes("jetts") || gym.is_24hr === true,
         classes: true, // Most gyms have some classes

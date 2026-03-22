@@ -1,0 +1,3236 @@
+[
+  {
+    "name": "Manchester Spinningfields",
+    "city": "Manchester",
+    "price": 9,
+    "lat": 53.479801177978516,
+    "lng": -2.2504000663757324
+  },
+  {
+    "name": "Manchester Urban Exchange",
+    "city": "Manchester",
+    "price": 10,
+    "lat": 53.4817008972168,
+    "lng": -2.228600025177002
+  },
+  {
+    "name": "Watford Waterfields",
+    "city": "Watford",
+    "price": 11.5,
+    "lat": 51.652645111083984,
+    "lng": -0.38979899883270264
+  },
+  {
+    "name": "Manchester Market Street",
+    "city": "Manchester",
+    "price": 11.89,
+    "lat": 53.48221969604492,
+    "lng": -2.2405951023101807
+  },
+  {
+    "name": "Northampton Central",
+    "city": "Northampton",
+    "price": 14.99,
+    "lat": 52.235801696777344,
+    "lng": -0.899399995803833
+  },
+  {
+    "name": "Sunderland",
+    "city": "Sunderland",
+    "price": 14.99,
+    "lat": 54.91510009765625,
+    "lng": -1.382200002670288
+  },
+  {
+    "name": "Liverpool Central",
+    "city": "Liverpool",
+    "price": 14.99,
+    "lat": 53.40489959716797,
+    "lng": -2.9791998863220215
+  },
+  {
+    "name": "Brierley Hill",
+    "city": "Brierley Hill",
+    "price": 14.99,
+    "lat": 52.4841194152832,
+    "lng": -2.118880033493042
+  },
+  {
+    "name": "Glasgow Clydebank",
+    "city": "Clydebank",
+    "price": 14.99,
+    "lat": 55.905799865722656,
+    "lng": -4.403299808502197
+  },
+  {
+    "name": "Wisbech",
+    "city": "Wisbech",
+    "price": 14.99,
+    "lat": 52.65138244628906,
+    "lng": 0.1428070068359375
+  },
+  {
+    "name": "London Sidcup",
+    "city": "Sidcup",
+    "price": 14.99,
+    "lat": 51.43559646606445,
+    "lng": 0.10181800276041031
+  },
+  {
+    "name": "Port Talbot",
+    "city": "Port Talbot",
+    "price": 15.99,
+    "lat": 51.60209655761719,
+    "lng": -3.8087689876556396
+  },
+  {
+    "name": "Hull Anlaby",
+    "city": "Retail",
+    "price": 15.99,
+    "lat": 53.74833297729492,
+    "lng": -0.4253779947757721
+  },
+  {
+    "name": "Norwich Riverside",
+    "city": "Norwich",
+    "price": 15.99,
+    "lat": 52.626502990722656,
+    "lng": 1.304893970489502
+  },
+  {
+    "name": "Stockton-on-Tees Teesside Park",
+    "city": "Stockton-on-Tees",
+    "price": 15.99,
+    "lat": 54.55972671508789,
+    "lng": -1.2707619667053223
+  },
+  {
+    "name": "Glasgow Bath Street",
+    "city": "Glasgow",
+    "price": 15.99,
+    "lat": 55.86439895629883,
+    "lng": -4.260200023651123
+  },
+  {
+    "name": "Dudley Tipton",
+    "city": "Tipton",
+    "price": 15.99,
+    "lat": 52.525203704833984,
+    "lng": -2.0489630699157715
+  },
+  {
+    "name": "East Kilbride",
+    "city": "Glasgow",
+    "price": 15.99,
+    "lat": 55.7593994140625,
+    "lng": -4.1757001876831055
+  },
+  {
+    "name": "Newcastle Eldon Garden",
+    "city": "Newcastle upon Tyne",
+    "price": 15.99,
+    "lat": 54.97570037841797,
+    "lng": -1.6168999671936035
+  },
+  {
+    "name": "Chester",
+    "city": "Chester",
+    "price": 15.99,
+    "lat": 53.197479248046875,
+    "lng": -2.912781000137329
+  },
+  {
+    "name": "Manchester Cheetham Hill Retail Park",
+    "city": "Manchester",
+    "price": 15.99,
+    "lat": 53.49838638305664,
+    "lng": -2.238358974456787
+  },
+  {
+    "name": "Norwich Castle Mall",
+    "city": "Norwich",
+    "price": 15.99,
+    "lat": 52.62635040283203,
+    "lng": 1.2968930006027222
+  },
+  {
+    "name": "Manchester Stretford",
+    "city": "Manchester",
+    "price": 16.99,
+    "lat": 53.4452018737793,
+    "lng": -2.310800075531006
+  },
+  {
+    "name": "Birmingham Snow Hill Plaza",
+    "city": "Birmingham",
+    "price": 16.99,
+    "lat": 52.48521423339844,
+    "lng": -1.8973909616470337
+  },
+  {
+    "name": "Swindon Mannington Retail Park",
+    "city": "Swindon",
+    "price": 16.99,
+    "lat": 51.55350112915039,
+    "lng": -1.8141989707946777
+  },
+  {
+    "name": "Ballymena",
+    "city": "Ballymena",
+    "price": 16.99,
+    "lat": 54.862388610839844,
+    "lng": -6.275582790374756
+  },
+  {
+    "name": "Great Yarmouth",
+    "city": "Great Yarmouth",
+    "price": 16.99,
+    "lat": 52.599239349365234,
+    "lng": 1.7183849811553955
+  },
+  {
+    "name": "Motherwell",
+    "city": "Motherwell",
+    "price": 16.99,
+    "lat": 55.788665771484375,
+    "lng": -3.9898109436035156
+  },
+  {
+    "name": "London Harrow",
+    "city": "Harrow",
+    "price": 16.99,
+    "lat": 51.58229446411133,
+    "lng": -0.33251601457595825
+  },
+  {
+    "name": "Glasgow Hope Street",
+    "city": "Glasgow",
+    "price": 16.99,
+    "lat": 55.85955047607422,
+    "lng": -4.259517192840576
+  },
+  {
+    "name": "Runcorn",
+    "city": "Runcorn",
+    "price": 16.99,
+    "lat": 53.3390998840332,
+    "lng": -2.731600046157837
+  },
+  {
+    "name": "Telford",
+    "city": "Telford",
+    "price": 16.99,
+    "lat": 52.675907135009766,
+    "lng": -2.4447529315948486
+  },
+  {
+    "name": "PureGym Halifax",
+    "city": "Halifax",
+    "price": 16.99,
+    "lat": 53.725,
+    "lng": -1.86
+  },
+  {
+    "name": "Gateshead",
+    "city": "Gateshead",
+    "price": 16.99,
+    "lat": 54.961700439453125,
+    "lng": -1.6017999649047852
+  },
+  {
+    "name": "Grantham Discovery Retail Park",
+    "city": "Grantham",
+    "price": 16.99,
+    "lat": 52.90658187866211,
+    "lng": -0.6383230090141296
+  },
+  {
+    "name": "Liverpool Brunswick",
+    "city": "Liverpool",
+    "price": 17.99,
+    "lat": 53.381900787353516,
+    "lng": -2.9749341011047363
+  },
+  {
+    "name": "Bournemouth the Triangle",
+    "city": "Bournemouth",
+    "price": 17.99,
+    "lat": 50.72079849243164,
+    "lng": -1.8840999603271484
+  },
+  {
+    "name": "London Wembley",
+    "city": "Wembley",
+    "price": 17.99,
+    "lat": 51.55329895019531,
+    "lng": -0.295199990272522
+  },
+  {
+    "name": "Gloucester Retail Park",
+    "city": "Gloucester",
+    "price": 17.99,
+    "lat": 51.8601188659668,
+    "lng": -2.2147610187530518
+  },
+  {
+    "name": "Dunfermline",
+    "city": "Dunfermline",
+    "price": 17.99,
+    "lat": 56.074031829833984,
+    "lng": -3.4531309604644775
+  },
+  {
+    "name": "Birmingham City Centre",
+    "city": "Birmingham",
+    "price": 17.99,
+    "lat": 52.474300384521484,
+    "lng": -1.9157999753952026
+  },
+  {
+    "name": "York",
+    "city": "York",
+    "price": 17.99,
+    "lat": 53.99420166015625,
+    "lng": -1.0951000452041626
+  },
+  {
+    "name": "Manchester Debdale",
+    "city": "Manchester",
+    "price": 17.99,
+    "lat": 53.45970153808594,
+    "lng": -2.162400007247925
+  },
+  {
+    "name": "Consett",
+    "city": "Consett",
+    "price": 17.99,
+    "lat": 54.8492431640625,
+    "lng": -1.8349039554595947
+  },
+  {
+    "name": "Portsmouth Commercial Road",
+    "city": "Portsmouth",
+    "price": 17.99,
+    "lat": 50.799964904785156,
+    "lng": -1.0883909463882446
+  },
+  {
+    "name": "Redditch Ringway",
+    "city": "Redditch",
+    "price": 17.99,
+    "lat": 52.30583953857422,
+    "lng": -1.9347139596939087
+  },
+  {
+    "name": "Leeds City Centre South",
+    "city": "Leeds",
+    "price": 17.99,
+    "lat": 53.79555130004883,
+    "lng": -1.540060043334961
+  },
+  {
+    "name": "Sheffield City Centre South",
+    "city": "Sheffield",
+    "price": 17.99,
+    "lat": 53.37419891357422,
+    "lng": -1.4637000560760498
+  },
+  {
+    "name": "Bristol Brislington",
+    "city": "Bristol",
+    "price": 17.99,
+    "lat": 51.429481506347656,
+    "lng": -2.5434720516204834
+  },
+  {
+    "name": "Poole",
+    "city": "Poole",
+    "price": 17.99,
+    "lat": 50.74660110473633,
+    "lng": -1.9507999420166016
+  },
+  {
+    "name": "Stirling",
+    "city": "Stirling",
+    "price": 17.99,
+    "lat": 56.11581039428711,
+    "lng": -3.934389114379883
+  },
+  {
+    "name": "Cannock Orbital Retail Park",
+    "city": "Cannock",
+    "price": 17.99,
+    "lat": 52.67532730102539,
+    "lng": -2.019395112991333
+  },
+  {
+    "name": "Stoke on Trent East",
+    "city": "Stoke-on-Trent",
+    "price": 17.99,
+    "lat": 53.009700775146484,
+    "lng": -2.1677000522613525
+  },
+  {
+    "name": "Sheffield Meadowhall Retail Park",
+    "city": "Sheffield",
+    "price": 17.99,
+    "lat": 53.40591049194336,
+    "lng": -1.411957025527954
+  },
+  {
+    "name": "Newport Wales",
+    "city": "Newport",
+    "price": 17.99,
+    "lat": 51.58489990234375,
+    "lng": -2.9925999641418457
+  },
+  {
+    "name": "Derby City Centre",
+    "city": "Derby",
+    "price": 17.99,
+    "lat": 52.919498443603516,
+    "lng": -1.475100040435791
+  },
+  {
+    "name": "Dundee",
+    "city": "Dundee",
+    "price": 17.99,
+    "lat": 56.46070098876953,
+    "lng": -2.978300094604492
+  },
+  {
+    "name": "Glasgow Charing Cross",
+    "city": "Glasgow",
+    "price": 17.99,
+    "lat": 55.86830139160156,
+    "lng": -4.270500183105469
+  },
+  {
+    "name": "Southport",
+    "city": "Southport",
+    "price": 17.99,
+    "lat": 53.635860443115234,
+    "lng": -2.9687869548797607
+  },
+  {
+    "name": "Portsmouth North Harbour",
+    "city": "Portsmouth",
+    "price": 17.99,
+    "lat": 50.846431732177734,
+    "lng": -1.094349980354309
+  },
+  {
+    "name": "Lisburn Laganbank",
+    "city": "Lisburn",
+    "price": 17.99,
+    "lat": 54.51007843017578,
+    "lng": -6.041004180908203
+  },
+  {
+    "name": "Wolverhampton South",
+    "city": "Wolverhampton",
+    "price": 17.99,
+    "lat": 52.57379913330078,
+    "lng": -2.123500108718872
+  },
+  {
+    "name": "Glasgow Shawlands",
+    "city": "Glasgow",
+    "price": 17.99,
+    "lat": 55.82979965209961,
+    "lng": -4.282199859619141
+  },
+  {
+    "name": "Altrincham",
+    "city": "Altrincham",
+    "price": 17.99,
+    "lat": 53.38850021362305,
+    "lng": -2.347899913787842
+  },
+  {
+    "name": "Bristol Eastgate",
+    "city": "Bristol",
+    "price": 17.99,
+    "lat": 51.473114013671875,
+    "lng": -2.567125082015991
+  },
+  {
+    "name": "Hednesford Cannock",
+    "city": "Cannock",
+    "price": 17.99,
+    "lat": 52.709999084472656,
+    "lng": -2.0006000995635986
+  },
+  {
+    "name": "Denton",
+    "city": "Manchester",
+    "price": 17.99,
+    "lat": 53.45402145385742,
+    "lng": -2.131079912185669
+  },
+  {
+    "name": "Warrington Central",
+    "city": "Warrington",
+    "price": 17.99,
+    "lat": 53.390098571777344,
+    "lng": -2.5861001014709473
+  },
+  {
+    "name": "Walsall Crown Wharf",
+    "city": "Walsall",
+    "price": 17.99,
+    "lat": 52.587825775146484,
+    "lng": -1.9874930381774902
+  },
+  {
+    "name": "London Croydon",
+    "city": "Croydon",
+    "price": 17.99,
+    "lat": 51.37363052368164,
+    "lng": -0.10211499780416489
+  },
+  {
+    "name": "Salford Central",
+    "city": "Salford",
+    "price": 17.99,
+    "lat": 53.489444732666016,
+    "lng": -2.2865140438079834
+  },
+  {
+    "name": "Swindon Stratton",
+    "city": "Swindon",
+    "price": 17.99,
+    "lat": 51.597293853759766,
+    "lng": -1.7673649787902832
+  },
+  {
+    "name": "Chatham",
+    "city": "Chatham",
+    "price": 17.99,
+    "lat": 51.40140151977539,
+    "lng": 0.5324000120162964
+  },
+  {
+    "name": "Milton Keynes Winterhill",
+    "city": "Milton Keynes",
+    "price": 17.99,
+    "lat": 52.02539825439453,
+    "lng": -0.7597000002861023
+  },
+  {
+    "name": "Tamworth",
+    "city": "Tamworth",
+    "price": 17.99,
+    "lat": 52.628761291503906,
+    "lng": -1.7061699628829956
+  },
+  {
+    "name": "Rochdale",
+    "city": "UK",
+    "price": 17.99,
+    "lat": 53.602500915527344,
+    "lng": -2.165600061416626
+  },
+  {
+    "name": "Doncaster",
+    "city": "Doncaster",
+    "price": 17.99,
+    "lat": 53.53138732910156,
+    "lng": -1.14798903465271
+  },
+  {
+    "name": "Broadstairs Westwood Gateway Retail Park",
+    "city": "Broadstairs",
+    "price": 17.99,
+    "lat": 51.362030029296875,
+    "lng": 1.393960952758789
+  },
+  {
+    "name": "Stafford",
+    "city": "Stafford",
+    "price": 17.99,
+    "lat": 52.81546401977539,
+    "lng": -2.1243529319763184
+  },
+  {
+    "name": "Southend Fossetts Park",
+    "city": "Southend-on-Sea",
+    "price": 18.99,
+    "lat": 51.555782318115234,
+    "lng": 0.7275760173797607
+  },
+  {
+    "name": "Burnham",
+    "city": "Slough",
+    "price": 18.99,
+    "lat": 51.52389907836914,
+    "lng": -0.6414999961853027
+  },
+  {
+    "name": "London Colindale",
+    "city": "London",
+    "price": 18.99,
+    "lat": 51.596519470214844,
+    "lng": -0.2533529996871948
+  },
+  {
+    "name": "Bristol Harbourside",
+    "city": "Bristol",
+    "price": 18.99,
+    "lat": 51.44960021972656,
+    "lng": -2.6012001037597656
+  },
+  {
+    "name": "Livingston",
+    "city": "UK",
+    "price": 18.99,
+    "lat": 55.88050079345703,
+    "lng": -3.5257999897003174
+  },
+  {
+    "name": "Ipswich Buttermarket",
+    "city": "Ipswich",
+    "price": 18.99,
+    "lat": 52.0558967590332,
+    "lng": 1.1532599925994873
+  },
+  {
+    "name": "Aberdeen Kittybrewster",
+    "city": "Aberdeen",
+    "price": 18.99,
+    "lat": 57.161399841308594,
+    "lng": -2.112299919128418
+  },
+  {
+    "name": "Plymouth Alexandra Road",
+    "city": "Plymouth",
+    "price": 18.99,
+    "lat": 50.38180160522461,
+    "lng": -4.129499912261963
+  },
+  {
+    "name": "Aberdeen Shiprow",
+    "city": "Aberdeen",
+    "price": 18.99,
+    "lat": 57.14659881591797,
+    "lng": -2.094399929046631
+  },
+  {
+    "name": "Leeds Regent Street",
+    "city": "Leeds",
+    "price": 18.99,
+    "lat": 53.803863525390625,
+    "lng": -1.5306880474090576
+  },
+  {
+    "name": "Worcester",
+    "city": "Worcester",
+    "price": 18.99,
+    "lat": 52.19294357299805,
+    "lng": -2.217578887939453
+  },
+  {
+    "name": "Canterbury Wincheap",
+    "city": "Canterbury",
+    "price": 18.99,
+    "lat": 51.27229690551758,
+    "lng": 1.0596239566802979
+  },
+  {
+    "name": "Birmingham West",
+    "city": "Smethwick",
+    "price": 18.99,
+    "lat": 52.48740005493164,
+    "lng": -1.9609999656677246
+  },
+  {
+    "name": "Dagenham",
+    "city": "London",
+    "price": 18.99,
+    "lat": 51.530704498291016,
+    "lng": 0.1463650017976761
+  },
+  {
+    "name": "Plymouth Marsh Mills",
+    "city": "Plymouth",
+    "price": 18.99,
+    "lat": 50.39219284057617,
+    "lng": -4.0805277824401855
+  },
+  {
+    "name": "Milton Keynes Kingston Centre",
+    "city": "Milton Keynes",
+    "price": 18.99,
+    "lat": 52.03507614135742,
+    "lng": -0.6887760162353516
+  },
+  {
+    "name": "Preston",
+    "city": "Preston",
+    "price": 18.99,
+    "lat": 53.767799377441406,
+    "lng": -2.702500104904175
+  },
+  {
+    "name": "Cambridge Grafton Centre",
+    "city": "Cambridge",
+    "price": 18.99,
+    "lat": 52.206974029541016,
+    "lng": 0.13327500224113464
+  },
+  {
+    "name": "Shrewsbury Meole Brace",
+    "city": "Shrewsbury",
+    "price": 18.99,
+    "lat": 52.68952941894531,
+    "lng": -2.7520270347595215
+  },
+  {
+    "name": "Durham Arnison",
+    "city": "Durham",
+    "price": 18.99,
+    "lat": 54.80645751953125,
+    "lng": -1.5790059566497803
+  },
+  {
+    "name": "Elgin",
+    "city": "Elgin",
+    "price": 18.99,
+    "lat": 57.64052200317383,
+    "lng": -3.3146300315856934
+  },
+  {
+    "name": "Basildon",
+    "city": "Basildon",
+    "price": 18.99,
+    "lat": 51.5694694519043,
+    "lng": 0.46081000566482544
+  },
+  {
+    "name": "Birmingham Beaufort Park",
+    "city": "Birmingham",
+    "price": 18.99,
+    "lat": 52.49420166015625,
+    "lng": -1.8174999952316284
+  },
+  {
+    "name": "Stockport North",
+    "city": "Stockport",
+    "price": 18.99,
+    "lat": 53.40937805175781,
+    "lng": -2.176640033721924
+  },
+  {
+    "name": "London Feltham",
+    "city": "Feltham",
+    "price": 18.99,
+    "lat": 51.445960998535156,
+    "lng": -0.4113210141658783
+  },
+  {
+    "name": "Bromsgrove Retail Park",
+    "city": "Bromsgrove",
+    "price": 18.99,
+    "lat": 52.33881759643555,
+    "lng": -2.0554919242858887
+  },
+  {
+    "name": "Gravesend",
+    "city": "Gravesend",
+    "price": 18.99,
+    "lat": 51.44243621826172,
+    "lng": 0.3645940124988556
+  },
+  {
+    "name": "Nottingham Colwick",
+    "city": "Nottingham",
+    "price": 18.99,
+    "lat": 52.95857238769531,
+    "lng": -1.0726799964904785
+  },
+  {
+    "name": "Bristol Union Gate",
+    "city": "Bristol",
+    "price": 18.99,
+    "lat": 51.45610046386719,
+    "lng": -2.5908000469207764
+  },
+  {
+    "name": "Reading Caversham Road",
+    "city": "Reading",
+    "price": 18.99,
+    "lat": 51.46080017089844,
+    "lng": -0.9761000275611877
+  },
+  {
+    "name": "Fareham",
+    "city": "Fareham",
+    "price": 18.99,
+    "lat": 50.85822677612305,
+    "lng": -1.1734509468078613
+  },
+  {
+    "name": "Tunbridge Wells",
+    "city": "Tunbridge Wells",
+    "price": 18.99,
+    "lat": 51.135501861572266,
+    "lng": 0.26759999990463257
+  },
+  {
+    "name": "Hartlepool",
+    "city": "Hartlepool",
+    "price": 18.99,
+    "lat": 54.67697525024414,
+    "lng": -1.2095619440078735
+  },
+  {
+    "name": "Oldham",
+    "city": "Oldham",
+    "price": 18.99,
+    "lat": 53.537899017333984,
+    "lng": -2.1089000701904297
+  },
+  {
+    "name": "Billericay",
+    "city": "Billericay",
+    "price": 18.99,
+    "lat": 51.63010025024414,
+    "lng": 0.41440001130104065
+  },
+  {
+    "name": "Widnes",
+    "city": "Widnes",
+    "price": 18.99,
+    "lat": 53.36127471923828,
+    "lng": -2.7224369049072266
+  },
+  {
+    "name": "Southampton Central",
+    "city": "Southampton",
+    "price": 18.99,
+    "lat": 50.90650177001953,
+    "lng": -1.4128999710083008
+  },
+  {
+    "name": "Kirkby",
+    "city": "Liverpool",
+    "price": 18.99,
+    "lat": 53.48257064819336,
+    "lng": -2.886115074157715
+  },
+  {
+    "name": "Stoke on Trent North",
+    "city": "Stoke-on-Trent",
+    "price": 18.99,
+    "lat": 53.01969909667969,
+    "lng": -2.206399917602539
+  },
+  {
+    "name": "Southampton Bitterne",
+    "city": "Southampton",
+    "price": 18.99,
+    "lat": 50.91423797607422,
+    "lng": -1.3600139617919922
+  },
+  {
+    "name": "Stockport South",
+    "city": "Stockport",
+    "price": 18.99,
+    "lat": 53.4026985168457,
+    "lng": -2.149600028991699
+  },
+  {
+    "name": "Reading Basingstoke Road",
+    "city": "Reading",
+    "price": 18.99,
+    "lat": 51.43299865722656,
+    "lng": -0.9684000015258789
+  },
+  {
+    "name": "London Lewisham",
+    "city": "London",
+    "price": 18.99,
+    "lat": 51.46267318725586,
+    "lng": -0.009519999846816066
+  },
+  {
+    "name": "Solihull Sears Retail Park",
+    "city": "Solihull",
+    "price": 18.99,
+    "lat": 52.40290451049805,
+    "lng": -1.8160719871520996
+  },
+  {
+    "name": "West Bromwich",
+    "city": "West Bromwich",
+    "price": 18.99,
+    "lat": 52.52040100097656,
+    "lng": -1.9941999912261963
+  },
+  {
+    "name": "Coventry Warwickshire Shopping Park",
+    "city": "Coventry",
+    "price": 18.99,
+    "lat": 52.39667892456055,
+    "lng": -1.4324979782104492
+  },
+  {
+    "name": "Coventry Skydome",
+    "city": "UK",
+    "price": 18.99,
+    "lat": 52.40810012817383,
+    "lng": -1.518399953842163
+  },
+  {
+    "name": "West Thurrock",
+    "city": "Grays",
+    "price": 18.99,
+    "lat": 51.48441696166992,
+    "lng": 0.2732039988040924
+  },
+  {
+    "name": "Reading Calcot",
+    "city": "UK",
+    "price": 19.99,
+    "lat": 51.44297790527344,
+    "lng": -1.0636850595474243
+  },
+  {
+    "name": "Manchester First Street",
+    "city": "Manchester",
+    "price": 19.99,
+    "lat": 53.47309875488281,
+    "lng": -2.246735095977783
+  },
+  {
+    "name": "Leeds Hunslet",
+    "city": "Leeds",
+    "price": 19.99,
+    "lat": 53.77629852294922,
+    "lng": -1.534600019454956
+  },
+  {
+    "name": "Cardiff Gate",
+    "city": "Cardiff",
+    "price": 19.99,
+    "lat": 51.53620147705078,
+    "lng": -3.129499912261963
+  },
+  {
+    "name": "Harlow",
+    "city": "Harlow",
+    "price": 19.99,
+    "lat": 51.768001556396484,
+    "lng": 0.09430000185966492
+  },
+  {
+    "name": "London Enfield",
+    "city": "Enfield",
+    "price": 19.99,
+    "lat": 51.64910125732422,
+    "lng": -0.05620000138878822
+  },
+  {
+    "name": "Durham City Retail Park",
+    "city": "Durham",
+    "price": 19.99,
+    "lat": 54.78010177612305,
+    "lng": -1.5364209413528442
+  },
+  {
+    "name": "Leicester Walnut Street",
+    "city": "Leicester",
+    "price": 19.99,
+    "lat": 52.624900817871094,
+    "lng": -1.1401000022888184
+  },
+  {
+    "name": "Bedford Heights",
+    "city": "Bedford",
+    "price": 19.99,
+    "lat": 52.158447265625,
+    "lng": -0.4704039990901947
+  },
+  {
+    "name": "Oxford Templars Shopping Park",
+    "city": "Oxford",
+    "price": 19.99,
+    "lat": 51.73270034790039,
+    "lng": -1.2183380126953125
+  },
+  {
+    "name": "Cardiff Bay",
+    "city": "Cardiff",
+    "price": 19.99,
+    "lat": 51.459861755371094,
+    "lng": -3.1879570484161377
+  },
+  {
+    "name": "Canterbury Sturry Road",
+    "city": "Canterbury",
+    "price": 19.99,
+    "lat": 51.291542053222656,
+    "lng": 1.1002479791641235
+  },
+  {
+    "name": "Leeds Thorpe Park",
+    "city": "Leeds",
+    "price": 19.99,
+    "lat": 53.799495697021484,
+    "lng": -1.4256019592285156
+  },
+  {
+    "name": "Leeds Kirkstall Bridge",
+    "city": "Leeds",
+    "price": 19.99,
+    "lat": 53.81679916381836,
+    "lng": -1.6049000024795532
+  },
+  {
+    "name": "Lincoln St Marks Centre",
+    "city": "Lincoln",
+    "price": 19.99,
+    "lat": 53.22480010986328,
+    "lng": -0.5436000227928162
+  },
+  {
+    "name": "Staines",
+    "city": "Staines",
+    "price": 19.99,
+    "lat": 51.43579864501953,
+    "lng": -0.5113999843597412
+  },
+  {
+    "name": "Dover",
+    "city": "Dover",
+    "price": 19.99,
+    "lat": 51.13236999511719,
+    "lng": 1.3054909706115723
+  },
+  {
+    "name": "Cardiff Central",
+    "city": "Cardiff",
+    "price": 19.99,
+    "lat": 51.476600646972656,
+    "lng": -3.18149995803833
+  },
+  {
+    "name": "Nottingham Castle Marina",
+    "city": "Nottingham",
+    "price": 19.99,
+    "lat": 52.9455451965332,
+    "lng": -1.161128044128418
+  },
+  {
+    "name": "Bradford Idle",
+    "city": "UK",
+    "price": 19.99,
+    "lat": 53.825599670410156,
+    "lng": -1.733299970626831
+  },
+  {
+    "name": "Northampton Weston Favell",
+    "city": "Northampton",
+    "price": 19.99,
+    "lat": 52.25748062133789,
+    "lng": -0.8354269862174988
+  },
+  {
+    "name": "Leeds City Centre North",
+    "city": "Leeds",
+    "price": 19.99,
+    "lat": 53.802001953125,
+    "lng": -1.5424139499664307
+  },
+  {
+    "name": "Mansfield",
+    "city": "Mansfield",
+    "price": 19.99,
+    "lat": 53.1380729675293,
+    "lng": -1.1931270360946655
+  },
+  {
+    "name": "London Kensal Road",
+    "city": "London",
+    "price": 19.99,
+    "lat": 51.52640151977539,
+    "lng": -0.21063099801540375
+  },
+  {
+    "name": "Nottingham Basford",
+    "city": "Nottingham",
+    "price": 19.99,
+    "lat": 52.97679901123047,
+    "lng": -1.1658999919891357
+  },
+  {
+    "name": "Norwich Aylsham Road",
+    "city": "Norwich",
+    "price": 19.99,
+    "lat": 52.64757537841797,
+    "lng": 1.2835960388183594
+  },
+  {
+    "name": "Sutton Coldfield",
+    "city": "Birmingham",
+    "price": 19.99,
+    "lat": 52.53499984741211,
+    "lng": -1.8380000591278076
+  },
+  {
+    "name": "Southampton Shirley",
+    "city": "Southampton",
+    "price": 19.99,
+    "lat": 50.9296989440918,
+    "lng": -1.4253000020980835
+  },
+  {
+    "name": "Colne",
+    "city": "Colne",
+    "price": 19.99,
+    "lat": 53.849063873291016,
+    "lng": -2.196471929550171
+  },
+  {
+    "name": "Crewe Grand Junction Retail Park",
+    "city": "Crewe",
+    "price": 19.99,
+    "lat": 53.097171783447266,
+    "lng": -2.43379807472229
+  },
+  {
+    "name": "Stevenage",
+    "city": "Stevenage",
+    "price": 19.99,
+    "lat": 51.903263092041016,
+    "lng": -0.20123299956321716
+  },
+  {
+    "name": "Ebbw Vale",
+    "city": "Ebbw Vale",
+    "price": 19.99,
+    "lat": 51.77756118774414,
+    "lng": -3.2073049545288086
+  },
+  {
+    "name": "London Acton",
+    "city": "London",
+    "price": 19.99,
+    "lat": 51.508201599121094,
+    "lng": -0.27790001034736633
+  },
+  {
+    "name": "Tyldesley",
+    "city": "Manchester",
+    "price": 19.99,
+    "lat": 53.5148811340332,
+    "lng": -2.4713408946990967
+  },
+  {
+    "name": "Northwich",
+    "city": "Northwich",
+    "price": 19.99,
+    "lat": 53.2628173828125,
+    "lng": -2.502295970916748
+  },
+  {
+    "name": "Manchester Exchange Quay",
+    "city": "Manchester",
+    "price": 19.99,
+    "lat": 53.467899322509766,
+    "lng": -2.280900001525879
+  },
+  {
+    "name": "Maidstone The Mall",
+    "city": "Maidstone",
+    "price": 19.99,
+    "lat": 51.273311614990234,
+    "lng": 0.5253130197525024
+  },
+  {
+    "name": "Coleraine",
+    "city": "Coleraine",
+    "price": 19.99,
+    "lat": 55.121177673339844,
+    "lng": -6.672236919403076
+  },
+  {
+    "name": "Bradford Thornbury",
+    "city": "Bradford",
+    "price": 19.99,
+    "lat": 53.79990005493164,
+    "lng": -1.704200029373169
+  },
+  {
+    "name": "Bromborough",
+    "city": "Wirral",
+    "price": 19.99,
+    "lat": 53.33992385864258,
+    "lng": -2.974658966064453
+  },
+  {
+    "name": "Boston",
+    "city": "Boston",
+    "price": 19.99,
+    "lat": 52.97045135498047,
+    "lng": -0.05748499929904938
+  },
+  {
+    "name": "Wolverhampton Bentley Bridge",
+    "city": "Wolverhampton",
+    "price": 19.99,
+    "lat": 52.59600067138672,
+    "lng": -2.087899923324585
+  },
+  {
+    "name": "London Seven Sisters",
+    "city": "London",
+    "price": 20.29,
+    "lat": 51.58256912231445,
+    "lng": -0.07296399772167206
+  },
+  {
+    "name": "Hemel Hempstead",
+    "city": "Hemel Hempstead",
+    "price": 20.99,
+    "lat": 51.747779846191406,
+    "lng": -0.47152599692344666
+  },
+  {
+    "name": "Brighton Central",
+    "city": "Brighton",
+    "price": 20.99,
+    "lat": 50.825801849365234,
+    "lng": -0.14159999787807465
+  },
+  {
+    "name": "Spalding",
+    "city": "UK",
+    "price": 20.99,
+    "lat": 52.7889289855957,
+    "lng": -0.1484220027923584
+  },
+  {
+    "name": "Aldershot Westgate Retail Park",
+    "city": "Aldershot",
+    "price": 20.99,
+    "lat": 51.2501106262207,
+    "lng": -0.7701290249824524
+  },
+  {
+    "name": "Ipswich Ravenswood",
+    "city": "Ipswich",
+    "price": 20.99,
+    "lat": 52.030216217041016,
+    "lng": 1.200760006904602
+  },
+  {
+    "name": "Wirral Bidston Moss",
+    "city": "Wallasey",
+    "price": 20.99,
+    "lat": 53.410987854003906,
+    "lng": -3.0743699073791504
+  },
+  {
+    "name": "London Orpington Central",
+    "city": "London",
+    "price": 20.99,
+    "lat": 51.37678527832031,
+    "lng": 0.10159700363874435
+  },
+  {
+    "name": "Inverness Inshes Retail Park",
+    "city": "Inverness",
+    "price": 20.99,
+    "lat": 57.46842956542969,
+    "lng": -4.191370010375977
+  },
+  {
+    "name": "Dunstable",
+    "city": "Luton",
+    "price": 20.99,
+    "lat": 51.89057159423828,
+    "lng": -0.48500099778175354
+  },
+  {
+    "name": "Macclesfield Silk Road",
+    "city": "Macclesfield",
+    "price": 20.99,
+    "lat": 53.27204513549805,
+    "lng": -2.1193480491638184
+  },
+  {
+    "name": "Hereford",
+    "city": "Hereford",
+    "price": 20.99,
+    "lat": 52.069156646728516,
+    "lng": -2.721219062805176
+  },
+  {
+    "name": "Nottingham Beeston",
+    "city": "Nottingham",
+    "price": 20.99,
+    "lat": 52.92639923095703,
+    "lng": -1.2152999639511108
+  },
+  {
+    "name": "London Beckton",
+    "city": "London",
+    "price": 20.99,
+    "lat": 51.51055145263672,
+    "lng": 0.07670000195503235
+  },
+  {
+    "name": "Exeter Fore Street",
+    "city": "Exeter",
+    "price": 20.99,
+    "lat": 50.72226333618164,
+    "lng": -3.53344988822937
+  },
+  {
+    "name": "London Catford Rushey Green",
+    "city": "London",
+    "price": 20.99,
+    "lat": 51.44723129272461,
+    "lng": -0.018769999966025352
+  },
+  {
+    "name": "Nuneaton",
+    "city": "Nuneaton",
+    "price": 20.99,
+    "lat": 52.521846771240234,
+    "lng": -1.4695899486541748
+  },
+  {
+    "name": "Peterborough Brotherhood Retail Park",
+    "city": "Peterborough",
+    "price": 20.99,
+    "lat": 52.59899139404297,
+    "lng": -0.26568999886512756
+  },
+  {
+    "name": "Leicester St Georges Way",
+    "city": "Leicester",
+    "price": 20.99,
+    "lat": 52.6328010559082,
+    "lng": -1.12533700466156
+  },
+  {
+    "name": "Gloucester Quedgeley",
+    "city": "Gloucester",
+    "price": 20.99,
+    "lat": 51.82017135620117,
+    "lng": -2.2753820419311523
+  },
+  {
+    "name": "Bletchley",
+    "city": "Milton Keynes",
+    "price": 20.99,
+    "lat": 52.003257751464844,
+    "lng": -0.725151002407074
+  },
+  {
+    "name": "Guiseley",
+    "city": "Leeds",
+    "price": 20.99,
+    "lat": 53.8686408996582,
+    "lng": -1.7031259536743164
+  },
+  {
+    "name": "Newbury",
+    "city": "Newbury",
+    "price": 20.99,
+    "lat": 51.3970832824707,
+    "lng": -1.3197879791259766
+  },
+  {
+    "name": "Hatfield",
+    "city": "Hatfield",
+    "price": 20.99,
+    "lat": 51.76155090332031,
+    "lng": -0.24069899320602417
+  },
+  {
+    "name": "Colchester Retail Park",
+    "city": "Colchester",
+    "price": 20.99,
+    "lat": 51.8925895690918,
+    "lng": 0.8913090229034424
+  },
+  {
+    "name": "Bracknell",
+    "city": "Bracknell",
+    "price": 20.99,
+    "lat": 51.4152946472168,
+    "lng": -0.7530369758605957
+  },
+  {
+    "name": "Aylesbury",
+    "city": "Aylesbury",
+    "price": 20.99,
+    "lat": 51.82034683227539,
+    "lng": -0.8102890253067017
+  },
+  {
+    "name": "Cambridge Leisure Park",
+    "city": "Cambridge",
+    "price": 20.99,
+    "lat": 52.190101623535156,
+    "lng": 0.13779999315738678
+  },
+  {
+    "name": "Ashton Under Lyne",
+    "city": "Ashton-under-Lyne",
+    "price": 20.99,
+    "lat": 53.490699768066406,
+    "lng": -2.0982000827789307
+  },
+  {
+    "name": "Torquay Bridge Retail Park",
+    "city": "Torquay",
+    "price": 20.99,
+    "lat": 50.48337173461914,
+    "lng": -3.5481200218200684
+  },
+  {
+    "name": "Bournemouth Mallard Road Retail Park",
+    "city": "Bournemouth",
+    "price": 20.99,
+    "lat": 50.74857711791992,
+    "lng": -1.848855972290039
+  },
+  {
+    "name": "Wrexham",
+    "city": "Wrexham",
+    "price": 20.99,
+    "lat": 53.04719924926758,
+    "lng": -3.0013999938964844
+  },
+  {
+    "name": "Worksop",
+    "city": "Worksop",
+    "price": 20.99,
+    "lat": 53.310237884521484,
+    "lng": -1.1457949876785278
+  },
+  {
+    "name": "Droitwich Spa",
+    "city": "Droitwich",
+    "price": 20.99,
+    "lat": 52.26827621459961,
+    "lng": -2.1507110595703125
+  },
+  {
+    "name": "Knaresborough",
+    "city": "Knaresborough",
+    "price": 20.99,
+    "lat": 54.00600051879883,
+    "lng": -1.4511339664459229
+  },
+  {
+    "name": "Edinburgh West",
+    "city": "Edinburgh",
+    "price": 20.99,
+    "lat": 55.93050003051758,
+    "lng": -3.2558000087738037
+  },
+  {
+    "name": "Kirkcaldy",
+    "city": "Kirkcaldy",
+    "price": 20.99,
+    "lat": 56.11077880859375,
+    "lng": -3.1666688919067383
+  },
+  {
+    "name": "Corby",
+    "city": "Corby",
+    "price": 20.99,
+    "lat": 52.48613357543945,
+    "lng": -0.7019510269165039
+  },
+  {
+    "name": "Cardiff Western Avenue",
+    "city": "Cardiff",
+    "price": 21.99,
+    "lat": 51.500064849853516,
+    "lng": -3.202436923980713
+  },
+  {
+    "name": "Derby Meteor Centre",
+    "city": "Derby",
+    "price": 21.99,
+    "lat": 52.9423942565918,
+    "lng": -1.4625940322875977
+  },
+  {
+    "name": "Loughborough",
+    "city": "Loughborough",
+    "price": 21.99,
+    "lat": 52.77421569824219,
+    "lng": -1.2070519924163818
+  },
+  {
+    "name": "Dewsbury",
+    "city": "Dewsbury",
+    "price": 21.99,
+    "lat": 53.6904182434082,
+    "lng": -1.6247819662094116
+  },
+  {
+    "name": "London Finsbury Park",
+    "city": "London",
+    "price": 21.99,
+    "lat": 51.5619010925293,
+    "lng": -0.10790000110864639
+  },
+  {
+    "name": "Kettering",
+    "city": "Kettering",
+    "price": 21.99,
+    "lat": 52.40238571166992,
+    "lng": -0.7361639738082886
+  },
+  {
+    "name": "Warrington North",
+    "city": "Warrington",
+    "price": 21.99,
+    "lat": 53.41429901123047,
+    "lng": -2.598900079727173
+  },
+  {
+    "name": "Exeter Bishops Court",
+    "city": "Exeter",
+    "price": 21.99,
+    "lat": 50.71533966064453,
+    "lng": -3.470099925994873
+  },
+  {
+    "name": "London Kingston",
+    "city": "Kingston upon Thames",
+    "price": 21.99,
+    "lat": 51.40976333618164,
+    "lng": -0.30106401443481445
+  },
+  {
+    "name": "Oxford Central",
+    "city": "Oxford",
+    "price": 21.99,
+    "lat": 51.750099182128906,
+    "lng": -1.2595000267028809
+  },
+  {
+    "name": "London Edgware",
+    "city": "Edgware",
+    "price": 21.99,
+    "lat": 51.613182067871094,
+    "lng": -0.27697399258613586
+  },
+  {
+    "name": "Blackburn",
+    "city": "Blackburn",
+    "price": 21.99,
+    "lat": 53.73990249633789,
+    "lng": -2.4837400913238525
+  },
+  {
+    "name": "Bury Woodfields Retail Park",
+    "city": "Bury",
+    "price": 21.99,
+    "lat": 53.597293853759766,
+    "lng": -2.2964470386505127
+  },
+  {
+    "name": "Brighton London Road",
+    "city": "Brighton",
+    "price": 21.99,
+    "lat": 50.83131790161133,
+    "lng": -0.13645300269126892
+  },
+  {
+    "name": "London Holloway Road",
+    "city": "London",
+    "price": 21.99,
+    "lat": 51.559600830078125,
+    "lng": -0.12349999696016312
+  },
+  {
+    "name": "Wakefield",
+    "city": "Wakefield",
+    "price": 21.99,
+    "lat": 53.68041229248047,
+    "lng": -1.5065410137176514
+  },
+  {
+    "name": "Harrogate",
+    "city": "Harrogate",
+    "price": 21.99,
+    "lat": 53.98939895629883,
+    "lng": -1.538599967956543
+  },
+  {
+    "name": "Newhaven",
+    "city": "Newhaven",
+    "price": 21.99,
+    "lat": 50.80023193359375,
+    "lng": 0.06229199841618538
+  },
+  {
+    "name": "Sutton Times Square",
+    "city": "Sutton",
+    "price": 21.99,
+    "lat": 51.36345672607422,
+    "lng": -0.19275499880313873
+  },
+  {
+    "name": "Northolt",
+    "city": "Northolt",
+    "price": 21.99,
+    "lat": 51.541908264160156,
+    "lng": -0.3678320050239563
+  },
+  {
+    "name": "Folkestone",
+    "city": "Folkestone",
+    "price": 21.99,
+    "lat": 51.09627914428711,
+    "lng": 1.1658010482788086
+  },
+  {
+    "name": "Bangor Northern Ireland",
+    "city": "Bangor",
+    "price": 21.99,
+    "lat": 54.6452522277832,
+    "lng": -5.684232234954834
+  },
+  {
+    "name": "Belfast Adelaide Street",
+    "city": "Belfast",
+    "price": 21.99,
+    "lat": 54.59395217895508,
+    "lng": -5.930302143096924
+  },
+  {
+    "name": "Harold Wood",
+    "city": "Romford",
+    "price": 21.99,
+    "lat": 51.590606689453125,
+    "lng": 0.2172970026731491
+  },
+  {
+    "name": "Newcastle Longbenton",
+    "city": "Newcastle upon Tyne",
+    "price": 21.99,
+    "lat": 55.019798278808594,
+    "lng": -1.5809999704360962
+  },
+  {
+    "name": "Evesham",
+    "city": "Evesham",
+    "price": 21.99,
+    "lat": 52.07770919799805,
+    "lng": -1.9359899759292603
+  },
+  {
+    "name": "Glasgow Rutherglen",
+    "city": "Glasgow",
+    "price": 22.99,
+    "lat": 55.831783294677734,
+    "lng": -4.199896812438965
+  },
+  {
+    "name": "Eastbourne",
+    "city": "Eastbourne",
+    "price": 22.99,
+    "lat": 50.79542922973633,
+    "lng": 0.28342899680137634
+  },
+  {
+    "name": "Stowmarket",
+    "city": "Stowmarket",
+    "price": 22.99,
+    "lat": 52.18912124633789,
+    "lng": 0.9967399835586548
+  },
+  {
+    "name": "East Grinstead",
+    "city": "East Grinstead",
+    "price": 22.99,
+    "lat": 51.12635040283203,
+    "lng": -0.009109999984502792
+  },
+  {
+    "name": "London Bromley",
+    "city": "Bromley",
+    "price": 22.99,
+    "lat": 51.40248107910156,
+    "lng": 0.017469000071287155
+  },
+  {
+    "name": "Scunthorpe",
+    "city": "Barton-upon-Humber",
+    "price": 22.99,
+    "lat": 53.587501525878906,
+    "lng": -0.6927459836006165
+  },
+  {
+    "name": "Merthyr Tydfil",
+    "city": "Merthyr Tydfil",
+    "price": 22.99,
+    "lat": 51.72749328613281,
+    "lng": -3.3613948822021484
+  },
+  {
+    "name": "Glasgow Milngavie",
+    "city": "Glasgow",
+    "price": 22.99,
+    "lat": 55.93201446533203,
+    "lng": -4.316849231719971
+  },
+  {
+    "name": "Airdrie",
+    "city": "Airdrie",
+    "price": 22.99,
+    "lat": 55.865272521972656,
+    "lng": -3.9820029735565186
+  },
+  {
+    "name": "Oswestry",
+    "city": "Oswestry",
+    "price": 22.99,
+    "lat": 52.855735778808594,
+    "lng": -3.0489730834960938
+  },
+  {
+    "name": "Llanelli",
+    "city": "Llanelli",
+    "price": 22.99,
+    "lat": 51.68470764160156,
+    "lng": -4.158125877380371
+  },
+  {
+    "name": "Bishop Auckland",
+    "city": "UK",
+    "price": 22.99,
+    "lat": 54.63715744018555,
+    "lng": -1.6877959966659546
+  },
+  {
+    "name": "Aintree",
+    "city": "Liverpool",
+    "price": 22.99,
+    "lat": 53.475399017333984,
+    "lng": -2.9539999961853027
+  },
+  {
+    "name": "Rayleigh",
+    "city": "Rayleigh",
+    "price": 22.99,
+    "lat": 51.57639694213867,
+    "lng": 0.6021630167961121
+  },
+  {
+    "name": "Bangor Wales",
+    "city": "Bangor",
+    "price": 22.99,
+    "lat": 53.229888916015625,
+    "lng": -4.125545024871826
+  },
+  {
+    "name": "London Wimbledon",
+    "city": "London",
+    "price": 22.99,
+    "lat": 51.42036437988281,
+    "lng": -0.20553399622440338
+  },
+  {
+    "name": "Hull Clough Road",
+    "city": "Hull",
+    "price": 22.99,
+    "lat": 53.768516540527344,
+    "lng": -0.3421100080013275
+  },
+  {
+    "name": "London Greenwich Movement",
+    "city": "London",
+    "price": 22.99,
+    "lat": 51.47725296020508,
+    "lng": -0.01668200083076954
+  },
+  {
+    "name": "Kendal",
+    "city": "Kendal",
+    "price": 22.99,
+    "lat": 54.33980178833008,
+    "lng": -2.734369993209839
+  },
+  {
+    "name": "Chippenham",
+    "city": "Chippenham",
+    "price": 22.99,
+    "lat": 51.463050842285156,
+    "lng": -2.116339921951294
+  },
+  {
+    "name": "Glasgow Silverburn",
+    "city": "Glasgow",
+    "price": 22.99,
+    "lat": 55.82289123535156,
+    "lng": -4.3420538902282715
+  },
+  {
+    "name": "Belfast Boucher Road",
+    "city": "Belfast",
+    "price": 22.99,
+    "lat": 54.577598571777344,
+    "lng": -5.962900161743164
+  },
+  {
+    "name": "Blackwood",
+    "city": "UK",
+    "price": 22.99,
+    "lat": 51.66204071044922,
+    "lng": -3.1911420822143555
+  },
+  {
+    "name": "London Greenwich",
+    "city": "London",
+    "price": 22.99,
+    "lat": 51.476200103759766,
+    "lng": -0.018400000408291817
+  },
+  {
+    "name": "Romford",
+    "city": "Romford",
+    "price": 22.99,
+    "lat": 51.576480865478516,
+    "lng": 0.1805099993944168
+  },
+  {
+    "name": "Sheffield Millhouses",
+    "city": "Sheffield",
+    "price": 22.99,
+    "lat": 53.3468017578125,
+    "lng": -1.4890999794006348
+  },
+  {
+    "name": "Guildford",
+    "city": "Guildford",
+    "price": 22.99,
+    "lat": 51.235958099365234,
+    "lng": -0.5765529870986938
+  },
+  {
+    "name": "Andover",
+    "city": "Andover",
+    "price": 22.99,
+    "lat": 51.210384368896484,
+    "lng": -1.5209510326385498
+  },
+  {
+    "name": "Nottingham West Bridgford",
+    "city": "Nottingham",
+    "price": 22.99,
+    "lat": 52.927120208740234,
+    "lng": -1.153190016746521
+  },
+  {
+    "name": "London Southgate",
+    "city": "London",
+    "price": 22.99,
+    "lat": 51.63309860229492,
+    "lng": -0.12680000066757202
+  },
+  {
+    "name": "Maldon Blackwater Retail Park",
+    "city": "Maldon",
+    "price": 22.99,
+    "lat": 51.73649978637695,
+    "lng": 0.6811820268630981
+  },
+  {
+    "name": "Chelmsford Meadows",
+    "city": "Chelmsford",
+    "price": 22.99,
+    "lat": 51.73265075683594,
+    "lng": 0.4769800007343292
+  },
+  {
+    "name": "London Sydenham",
+    "city": "London",
+    "price": 23.99,
+    "lat": 51.42829895019531,
+    "lng": -0.0568000003695488
+  },
+  {
+    "name": "Clacton-on-Sea",
+    "city": "Essex",
+    "price": 23.99,
+    "lat": 51.790000915527344,
+    "lng": 1.1459499597549438
+  },
+  {
+    "name": "London Lambeth",
+    "city": "London",
+    "price": 23.99,
+    "lat": 51.475799560546875,
+    "lng": -0.13130000233650208
+  },
+  {
+    "name": "London Wood Green",
+    "city": "London",
+    "price": 23.99,
+    "lat": 51.59446716308594,
+    "lng": -0.10826899856328964
+  },
+  {
+    "name": "Bristol Abbey Wood Retail Park",
+    "city": "UK",
+    "price": 23.99,
+    "lat": 51.50596618652344,
+    "lng": -2.5616910457611084
+  },
+  {
+    "name": "Aberdeen Wellington Circle",
+    "city": "Aberdeen",
+    "price": 23.99,
+    "lat": 57.11003494262695,
+    "lng": -2.0959041118621826
+  },
+  {
+    "name": "London Stratford",
+    "city": "London",
+    "price": 23.99,
+    "lat": 51.542320251464844,
+    "lng": 0.0007769999792799351
+  },
+  {
+    "name": "Uttoxeter",
+    "city": "Uttoxeter",
+    "price": 23.99,
+    "lat": 52.89993667602539,
+    "lng": -1.860916018486023
+  },
+  {
+    "name": "Barnsley",
+    "city": "Barnsley",
+    "price": 23.99,
+    "lat": 53.542476654052734,
+    "lng": -1.435655951499939
+  },
+  {
+    "name": "Haverhill",
+    "city": "Haverhill",
+    "price": 23.99,
+    "lat": 52.07758712768555,
+    "lng": 0.4484330117702484
+  },
+  {
+    "name": "Washington",
+    "city": "Washington",
+    "price": 23.99,
+    "lat": 54.90114974975586,
+    "lng": -1.531203031539917
+  },
+  {
+    "name": "Newcastle Westerhope",
+    "city": "Newcastle upon Tyne",
+    "price": 23.99,
+    "lat": 54.99901580810547,
+    "lng": -1.688581943511963
+  },
+  {
+    "name": "Burgess Hill",
+    "city": "Burgess Hill",
+    "price": 23.99,
+    "lat": 50.9564208984375,
+    "lng": -0.13917399942874908
+  },
+  {
+    "name": "Coventry Arena",
+    "city": "UK",
+    "price": 23.99,
+    "lat": 52.4451904296875,
+    "lng": -1.4955040216445923
+  },
+  {
+    "name": "Birmingham Arcadian Centre",
+    "city": "Birmingham",
+    "price": 23.99,
+    "lat": 52.47453308105469,
+    "lng": -1.8966059684753418
+  },
+  {
+    "name": "Waterlooville",
+    "city": "Waterlooville",
+    "price": 23.99,
+    "lat": 50.87968444824219,
+    "lng": -1.0294699668884277
+  },
+  {
+    "name": "Yeovil Houndstone Retail Park",
+    "city": "Yeovil",
+    "price": 23.99,
+    "lat": 50.94544982910156,
+    "lng": -2.6717960834503174
+  },
+  {
+    "name": "London Park Royal",
+    "city": "London",
+    "price": 23.99,
+    "lat": 51.525325775146484,
+    "lng": -0.28132399916648865
+  },
+  {
+    "name": "Edinburgh Fort Kinnaird",
+    "city": "UK",
+    "price": 23.99,
+    "lat": 55.93537902832031,
+    "lng": -3.1019790172576904
+  },
+  {
+    "name": "London Ilford",
+    "city": "Ilford",
+    "price": 23.99,
+    "lat": 51.55916213989258,
+    "lng": 0.07258199900388718
+  },
+  {
+    "name": "Keighley",
+    "city": "Keighley",
+    "price": 23.99,
+    "lat": 53.87497329711914,
+    "lng": -1.8939440250396729
+  },
+  {
+    "name": "Leamington Spa",
+    "city": "Leamington Spa",
+    "price": 23.99,
+    "lat": 52.2763557434082,
+    "lng": -1.536180019378662
+  },
+  {
+    "name": "Neath",
+    "city": "Neath",
+    "price": 23.99,
+    "lat": 51.66815948486328,
+    "lng": -3.807516098022461
+  },
+  {
+    "name": "Pontypridd",
+    "city": "Pontypridd",
+    "price": 23.99,
+    "lat": 51.60166549682617,
+    "lng": -3.3329460620880127
+  },
+  {
+    "name": "Blyth",
+    "city": "Blyth",
+    "price": 23.99,
+    "lat": 55.13217544555664,
+    "lng": -1.5352909564971924
+  },
+  {
+    "name": "Galashiels",
+    "city": "Galashiels",
+    "price": 23.99,
+    "lat": 55.613914489746094,
+    "lng": -2.80261492729187
+  },
+  {
+    "name": "Edinburgh Craigleith Retail Park",
+    "city": "Edinburgh",
+    "price": 23.99,
+    "lat": 55.9595947265625,
+    "lng": -3.242443084716797
+  },
+  {
+    "name": "Hastings",
+    "city": "Retail",
+    "price": 23.99,
+    "lat": 50.8516845703125,
+    "lng": 0.5374500155448914
+  },
+  {
+    "name": "St Albans",
+    "city": "St Albans",
+    "price": 23.99,
+    "lat": 51.74182891845703,
+    "lng": -0.3418850004673004
+  },
+  {
+    "name": "Derby Kingsway Retail Park",
+    "city": "Derby",
+    "price": 23.99,
+    "lat": 52.92015075683594,
+    "lng": -1.5038609504699707
+  },
+  {
+    "name": "Portishead",
+    "city": "Bristol",
+    "price": 23.99,
+    "lat": 51.48371124267578,
+    "lng": -2.764503002166748
+  },
+  {
+    "name": "Plymouth Derriford",
+    "city": "Plymouth",
+    "price": 23.99,
+    "lat": 50.41486358642578,
+    "lng": -4.124482154846191
+  },
+  {
+    "name": "London Kidbrooke Village",
+    "city": "London",
+    "price": 23.99,
+    "lat": 51.46189880371094,
+    "lng": 0.026374999433755875
+  },
+  {
+    "name": "Glasgow Robroyston",
+    "city": "Glasgow",
+    "price": 23.99,
+    "lat": 55.89097595214844,
+    "lng": -4.186976909637451
+  },
+  {
+    "name": "Birmingham Maypole",
+    "city": "Birmingham",
+    "price": 23.99,
+    "lat": 52.40397262573242,
+    "lng": -1.8845839500427246
+  },
+  {
+    "name": "Aberdeen Rubislaw",
+    "city": "UK",
+    "price": 23.99,
+    "lat": 57.141990661621094,
+    "lng": -2.150268077850342
+  },
+  {
+    "name": "Cumbernauld",
+    "city": "Glasgow",
+    "price": 24.99,
+    "lat": 55.974308013916016,
+    "lng": -3.960714101791382
+  },
+  {
+    "name": "Glasgow Giffnock",
+    "city": "Glasgow",
+    "price": 24.99,
+    "lat": 55.80691909790039,
+    "lng": -4.29334020614624
+  },
+  {
+    "name": "Ormskirk",
+    "city": "Ormskirk",
+    "price": 24.99,
+    "lat": 53.5730094909668,
+    "lng": -2.879599094390869
+  },
+  {
+    "name": "London Putney",
+    "city": "London",
+    "price": 24.99,
+    "lat": 51.460201263427734,
+    "lng": -0.2134999930858612
+  },
+  {
+    "name": "London Charlton",
+    "city": "London",
+    "price": 24.99,
+    "lat": 51.4887580871582,
+    "lng": 0.027367999777197848
+  },
+  {
+    "name": "Derry Londonderry",
+    "city": "Londonderry",
+    "price": 24.99,
+    "lat": 55.00559997558594,
+    "lng": -7.321000099182129
+  },
+  {
+    "name": "London Wandsworth",
+    "city": "London",
+    "price": 24.99,
+    "lat": 51.45690155029297,
+    "lng": -0.19210000336170197
+  },
+  {
+    "name": "Prescot",
+    "city": "Prescot",
+    "price": 24.99,
+    "lat": 53.42676544189453,
+    "lng": -2.802583932876587
+  },
+  {
+    "name": "Edinburgh Quartermile",
+    "city": "Edinburgh",
+    "price": 24.99,
+    "lat": 55.944698333740234,
+    "lng": -3.195499897003174
+  },
+  {
+    "name": "Cramlington",
+    "city": "Cramlington",
+    "price": 24.99,
+    "lat": 55.086814880371094,
+    "lng": -1.594696044921875
+  },
+  {
+    "name": "Ashford Warren Retail Park",
+    "city": "Ashford",
+    "price": 24.99,
+    "lat": 51.15808868408203,
+    "lng": 0.8722000122070312
+  },
+  {
+    "name": "Manchester Eccles",
+    "city": "Salford",
+    "price": 24.99,
+    "lat": 53.482479095458984,
+    "lng": -2.3281331062316895
+  },
+  {
+    "name": "Newry",
+    "city": "Newry",
+    "price": 24.99,
+    "lat": 54.167457580566406,
+    "lng": -6.339896202087402
+  },
+  {
+    "name": "Didcot",
+    "city": "Didcot",
+    "price": 24.99,
+    "lat": 51.60634994506836,
+    "lng": -1.240049958229065
+  },
+  {
+    "name": "Coalville",
+    "city": "Coalville",
+    "price": 24.99,
+    "lat": 52.72382736206055,
+    "lng": -1.371575951576233
+  },
+  {
+    "name": "Havant",
+    "city": "Havant",
+    "price": 24.99,
+    "lat": 50.852508544921875,
+    "lng": -0.9857810139656067
+  },
+  {
+    "name": "Taunton",
+    "city": "Taunton",
+    "price": 24.99,
+    "lat": 51.019676208496094,
+    "lng": -3.0638699531555176
+  },
+  {
+    "name": "Barnstaple",
+    "city": "Barnstaple",
+    "price": 24.99,
+    "lat": 51.07825469970703,
+    "lng": -4.064393043518066
+  },
+  {
+    "name": "London Swanley",
+    "city": "Swanley",
+    "price": 24.99,
+    "lat": 51.3964958190918,
+    "lng": 0.17390799522399902
+  },
+  {
+    "name": "Buckingham",
+    "city": "Buckingham",
+    "price": 24.99,
+    "lat": 51.98955535888672,
+    "lng": -0.9911969900131226
+  },
+  {
+    "name": "Leeds Bramley",
+    "city": "Leeds",
+    "price": 24.99,
+    "lat": 53.80459976196289,
+    "lng": -1.6238000392913818
+  },
+  {
+    "name": "Pontefract",
+    "city": "Pontefract",
+    "price": 24.99,
+    "lat": 53.69490051269531,
+    "lng": -1.2986730337142944
+  },
+  {
+    "name": "London Camberwell Southampton Way",
+    "city": "London",
+    "price": 24.99,
+    "lat": 51.47747039794922,
+    "lng": -0.0809599980711937
+  },
+  {
+    "name": "Dumfries",
+    "city": "Dumfries",
+    "price": 24.99,
+    "lat": 55.07896041870117,
+    "lng": -3.620500087738037
+  },
+  {
+    "name": "Manchester Moston",
+    "city": "Manchester",
+    "price": 24.99,
+    "lat": 53.52730178833008,
+    "lng": -2.1816999912261963
+  },
+  {
+    "name": "Bicester",
+    "city": "Bicester",
+    "price": 24.99,
+    "lat": 51.89199447631836,
+    "lng": -1.165037989616394
+  },
+  {
+    "name": "Woking",
+    "city": "Woking",
+    "price": 24.99,
+    "lat": 51.31909942626953,
+    "lng": -0.5715000033378601
+  },
+  {
+    "name": "Epsom",
+    "city": "Epsom",
+    "price": 24.99,
+    "lat": 51.33330154418945,
+    "lng": -0.2694000005722046
+  },
+  {
+    "name": "Rhyl",
+    "city": "Rhyl",
+    "price": 25.99,
+    "lat": 53.3038330078125,
+    "lng": -3.4696168899536133
+  },
+  {
+    "name": "Basingstoke",
+    "city": "Basingstoke",
+    "price": 25.99,
+    "lat": 51.28288269042969,
+    "lng": -1.0700349807739258
+  },
+  {
+    "name": "Weston-super-Mare",
+    "city": "Weston-super-Mare",
+    "price": 25.99,
+    "lat": 51.33803939819336,
+    "lng": -2.9618499279022217
+  },
+  {
+    "name": "Glossop",
+    "city": "Glossop",
+    "price": 25.99,
+    "lat": 53.443931579589844,
+    "lng": -1.9568630456924438
+  },
+  {
+    "name": "Sale",
+    "city": "Sale",
+    "price": 25.99,
+    "lat": 53.423824310302734,
+    "lng": -2.3216919898986816
+  },
+  {
+    "name": "Paisley",
+    "city": "Paisley",
+    "price": 25.99,
+    "lat": 55.85108184814453,
+    "lng": -4.422175884246826
+  },
+  {
+    "name": "London Swiss Cottage",
+    "city": "London",
+    "price": 25.99,
+    "lat": 51.545711517333984,
+    "lng": -0.17866499722003937
+  },
+  {
+    "name": "London Camberwell New Road",
+    "city": "London",
+    "price": 25.99,
+    "lat": 51.47454071044922,
+    "lng": -0.09412100166082382
+  },
+  {
+    "name": "Dungannon",
+    "city": "Dungannon",
+    "price": 25.99,
+    "lat": 54.511878967285156,
+    "lng": -6.763286113739014
+  },
+  {
+    "name": "Witney",
+    "city": "Witney",
+    "price": 25.99,
+    "lat": 51.778900146484375,
+    "lng": -1.4932899475097656
+  },
+  {
+    "name": "Birmingham Longbridge",
+    "city": "Birmingham",
+    "price": 25.99,
+    "lat": 52.393943786621094,
+    "lng": -1.986664056777954
+  },
+  {
+    "name": "London North Finchley",
+    "city": "London",
+    "price": 25.99,
+    "lat": 51.61289978027344,
+    "lng": -0.17669999599456787
+  },
+  {
+    "name": "Liverpool Edge Lane",
+    "city": "Liverpool",
+    "price": 25.99,
+    "lat": 53.407806396484375,
+    "lng": -2.92472505569458
+  },
+  {
+    "name": "Cheshunt Brookfield Shopping Park",
+    "city": "Waltham Cross",
+    "price": 25.99,
+    "lat": 51.71675109863281,
+    "lng": -0.03765799850225447
+  },
+  {
+    "name": "St Ives Cambridgeshire",
+    "city": "St. Ives",
+    "price": 25.99,
+    "lat": 52.33052444458008,
+    "lng": -0.05809900164604187
+  },
+  {
+    "name": "Caerphilly",
+    "city": "Caerphilly",
+    "price": 25.99,
+    "lat": 51.592037200927734,
+    "lng": -3.2174088954925537
+  },
+  {
+    "name": "Lincoln Carlton Centre",
+    "city": "UK",
+    "price": 25.99,
+    "lat": 53.242164611816406,
+    "lng": -0.5083730220794678
+  },
+  {
+    "name": "Crayford",
+    "city": "Dartford",
+    "price": 25.99,
+    "lat": 51.45037078857422,
+    "lng": 0.17989900708198547
+  },
+  {
+    "name": "Purley",
+    "city": "Purley",
+    "price": 25.99,
+    "lat": 51.34469985961914,
+    "lng": -0.10509999841451645
+  },
+  {
+    "name": "Lichfield",
+    "city": "Lichfield",
+    "price": 25.99,
+    "lat": 52.695980072021484,
+    "lng": -1.8169779777526855
+  },
+  {
+    "name": "Uxbridge",
+    "city": "Uxbridge",
+    "price": 26.99,
+    "lat": 51.54542541503906,
+    "lng": -0.47663700580596924
+  },
+  {
+    "name": "London Crouch End",
+    "city": "London",
+    "price": 26.99,
+    "lat": 51.58186721801758,
+    "lng": -0.12029799818992615
+  },
+  {
+    "name": "Banbury Cross Retail Park",
+    "city": "Banbury",
+    "price": 26.99,
+    "lat": 52.074337005615234,
+    "lng": -1.3419439792633057
+  },
+  {
+    "name": "Edinburgh Ocean Terminal",
+    "city": "Edinburgh",
+    "price": 26.99,
+    "lat": 55.9817008972168,
+    "lng": -3.1761999130249023
+  },
+  {
+    "name": "Borehamwood",
+    "city": "Borehamwood",
+    "price": 26.99,
+    "lat": 51.65589904785156,
+    "lng": -0.27570000290870667
+  },
+  {
+    "name": "London Finchley",
+    "city": "London",
+    "price": 26.99,
+    "lat": 51.59479904174805,
+    "lng": -0.18610000610351562
+  },
+  {
+    "name": "Bath Spring Wharf",
+    "city": "Bath",
+    "price": 26.99,
+    "lat": 51.38230895996094,
+    "lng": -2.3814380168914795
+  },
+  {
+    "name": "Bridgwater",
+    "city": "Bridgwater",
+    "price": 26.99,
+    "lat": 51.13132858276367,
+    "lng": -2.999974012374878
+  },
+  {
+    "name": "London Woolwich",
+    "city": "London",
+    "price": 26.99,
+    "lat": 51.49138641357422,
+    "lng": 0.07154799997806549
+  },
+  {
+    "name": "London Tottenham Court Road",
+    "city": "London",
+    "price": 26.99,
+    "lat": 51.524105072021484,
+    "lng": -0.13720199465751648
+  },
+  {
+    "name": "Bath Victoria Park",
+    "city": "Bath",
+    "price": 26.99,
+    "lat": 51.38526153564453,
+    "lng": -2.3770439624786377
+  },
+  {
+    "name": "Cirencester Retail Park",
+    "city": "Cirencester",
+    "price": 26.99,
+    "lat": 51.706478118896484,
+    "lng": -1.9593299627304077
+  },
+  {
+    "name": "Sheffield Crystal Peaks",
+    "city": "Sheffield",
+    "price": 26.99,
+    "lat": 53.34507751464844,
+    "lng": -1.352931022644043
+  },
+  {
+    "name": "Peterborough Serpentine Green Shopping Centre",
+    "city": "Peterborough",
+    "price": 26.99,
+    "lat": 52.539894104003906,
+    "lng": -0.265608012676239
+  },
+  {
+    "name": "Skipton",
+    "city": "Skipton",
+    "price": 26.99,
+    "lat": 53.962589263916016,
+    "lng": -2.0147619247436523
+  },
+  {
+    "name": "Selby",
+    "city": "UK",
+    "price": 26.99,
+    "lat": 53.77219772338867,
+    "lng": -1.0647250413894653
+  },
+  {
+    "name": "London Colney",
+    "city": "St Albans",
+    "price": 27.99,
+    "lat": 51.71614456176758,
+    "lng": -0.2823390066623688
+  },
+  {
+    "name": "Linlithgow",
+    "city": "Linlithgow",
+    "price": 27.99,
+    "lat": 55.97510528564453,
+    "lng": -3.6230061054229736
+  },
+  {
+    "name": "London Whitechapel",
+    "city": "London",
+    "price": 27.99,
+    "lat": 51.51743698120117,
+    "lng": -0.06498800218105316
+  },
+  {
+    "name": "Bridgend",
+    "city": "Bridgend",
+    "price": 27.99,
+    "lat": 51.49973678588867,
+    "lng": -3.537997007369995
+  },
+  {
+    "name": "Salisbury",
+    "city": "Salisbury",
+    "price": 27.99,
+    "lat": 51.062618255615234,
+    "lng": -1.7782080173492432
+  },
+  {
+    "name": "Stratford-Upon-Avon",
+    "city": "Stratford-upon-Avon",
+    "price": 27.99,
+    "lat": 52.20136642456055,
+    "lng": -1.7116529941558838
+  },
+  {
+    "name": "Falkirk",
+    "city": "Falkirk",
+    "price": 27.99,
+    "lat": 56.00397491455078,
+    "lng": -3.777717113494873
+  },
+  {
+    "name": "London Oval",
+    "city": "London",
+    "price": 27.99,
+    "lat": 51.48040008544922,
+    "lng": -0.1102520003914833
+  },
+  {
+    "name": "London Hayes",
+    "city": "London",
+    "price": 27.99,
+    "lat": 51.514930725097656,
+    "lng": -0.39761799573898315
+  },
+  {
+    "name": "Alloa",
+    "city": "Alloa",
+    "price": 27.99,
+    "lat": 56.11404037475586,
+    "lng": -3.791316032409668
+  },
+  {
+    "name": "London Hammersmith Palais",
+    "city": "UK",
+    "price": 27.99,
+    "lat": 51.4940299987793,
+    "lng": -0.22413699328899384
+  },
+  {
+    "name": "Craigavon",
+    "city": "Craigavon",
+    "price": 27.99,
+    "lat": 54.4490852355957,
+    "lng": -6.390310764312744
+  },
+  {
+    "name": "Whitehaven",
+    "city": "Whitehaven",
+    "price": 27.99,
+    "lat": 54.544342041015625,
+    "lng": -3.584942102432251
+  },
+  {
+    "name": "Trowbridge",
+    "city": "Trowbridge",
+    "price": 27.99,
+    "lat": 51.30358123779297,
+    "lng": -2.2098729610443115
+  },
+  {
+    "name": "Sittingbourne",
+    "city": "Sittingbourne",
+    "price": 27.99,
+    "lat": 51.344913482666016,
+    "lng": 0.7366420030593872
+  },
+  {
+    "name": "Edgbaston",
+    "city": "Corkfield",
+    "price": 28.99,
+    "lat": 52.45576477050781,
+    "lng": -1.9062329530715942
+  },
+  {
+    "name": "Winchester",
+    "city": "Winchester",
+    "price": 28.99,
+    "lat": 51.07030487060547,
+    "lng": -1.2968419790267944
+  },
+  {
+    "name": "Market Harborough",
+    "city": "Market Harborough",
+    "price": 28.99,
+    "lat": 52.479286193847656,
+    "lng": -0.9080410003662109
+  },
+  {
+    "name": "Harwich",
+    "city": "Harwich",
+    "price": 28.99,
+    "lat": 51.94047546386719,
+    "lng": 1.2578970193862915
+  },
+  {
+    "name": "London Bayswater",
+    "city": "London",
+    "price": 28.99,
+    "lat": 51.51300048828125,
+    "lng": -0.19030000269412994
+  },
+  {
+    "name": "London Bermondsey",
+    "city": "London",
+    "price": 28.99,
+    "lat": 51.49420166015625,
+    "lng": -0.06279999762773514
+  },
+  {
+    "name": "London Angel",
+    "city": "London",
+    "price": 28.99,
+    "lat": 51.535980224609375,
+    "lng": -0.10520999878644943
+  },
+  {
+    "name": "St Neots",
+    "city": "St. Neots",
+    "price": 28.99,
+    "lat": 52.22870635986328,
+    "lng": -0.2660380005836487
+  },
+  {
+    "name": "West Drayton",
+    "city": "West Drayton",
+    "price": 28.99,
+    "lat": 51.51533889770508,
+    "lng": -0.475053995847702
+  },
+  {
+    "name": "Sudbury",
+    "city": "Sudbury",
+    "price": 28.99,
+    "lat": 52.041053771972656,
+    "lng": 0.7526270151138306
+  },
+  {
+    "name": "Diss",
+    "city": "Diss",
+    "price": 28.99,
+    "lat": 52.371131896972656,
+    "lng": 1.120252013206482
+  },
+  {
+    "name": "Edinburgh Exchange Crescent",
+    "city": "Edinburgh",
+    "price": 28.99,
+    "lat": 55.94729995727539,
+    "lng": -3.2088000774383545
+  },
+  {
+    "name": "Bagshot",
+    "city": "Bagshot",
+    "price": 28.99,
+    "lat": 51.35502243041992,
+    "lng": -0.6989610195159912
+  },
+  {
+    "name": "Letchworth",
+    "city": "Letchworth Garden City",
+    "price": 28.99,
+    "lat": 51.98053741455078,
+    "lng": -0.2049500048160553
+  },
+  {
+    "name": "Llantrisant",
+    "city": "Pontyclun",
+    "price": 28.99,
+    "lat": 51.53758239746094,
+    "lng": -3.3799779415130615
+  },
+  {
+    "name": "Horsham",
+    "city": "Horsham",
+    "price": 28.99,
+    "lat": 51.06743240356445,
+    "lng": -0.3556160032749176
+  },
+  {
+    "name": "Northallerton",
+    "city": "Northallerton",
+    "price": 29.99,
+    "lat": 54.34678268432617,
+    "lng": -1.4424580335617065
+  },
+  {
+    "name": "London Brentford",
+    "city": "Brentford",
+    "price": 29.99,
+    "lat": 51.48411560058594,
+    "lng": -0.32178500294685364
+  },
+  {
+    "name": "New Barnet",
+    "city": "Barnet",
+    "price": 29.99,
+    "lat": 51.649898529052734,
+    "lng": -0.17419999837875366
+  },
+  {
+    "name": "Wickford",
+    "city": "Essex",
+    "price": 29.99,
+    "lat": 51.613861083984375,
+    "lng": 0.5200089812278748
+  },
+  {
+    "name": "Bideford",
+    "city": "UK",
+    "price": 29.99,
+    "lat": 51.00727462768555,
+    "lng": -4.23917293548584
+  },
+  {
+    "name": "South Ruislip",
+    "city": "Ruislip",
+    "price": 29.99,
+    "lat": 51.55590057373047,
+    "lng": -0.38886499404907227
+  },
+  {
+    "name": "Hazel Grove",
+    "city": "Stockport",
+    "price": 29.99,
+    "lat": 53.38298034667969,
+    "lng": -2.1229069232940674
+  },
+  {
+    "name": "Hitchin",
+    "city": "Hitchin",
+    "price": 29.99,
+    "lat": 51.94911575317383,
+    "lng": -0.2790600061416626
+  },
+  {
+    "name": "Erith",
+    "city": "Erith",
+    "price": 29.99,
+    "lat": 51.48014831542969,
+    "lng": 0.1809619963169098
+  },
+  {
+    "name": "London Streatham",
+    "city": "London",
+    "price": 29.99,
+    "lat": 51.43376159667969,
+    "lng": -0.1285099983215332
+  },
+  {
+    "name": "Thamesmead",
+    "city": "London",
+    "price": 29.99,
+    "lat": 51.506019592285156,
+    "lng": 0.1041169986128807
+  },
+  {
+    "name": "Heanor",
+    "city": "Heanor",
+    "price": 29.99,
+    "lat": 53.0157585144043,
+    "lng": -1.3572050333023071
+  },
+  {
+    "name": "Stamford",
+    "city": "Stamford",
+    "price": 29.99,
+    "lat": 52.6569709777832,
+    "lng": -0.4657529890537262
+  },
+  {
+    "name": "Lanark",
+    "city": "Lanark",
+    "price": 29.99,
+    "lat": 55.67188262939453,
+    "lng": -3.769556999206543
+  },
+  {
+    "name": "Yate",
+    "city": "Bristol",
+    "price": 29.99,
+    "lat": 51.53938674926758,
+    "lng": -2.408212900161743
+  },
+  {
+    "name": "Haywards Heath",
+    "city": "Haywards Heath",
+    "price": 29.99,
+    "lat": 50.996177673339844,
+    "lng": -0.10164500027894974
+  },
+  {
+    "name": "Exmouth",
+    "city": "Exmouth",
+    "price": 29.99,
+    "lat": 50.630775451660156,
+    "lng": -3.374950885772705
+  },
+  {
+    "name": "Walton-on-Thames",
+    "city": "Walton-on-Thames",
+    "price": 29.99,
+    "lat": 51.38520050048828,
+    "lng": -0.4203999936580658
+  },
+  {
+    "name": "London East Sheen",
+    "city": "London",
+    "price": 29.99,
+    "lat": 51.4651985168457,
+    "lng": -0.26246199011802673
+  },
+  {
+    "name": "Rushden",
+    "city": "Rushden",
+    "price": 30.99,
+    "lat": 52.29941177368164,
+    "lng": -0.6194859743118286
+  },
+  {
+    "name": "Saffron Walden",
+    "city": "Saffron Walden",
+    "price": 30.99,
+    "lat": 52.01259994506836,
+    "lng": 0.2590999901294708
+  },
+  {
+    "name": "London Ealing Broadway",
+    "city": "London",
+    "price": 30.99,
+    "lat": 51.514034271240234,
+    "lng": -0.30232301354408264
+  },
+  {
+    "name": "London Camden",
+    "city": "London",
+    "price": 30.99,
+    "lat": 51.540321350097656,
+    "lng": -0.14380000531673431
+  },
+  {
+    "name": "London Shoreditch",
+    "city": "London",
+    "price": 30.99,
+    "lat": 51.52363967895508,
+    "lng": -0.07220800220966339
+  },
+  {
+    "name": "Glastonbury",
+    "city": "Glastonbury",
+    "price": 30.99,
+    "lat": 51.143558502197266,
+    "lng": -2.728698968887329
+  },
+  {
+    "name": "London Leytonstone",
+    "city": "UK",
+    "price": 30.99,
+    "lat": 51.56744384765625,
+    "lng": 0.01089899986982346
+  },
+  {
+    "name": "London Kentish Town",
+    "city": "London",
+    "price": 30.99,
+    "lat": 51.547542572021484,
+    "lng": -0.14170999825000763
+  },
+  {
+    "name": "London Marylebone",
+    "city": "London",
+    "price": 30.99,
+    "lat": 51.522098541259766,
+    "lng": -0.16120000183582306
+  },
+  {
+    "name": "London Mitcham",
+    "city": "UK",
+    "price": 30.99,
+    "lat": 51.40525436401367,
+    "lng": -0.16350899636745453
+  },
+  {
+    "name": "Aberdare",
+    "city": "Aberdare",
+    "price": 30.99,
+    "lat": 51.70179748535156,
+    "lng": -3.4198949337005615
+  },
+  {
+    "name": "London Beckenham",
+    "city": "Beckenham",
+    "price": 30.99,
+    "lat": 51.406673431396484,
+    "lng": -0.027998000383377075
+  },
+  {
+    "name": "London East India Dock",
+    "city": "London",
+    "price": 30.99,
+    "lat": 51.51021957397461,
+    "lng": -0.004854000173509121
+  },
+  {
+    "name": "London Borough",
+    "city": "London",
+    "price": 30.99,
+    "lat": 51.500728607177734,
+    "lng": -0.09089100360870361
+  },
+  {
+    "name": "Byfleet",
+    "city": "West Byfleet",
+    "price": 31.99,
+    "lat": 51.34027862548828,
+    "lng": -0.4774459898471832
+  },
+  {
+    "name": "Antrim",
+    "city": "Newtownabbey",
+    "price": 31.99,
+    "lat": 54.72927474975586,
+    "lng": -6.229516983032227
+  },
+  {
+    "name": "Shepton Mallet",
+    "city": "Shepton Mallet",
+    "price": 31.99,
+    "lat": 51.18749237060547,
+    "lng": -2.5506629943847656
+  },
+  {
+    "name": "Brentwood",
+    "city": "Brentwood",
+    "price": 31.99,
+    "lat": 51.620140075683594,
+    "lng": 0.3009350001811981
+  },
+  {
+    "name": "London Bow Wharf",
+    "city": "London",
+    "price": 31.99,
+    "lat": 51.5322151184082,
+    "lng": -0.04155699908733368
+  },
+  {
+    "name": "London Twickenham",
+    "city": "Twickenham",
+    "price": 31.99,
+    "lat": 51.4453125,
+    "lng": -0.3303239941596985
+  },
+  {
+    "name": "Maidenhead",
+    "city": "Maidenhead",
+    "price": 31.99,
+    "lat": 51.51837158203125,
+    "lng": -0.7177249789237976
+  },
+  {
+    "name": "London Hoxton",
+    "city": "London",
+    "price": 31.99,
+    "lat": 51.530731201171875,
+    "lng": -0.07476899772882462
+  },
+  {
+    "name": "London Limehouse",
+    "city": "London",
+    "price": 31.99,
+    "lat": 51.512325286865234,
+    "lng": -0.0369580015540123
+  },
+  {
+    "name": "London Waterloo",
+    "city": "London",
+    "price": 31.99,
+    "lat": 51.50429153442383,
+    "lng": -0.1090880036354065
+  },
+  {
+    "name": "Jarrow",
+    "city": "Jarrow",
+    "price": 31.99,
+    "lat": 54.980628967285156,
+    "lng": -1.4887100458145142
+  },
+  {
+    "name": "Frome",
+    "city": "Frome",
+    "price": 31.99,
+    "lat": 51.21742248535156,
+    "lng": -2.3309121131896973
+  },
+  {
+    "name": "Alton",
+    "city": "Alton",
+    "price": 31.99,
+    "lat": 51.158119201660156,
+    "lng": -0.9549829959869385
+  },
+  {
+    "name": "Alfreton",
+    "city": "Alfreton",
+    "price": 31.99,
+    "lat": 53.08536911010742,
+    "lng": -1.3761659860610962
+  },
+  {
+    "name": "London Palmers Green",
+    "city": "London",
+    "price": 32.99,
+    "lat": 51.62082290649414,
+    "lng": -0.10618799924850464
+  },
+  {
+    "name": "Wantage",
+    "city": "Wantage",
+    "price": 32.99,
+    "lat": 51.59043884277344,
+    "lng": -1.4260950088500977
+  },
+  {
+    "name": "London Welling",
+    "city": "Welling",
+    "price": 32.99,
+    "lat": 51.46273422241211,
+    "lng": 0.10439199954271317
+  },
+  {
+    "name": "Hornchurch",
+    "city": "Hornchurch",
+    "price": 33.99,
+    "lat": 51.56155776977539,
+    "lng": 0.22207599878311157
+  },
+  {
+    "name": "London Canary Wharf",
+    "city": "London",
+    "price": 33.99,
+    "lat": 51.50790023803711,
+    "lng": -0.02290000021457672
+  },
+  {
+    "name": "Sevenoaks",
+    "city": "Sevenoaks",
+    "price": 34.99,
+    "lat": 51.29237747192383,
+    "lng": 0.1903350055217743
+  },
+  {
+    "name": "London Pinner",
+    "city": "Pinner",
+    "price": 34.99,
+    "lat": 51.594635009765625,
+    "lng": -0.38357800245285034
+  },
+  {
+    "name": "London Bethnal Green",
+    "city": "London",
+    "price": 35.99,
+    "lat": 51.525203704833984,
+    "lng": -0.055452000349760056
+  },
+  {
+    "name": "London Fulham",
+    "city": "London",
+    "price": 35.99,
+    "lat": 51.4804801940918,
+    "lng": -0.19766999781131744
+  },
+  {
+    "name": "London Clapham",
+    "city": "London",
+    "price": 35.99,
+    "lat": 51.463077545166016,
+    "lng": -0.13407500088214874
+  },
+  {
+    "name": "London Muswell Hill",
+    "city": "London",
+    "price": 36.99,
+    "lat": 51.59049987792969,
+    "lng": -0.14139999449253082
+  },
+  {
+    "name": "London Tower Hill",
+    "city": "London",
+    "price": 39.99,
+    "lat": 51.51149368286133,
+    "lng": -0.07609499990940094
+  },
+  {
+    "name": "London St Pauls",
+    "city": "London",
+    "price": 39.99,
+    "lat": 51.517127990722656,
+    "lng": -0.09849099814891815
+  },
+  {
+    "name": "London Monument",
+    "city": "London",
+    "price": 39.99,
+    "lat": 51.51121520996094,
+    "lng": -0.08661700040102005
+  },
+  {
+    "name": "London Farringdon",
+    "city": "London",
+    "price": 40.99,
+    "lat": 51.52199935913086,
+    "lng": -0.1102600023150444
+  },
+  {
+    "name": "London Holborn",
+    "city": "London",
+    "price": 40.99,
+    "lat": 51.520599365234375,
+    "lng": -0.11810000240802765
+  },
+  {
+    "name": "London Piccadilly",
+    "city": "London",
+    "price": 43.99,
+    "lat": 51.50849914550781,
+    "lng": -0.133200004696846
+  },
+  {
+    "name": "London Aldgate",
+    "city": "London",
+    "price": 44.99,
+    "lat": 51.514671325683594,
+    "lng": -0.07624500244855881
+  },
+  {
+    "name": "London Moorgate",
+    "city": "London",
+    "price": 46.99,
+    "lat": 51.51689910888672,
+    "lng": -0.08810000121593475
+  }
+]

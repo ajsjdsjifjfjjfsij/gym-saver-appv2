@@ -1,0 +1,56 @@
+{
+  "cheapest": [
+    {
+      "name": "Manchester Spinningfields",
+      "city": "Manchester",
+      "price": 9
+    },
+    {
+      "name": "Manchester Urban Exchange",
+      "city": "Manchester",
+      "price": 10
+    },
+    {
+      "name": "Watford Waterfields",
+      "city": "Watford",
+      "price": 11.5
+    },
+    {
+      "name": "Manchester Market Street",
+      "city": "Manchester",
+      "price": 11.89
+    },
+    {
+      "name": "Northampton Central",
+      "city": "Northampton",
+      "price": 14.99
+    }
+  ],
+  "mostExpensive": [
+    {
+      "name": "London Moorgate",
+      "city": "London",
+      "price": 46.99
+    },
+    {
+      "name": "London Aldgate",
+      "city": "London",
+      "price": 44.99
+    },
+    {
+      "name": "London Piccadilly",
+      "city": "London",
+      "price": 43.99
+    },
+    {
+      "name": "London Holborn",
+      "city": "London",
+      "price": 40.99
+    },
+    {
+      "name": "London Farringdon",
+      "city": "London",
+      "price": 40.99
+    }
+  ]
+}
