@@ -918,10 +918,10 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
         />
 
         {/* Action Bar (Mobile Only - Replicating Desktop Header Nav) */}
-        <div className="md:hidden w-full px-4 py-2 flex justify-between gap-2 shrink-0 z-[40] relative">
+        <div className="md:hidden w-full px-2 sm:px-4 py-2 grid grid-cols-3 gap-1.5 sm:gap-2 shrink-0 z-[40] relative">
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
-              <Button variant="default" className="flex-1 bg-white/10 hover:bg-white/20 text-white font-bold h-10 px-1 sm:px-2 rounded-xl flex items-center justify-center gap-1 backdrop-blur-md transition-all duration-300">
+              <Button variant="default" className="w-full bg-white/10 hover:bg-white/20 text-white font-bold h-10 px-1 sm:px-2 rounded-xl flex items-center justify-center gap-1 backdrop-blur-md transition-all duration-300">
                 <span className="truncate text-[10px] sm:text-xs">Owners</span>
                 <ChevronDown className="h-3 w-3 shrink-0" />
               </Button>
@@ -938,7 +938,7 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
 
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
-              <Button variant="default" className="flex-1 bg-white/10 hover:bg-white/20 text-white font-bold h-10 px-1 sm:px-2 rounded-xl flex items-center justify-center gap-1 backdrop-blur-md transition-all duration-300">
+              <Button variant="default" className="w-full bg-white/10 hover:bg-white/20 text-white font-bold h-10 px-1 sm:px-2 rounded-xl flex items-center justify-center gap-1 backdrop-blur-md transition-all duration-300">
                 <span className="truncate text-[10px] sm:text-xs">Users</span>
                 <ChevronDown className="h-3 w-3 shrink-0" />
               </Button>
@@ -958,7 +958,7 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
           <Button 
             variant="default" 
             onClick={() => router.push("/gym-bounty")}
-            className="flex-1 bg-[#6BD85E]/90 hover:bg-[#5bc250] text-black font-bold h-10 px-1 sm:px-2 rounded-xl flex items-center justify-center gap-1 backdrop-blur-md shadow-[0_0_15px_rgba(107,216,94,0.2)] transition-all duration-300"
+            className="w-full bg-[#6BD85E]/90 hover:bg-[#5bc250] text-black font-bold h-10 px-1 sm:px-2 rounded-xl flex items-center justify-center gap-1 backdrop-blur-md shadow-[0_0_15px_rgba(107,216,94,0.2)] transition-all duration-300"
           >
             <Zap className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate text-[10px] sm:text-xs">Bounties</span>
