@@ -22,8 +22,13 @@ interface LiveEvent {
 
 const generateRandomEvent = (): LiveEvent => {
   const types: ActivityType[] = ['view', 'bounty', 'save', 'trending', 'join']
-  // Weight trending and save slightly higher for sales perspective
-  const weightedTypes: ActivityType[] = ['view', 'bounty', 'save', 'save', 'trending', 'trending', 'join']
+  // Weight bounty and trending higher as requested
+  const weightedTypes: ActivityType[] = [
+    'view', 
+    'save', 'save', 
+    'trending', 'trending', 
+    'join'
+  ]
   const type = weightedTypes[Math.floor(Math.random() * weightedTypes.length)]
   
   const city = CITIES[Math.floor(Math.random() * CITIES.length)]
@@ -36,10 +41,6 @@ const generateRandomEvent = (): LiveEvent => {
     case 'view':
       message = `Somebody in ${city}`
       subMessage = `just viewed ${brand}`
-      break
-    case 'bounty':
-      message = `New Gym Bounty added!`
-      subMessage = `A reward is waiting in ${city}`
       break
     case 'save':
       message = `User just saved ${SAVINGS[Math.floor(Math.random() * SAVINGS.length)]}/year`
@@ -83,8 +84,8 @@ const formatRealEvent = (docId: string, data: any): LiveEvent | null => {
       subMessage = `Heading to ${brand} in ${city}`
       break
     case 'bounty':
-      message = `Gym Bounty Claimed!`
-      subMessage = `A reward was issued in ${city}`
+      message = `New Gym Bounty added!`
+      subMessage = `A reward is waiting in ${city}`
       break
     case 'trending':
       message = `Trending right now`

@@ -11,6 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
+import { logRealActivity } from "@/lib/activityLogger";
+
 
 export default function SubmissionForm() {
     const { user, isAnonymous } = useAuth();
@@ -47,6 +49,13 @@ export default function SubmissionForm() {
                 imageUrl,
                 status: "pending", // Add status for admin workflow
                 createdAt: new Date(),
+            });
+
+            // Log real activity
+            logRealActivity({
+                type: 'bounty',
+                city: gymLocation,
+                brand: gymName
             });
 
             setMessage("Submission successful! Thank you.");

@@ -11,6 +11,8 @@ import { AuthGateModal } from "@/components/auth/AuthGateModal";
 // Firebase imports
 import { db } from "@/lib/firebase";
 import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, Timestamp } from "firebase/firestore";
+import { logRealActivity } from "@/lib/activityLogger";
+
 
 // Interfaces
 interface Bounty {
@@ -111,6 +113,13 @@ export default function GymBountyClient() {
             });
 
             setSubmitSuccess(true);
+            
+            // Log real activity
+            logRealActivity({
+                type: 'bounty',
+                city: location,
+                brand: gymType
+            });
             
             // Reset form
             setUsername("");
