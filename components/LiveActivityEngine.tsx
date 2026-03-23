@@ -68,7 +68,12 @@ const generateRandomEvent = (): LiveEvent => {
 const formatRealEvent = (docId: string, data: any): LiveEvent | null => {
   if (!data || !data.type) return null;
   const type: ActivityType = data.type as ActivityType;
-  const city = data.city || 'the UK';
+  let city = data.city || 'the UK';
+  
+  // Sanitize non-UK testing data that bleeds into the live DB from bots 
+  if (/\d/.test(city) || city.includes('St') || city.includes('Rd') || city.includes('Dr') || city.includes('Square') || city.includes('Ave') || city.length > 20 || city.includes('Antigravity') || city.includes('USA')) {
+      city = CITIES[Math.floor(Math.random() * CITIES.length)];
+  }
   const brand = data.brand || 'a gym';
 
   let message = '';
