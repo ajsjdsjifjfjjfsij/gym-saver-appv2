@@ -129,7 +129,8 @@ export async function GET(request: Request) {
             normalizedQuery.includes("anytimefitness") ||
             normalizedQuery.includes("jetts") ||
             normalizedQuery.includes("snapfitness") ||
-            normalizedQuery.includes("everlastgym");
+            normalizedQuery.includes("everlastgym") ||
+            normalizedQuery.includes("fitnessfirst");
 
         if (source === "firestore") {
             // Calculate bounding box based on radius

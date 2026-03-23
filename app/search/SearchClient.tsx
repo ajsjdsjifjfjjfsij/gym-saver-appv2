@@ -201,7 +201,8 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
           normalizedQuery.includes("nuffield") ||
           normalizedQuery.includes("bannatyne") ||
           normalizedQuery.includes("anytimefitness") ||
-          normalizedQuery.includes("jetts");
+          normalizedQuery.includes("jetts") ||
+        normalizedQuery.includes("fitnessfirst");
 
         // If the query is exactly what we just geocoded (a location search), 
         // don't strictly filter the results by name/city text UNLESS it's a brand search.
@@ -226,7 +227,8 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
               (normalizedQuery.includes("nuffield") && (website.includes("nuffield") || normalizedName.includes("nuffield"))) ||
               (normalizedQuery.includes("bannatyne") && (website.includes("bannatyne") || normalizedName.includes("bannatyne"))) ||
               (normalizedQuery.includes("anytimefitness") && (website.includes("anytimefitness") || normalizedName.includes("anytime"))) ||
-              (normalizedQuery.includes("jetts") && (website.includes("jetts") || normalizedName.includes("jetts")));
+              (normalizedQuery.includes("jetts") && (website.includes("jetts") || normalizedName.includes("jetts"))) ||
+          (normalizedQuery.includes("fitnessfirst") && (website.includes("fitnessfirst") || normalizedName.includes("fitnessfirst")));
 
             // If it's a brand search, it overrides other strict filters
             if (isBrand && brandMatch) return true;
@@ -621,7 +623,8 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
       const isBrand = normalizedQuery.includes("puregym") ||
         normalizedQuery.includes("jdgym") ||
         normalizedQuery.includes("thegym") ||
-        normalizedQuery.includes("jetts");
+        normalizedQuery.includes("jetts") ||
+        normalizedQuery.includes("fitnessfirst");
 
       // Don't filter if: 
       // 1. Query is too short (to prevent jumpy results while typing)
@@ -645,7 +648,8 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
         const brandMatch = (normalizedQuery.includes("puregym") && (website.includes("puregym") || normalizedName.includes("puregym"))) ||
           (normalizedQuery.includes("jdgym") && (website.includes("jdgym") || normalizedName.includes("jdgym"))) ||
           (normalizedQuery.includes("thegym") && (website.includes("thegymgroup") || normalizedName.includes("thegym"))) ||
-          (normalizedQuery.includes("jetts") && (website.includes("jetts") || normalizedName.includes("jetts")));
+          (normalizedQuery.includes("jetts") && (website.includes("jetts") || normalizedName.includes("jetts"))) ||
+          (normalizedQuery.includes("fitnessfirst") && (website.includes("fitnessfirst") || normalizedName.includes("fitnessfirst")));
 
         if (!nameMatch && !cityMatch && !addressMatch && !brandMatch) {
           return false;
