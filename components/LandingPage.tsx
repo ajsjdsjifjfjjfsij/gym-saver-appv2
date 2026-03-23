@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import { SeoFooter } from "@/components/seo-footer";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { db } from "@/lib/firebase";
-import { collection, getCountFromServer } from "firebase/firestore";
+import { collection, getCountFromServer, onSnapshot, query, where, Timestamp } from "firebase/firestore";
 
 export default function LandingPage() {
     const { user } = useAuth();
@@ -20,6 +20,8 @@ export default function LandingPage() {
     const [userCount, setUserCount] = useState<number | null>(null);
 
     useEffect(() => {
+        let unsubscribeUsers: (() => void) | undefined;
+
         async function fetchGymCount() {
             try {
                 const res = await fetch("/api/gyms/count");
@@ -37,7 +39,22 @@ export default function LandingPage() {
         async function fetchUserCount() {
             try {
                 const snapshot = await getCountFromServer(collection(db, "users"));
-                setUserCount(snapshot.data().count);
+                const currentCount = snapshot.data().count;
+                setUserCount(currentCount);
+
+                // Start listening for new signups in real-time
+                const q = query(
+                    collection(db, "users"),
+                    where("createdAt", ">", Timestamp.now())
+                );
+
+                unsubscribeUsers = onSnapshot(q, (snap) => {
+                    snap.docChanges().forEach((change) => {
+                        if (change.type === "added") {
+                            setUserCount((prev) => (prev !== null ? prev + 1 : currentCount + 1));
+                        }
+                    });
+                });
             } catch (error) {
                 console.error("Failed to fetch user count:", error);
             }
@@ -45,6 +62,10 @@ export default function LandingPage() {
 
         fetchGymCount();
         fetchUserCount();
+
+        return () => {
+            if (unsubscribeUsers) unsubscribeUsers();
+        };
     }, []);
 
     // Optional: Auto-redirect logged-in users to the app
