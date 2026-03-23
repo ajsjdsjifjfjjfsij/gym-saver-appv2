@@ -8,7 +8,7 @@ import { db } from '@/lib/firebase'
 
 // Random data generators to create variety
 const CITIES = ['London', 'Manchester', 'Birmingham', 'Leeds', 'Glasgow', 'Liverpool', 'Newcastle', 'Sheffield', 'Bristol', 'Edinburgh', 'Cardiff', 'Belfast', 'Nottingham', 'Southampton']
-const BRANDS = ['PureGym', 'JD Gyms', 'The Gym Group', 'Anytime Fitness', 'Snap Fitness', 'Nuffield Health', 'David Lloyd', 'Everlast Fitness', 'Village Gym', 'Bannatyne', 'Jetts Gyms']
+const BRANDS = ['PureGym', 'JD Gyms', 'The Gym Group', 'Anytime Fitness', 'Snap Fitness', 'Nuffield Health', 'David Lloyd', 'Everlast Fitness', 'Village Gym', 'Bannatyne', 'Jetts Gyms', 'Fitness First']
 const SAVINGS = ['£120', '£85', '£150', '£200', '£95', '£110', '£75', '£180']
 
 type ActivityType = 'view' | 'bounty' | 'save' | 'trending' | 'join'

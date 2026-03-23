@@ -103,6 +103,9 @@ export function getGymPrice(gym: Gym) {
     if (name.includes("puregym") || name.includes("pure gym")) {
         return { monthly: 20.99, joiningFee: 15, isEstimate: true };
     }
+    if (name.includes("fitness first") || name.includes("fitnessfirst")) {
+        return { monthly: 49.00, joiningFee: 25, isEstimate: true };
+    }
     if (name.includes("easygym") || name.includes("easy gym")) {
         return { monthly: 19.99, joiningFee: 0, isEstimate: true };
     }

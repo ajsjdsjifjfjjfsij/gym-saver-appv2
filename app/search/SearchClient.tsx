@@ -266,7 +266,7 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
         // We will now ONLY filter it out if we are SURE it's a duplicate/unlinked entry.
         // For JD Gyms, Anytime Fitness, and The Gym Group, we are explicitly skipping this filter.
         const gymNameNormalized = gymNameLower.replace(/\s/g, "");
-        const majorBrandsNormalized = ["puregym", "thegym", "anytimefitness", "everlastgym", "jdgym", "snapfitness"];
+        const majorBrandsNormalized = ["puregym", "thegym", "anytimefitness", "everlastgym", "jdgym", "snapfitness", "fitnessfirst"];
 
         const isMajorBrand = majorBrandsNormalized.some(brand => gymNameNormalized.includes(brand));
 
@@ -340,6 +340,8 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
 
         // Brand Normalisation (Consolidated)
         if (gymName.toLowerCase().includes("puregym")) gymName = gymName.replace(/puregym/i, "PureGym");
+        else if (gymName.toLowerCase().includes("fitnessfirst")) gymName = gymName.replace(/fitnessfirst/i, "Fitness First");
+        else if (gymName.toLowerCase().includes("fitnessfirst")) gymName = gymName.replace(/fitnessfirst/i, "Fitness First");
         else if (websiteLower.includes("puregym") && !gymName.toLowerCase().includes("puregym")) gymName = `PureGym ${gymName}`;
 
         if (gymName.toLowerCase().includes("jd gym")) gymName = gymName.replace(/jd\s?gyms?/i, "JD Gyms");
@@ -687,7 +689,7 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
 
           // Fallback Heuristics
           const nameLower = gym.name.toLowerCase();
-          return nameLower.includes("24") || nameLower.includes("puregym") || nameLower.includes("anytime") || nameLower.includes("the gym") || nameLower.includes("snap fitness") || nameLower.includes("jd gyms");
+          return nameLower.includes("24") || nameLower.includes("puregym") || nameLower.includes("anytime") || nameLower.includes("the gym") || nameLower.includes("snap fitness") || nameLower.includes("jd gyms") || nameLower.includes("fitness first");
         }
         if (type === "pilates") {
           // We fetched with "pilates" keyword, so these are valid.
