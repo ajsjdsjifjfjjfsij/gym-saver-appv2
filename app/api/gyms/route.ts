@@ -150,7 +150,7 @@ export async function GET(request: Request) {
                 q = fsQuery(
                     collection(db, "gyms"),
                     orderBy("name"), // Use name ordering instead for brand queries
-                    fsLimit(500)
+                    fsLimit(2000)
                 );
             } else {
                 q = fsQuery(
