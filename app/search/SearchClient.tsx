@@ -129,7 +129,8 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
       normalized.includes("bannatyne") ||
       normalized.includes("anytimefitness") ||
       normalized.includes("jetts") ||
-      normalized.includes("jettsgym")
+      normalized.includes("jettsgym") ||
+      normalized.includes("fitnessfirst")
     );
   }, []);
 
