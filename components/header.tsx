@@ -216,15 +216,15 @@ export function Header({
                   </DropdownMenuItem>
                   
                   {/* Additional Mobile Links that are hidden on desktop */}
-                  <div className="md:hidden border-t border-white/10 mt-2 pt-2">
-                    <DropdownMenuItem asChild className="flex cursor-pointer items-center rounded-lg px-3 py-2.5 text-sm font-bold hover:bg-[#6BD85E]/10 focus:bg-[#6BD85E]/10 text-[#6BD85E] transition-colors">
-                      <Link href="/gym-bounty" className="w-full flex items-center gap-2"><Zap className="h-4 w-4"/> Gym Bounties</Link>
+                  <div className="md:hidden border-t border-white/10 mt-3 pt-3 flex flex-col gap-2">
+                    <DropdownMenuItem asChild className="flex cursor-pointer items-center rounded-xl px-3 py-2.5 text-sm font-bold text-[#6BD85E] hover:bg-[#6BD85E]/10 focus:bg-[#6BD85E]/10 border border-[#6BD85E]/30 shadow-[0_0_15px_rgba(107,216,94,0.1)] transition-all">
+                      <Link href="/gym-bounty" className="w-full flex items-center justify-start gap-2"><Zap className="h-4 w-4"/> Gym Bounties</Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="flex cursor-pointer items-center rounded-lg px-3 py-2.5 text-sm font-bold hover:bg-white/10 focus:bg-white/10 transition-colors">
-                      <Link href="/list-your-gym" className="w-full">List your gym</Link>
+                    <DropdownMenuItem asChild className="flex cursor-pointer items-center rounded-xl px-3 py-2.5 text-sm font-bold bg-[#6BD85E]/90 hover:bg-[#5bc250] focus:bg-[#5bc250] text-black shadow-[0_0_15px_rgba(107,216,94,0.2)] transition-all">
+                      <Link href="/list-your-gym" className="w-full">List your gym (Gym Owners)</Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="flex cursor-pointer items-center rounded-lg px-3 py-2.5 text-sm font-bold hover:bg-white/10 focus:bg-white/10 transition-colors">
-                      <Link href="/submit" className="w-full">Gym price update</Link>
+                    <DropdownMenuItem asChild className="flex cursor-pointer items-center rounded-xl px-3 py-2.5 text-sm font-bold bg-[#6BD85E]/90 hover:bg-[#5bc250] focus:bg-[#5bc250] text-black shadow-[0_0_15px_rgba(107,216,94,0.2)] transition-all">
+                      <Link href="/submit" className="w-full">Gym price update (Gym Users)</Link>
                     </DropdownMenuItem>
                   </div>
                 </DropdownMenuContent>
