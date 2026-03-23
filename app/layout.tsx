@@ -1,5 +1,6 @@
 import React from "react"
 import type { Metadata, Viewport } from 'next'
+import Script from 'next/script'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { SplashScreen } from '@/components/SplashScreen'
@@ -129,6 +130,22 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`font-sans antialiased`} suppressHydrationWarning>
+        <Script
+          strategy="afterInteractive"
+          src={`https://www.googletagmanager.com/gtag/js?id=AW-18036334889`}
+        />
+        <Script
+          id="google-ads-tag"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'AW-18036334889');
+            `,
+          }}
+        />
         <AuthProvider>
           <SplashScreen />
           <InAppBrowserPrompt />
