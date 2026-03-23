@@ -27,6 +27,7 @@ import { isBot, getDynamicSecret, isInAppBrowser } from "@/lib/bot-detection"
 import { calculateDistance, Gym, getGymPrice } from "@/lib/gym-utils"
 import { ImageGalleryModal } from "@/components/ImageGalleryModal"
 import { getApiBaseUrl } from "@/lib/api-env"
+import { logRealActivity } from "@/lib/activityLogger"
 
 export async function fetchGymsFromFirestore(centerLat: number, centerLng: number, searchTerm?: string, radiusMs = 8000) {
   // 1. Bot Check
@@ -477,6 +478,13 @@ export default function GymSaverApp({ initialBotLocation, initialSearchQuery }: 
 
         setLastGeocodedQuery(searchQuery);
         console.log(`Geocoded to: ${data.formattedAddress}`);
+        
+        // Log real activity
+        const cityOrTown = data.formattedAddress?.split(',')[0] || searchQuery;
+        logRealActivity({
+          type: 'trending',
+          city: cityOrTown
+        });
       } else {
         if (!silent) {
           alert(data.error || "Could not find that location. Please try a different search.");

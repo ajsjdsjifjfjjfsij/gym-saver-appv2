@@ -86,6 +86,7 @@ import { InAppBrowserPrompt } from '@/components/InAppBrowserPrompt'
 import { headers } from 'next/headers'
 
 import { Footer } from '@/components/Footer'
+import { LiveActivityEngine } from '@/components/LiveActivityEngine'
 
 export default async function RootLayout({
   children,
@@ -131,6 +132,7 @@ export default async function RootLayout({
         <AuthProvider>
           <SplashScreen />
           <InAppBrowserPrompt />
+          <LiveActivityEngine />
           {isSearchEngine ? content : (
             <BotGuard serverBotDetected={isSearchEngine}>
               {content}
@@ -141,3 +143,4 @@ export default async function RootLayout({
     </html>
   )
 }
+

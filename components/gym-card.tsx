@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/components/auth/AuthContext"
 import { getGymPrice, getGooglePhotoUrl, Gym } from "@/lib/gym-utils"
 import { getApiBaseUrl } from "@/lib/api-env"
+import { logRealActivity } from "@/lib/activityLogger"
 
 interface GymCardProps {
   gym: Gym
@@ -145,6 +146,14 @@ function GymCardComponent({ gym, isSelected, isSaved, isCompared, onSelect, onTo
   const handleGalleryClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     handleMouseLeave(); // Clear timeout if user clicks manually
+    
+    // Log real activity
+    logRealActivity({
+      type: 'view',
+      brand: gym.name,
+      city: gym.city || gym.address?.split(',')[0] || 'Unknown'
+    });
+    
     onOpenGallery?.();
   };
 
