@@ -17,10 +17,8 @@ export default function LandingPage() {
     const router = useRouter();
 
     const [gymCount, setGymCount] = useState<number | null>(null);
-    const [userCount, setUserCount] = useState<number | null>(null);
 
     useEffect(() => {
-        let unsubscribeUsers: (() => void) | undefined;
 
         async function fetchGymCount() {
             try {
@@ -36,36 +34,7 @@ export default function LandingPage() {
             }
         }
 
-        async function fetchUserCount() {
-            try {
-                const snapshot = await getCountFromServer(collection(db, "users"));
-                const currentCount = snapshot.data().count;
-                setUserCount(currentCount);
-
-                // Start listening for new signups in real-time
-                const q = query(
-                    collection(db, "users"),
-                    where("createdAt", ">", Timestamp.now())
-                );
-
-                unsubscribeUsers = onSnapshot(q, (snap) => {
-                    snap.docChanges().forEach((change) => {
-                        if (change.type === "added") {
-                            setUserCount((prev) => (prev !== null ? prev + 1 : currentCount + 1));
-                        }
-                    });
-                });
-            } catch (error) {
-                console.error("Failed to fetch user count:", error);
-            }
-        }
-
         fetchGymCount();
-        fetchUserCount();
-
-        return () => {
-            if (unsubscribeUsers) unsubscribeUsers();
-        };
     }, []);
 
     // Optional: Auto-redirect logged-in users to the app
@@ -170,14 +139,6 @@ export default function LandingPage() {
                                 <span className="text-sm font-semibold tracking-wide">
                                     <span className="text-[#6BD85E] text-base mr-1">{gymCount ? gymCount.toLocaleString() : "1,875"}</span>
                                     GYMS LISTED
-                                </span>
-                            </div>
-                            <div className="h-4 w-px bg-white/10 hidden sm:block" />
-                            <div className="flex items-center gap-2">
-                                <Check className="h-4 w-4 text-[#6BD85E]" />
-                                <span className="text-sm font-semibold tracking-wide uppercase">
-                                    <span className="text-[#6BD85E] text-base mr-1">{userCount ? userCount.toLocaleString() : "854"}</span>
-                                    Signed Up Users
                                 </span>
                             </div>
                         </div>
